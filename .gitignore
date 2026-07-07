@@ -1,0 +1,26 @@
+# Local Claude Code settings - personal, never committed
+.claude/settings.local.json
+
+# Claude Code auto memory - personal, never committed
+.claude/agent-memory/
+
+# Node / builds (a generated tool scaffolded here during testing)
+node_modules/
+dist/
+
+# Salesforce tool runtime data - never commit env, logs, or exports
+.env
+logs/
+*.log
+exports/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

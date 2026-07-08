@@ -17,6 +17,8 @@ The layering (`@rules/architecture.md`) is `commands` → `services` → `sf` + 
 ## Dispatch — `src/output/index.ts`
 
 ```ts
+import { mkdir } from "node:fs/promises";
+import { dirname } from "node:path";
 import type { Result } from "../types";
 import { toJson } from "./json";
 import { toCsv } from "./csv";
@@ -30,6 +32,13 @@ export type Row = Record<string, unknown>;
 
 /** Single entry point for every user-facing dataset. Returns Result — the command maps a failure to an exit code. */
 export async function formatOutput(rows: Row[], opts: OutputOptions): Promise<Result<void>> {
+  if (opts.destination.kind === "file") {                 // ALWAYS ensure the parent dir exists, whatever the format
+    try {
+      await mkdir(dirname(opts.destination.path), { recursive: true });
+    } catch (e) {
+      return { ok: false, error: { kind: "error", message: "Impossible de créer le répertoire de sortie.", detail: (e as Error).message } };
+    }
+  }
   switch (opts.format) {
     case "json":  return toJson(rows, opts.destination);
     case "csv":   return toCsv(rows, opts.destination);
@@ -40,6 +49,8 @@ export async function formatOutput(rows: Row[], opts: OutputOptions): Promise<Re
 ```
 
 The writers return `Result<void>` so an invalid request (xlsx to stdout, a file write error) becomes a `Result` error the command maps to `stderr` + a non-zero exit code (`@rules/errors.md`, `@rules/cli.md`) — never a thrown exception reaching the user.
+
+**Always ensure the output directory exists before writing — for every file format.** A file destination whose parent directory is absent (e.g. the default `exports/` on a fresh checkout) fails with `ENOENT` otherwise. Create it **once, centrally, in `formatOutput`** (`mkdir(dirname(path), { recursive: true })`, confined under `exportDir` — `@rules/security.md`), never per-writer and never assuming the directory is already there. This covers `json` / `csv` / `xlsx` identically.
 
 ## JSON — `src/output/json.ts`
 
@@ -197,7 +208,8 @@ export function toTable(rows: Row[], _dest: OutputDestination): Result<void> {
 - **Do not** format inside a service — services return data (`Result<T>`); commands format. Keep serialization out of the business layer.
 - **Do not** call `.end()` on `process.stdout` (pipe with `{ end: false }`) — closing stdout breaks piping and later writes.
 - **Do not** hand-roll CSV escaping — use `csv-stringify`.
+- **Do not** write a file output without first ensuring its parent directory exists — `mkdir(dirname(path), { recursive: true })` once in `formatOutput`, for every format (`json` / `csv` / `xlsx`); a missing dir (e.g. a fresh `exports/`) otherwise fails with `ENOENT`.
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: every user-facing dataset goes through `formatOutput(...)` (no `console.log(JSON.stringify(...))` in `commands/`); `xlsx` rejects a non-file destination and renders a native Excel table (`addTable`) with autofit column widths; `csv` uses `csv-stringify` and never closes `stdout`; `table` has no external dependency and truncates wide cells; formatting lives in `output/` only (never in a service); `csv-stringify ^6.8.1` and `exceljs ^4.4.0` in `dependencies`; `--format` / `--output` map to `{ format, destination }` (`@rules/cli.md`).
+Detailed in `@rules/verification.md`. Key points: every user-facing dataset goes through `formatOutput(...)` (no `console.log(JSON.stringify(...))` in `commands/`); a file destination has its parent directory created (`mkdir … { recursive: true }`) in `formatOutput` before writing, for every format; `xlsx` rejects a non-file destination and renders a native Excel table (`addTable`) with autofit column widths; `csv` uses `csv-stringify` and never closes `stdout`; `table` has no external dependency and truncates wide cells; formatting lives in `output/` only (never in a service); `csv-stringify ^6.8.1` and `exceljs ^4.4.0` in `dependencies`; `--format` / `--output` map to `{ format, destination }` (`@rules/cli.md`).

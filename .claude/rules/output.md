@@ -11,7 +11,7 @@ The layering (`@rules/architecture.md`) is `commands` → `services` → `sf` + 
 | `src/output/index.ts` | The dispatch `formatOutput(...)` + the shared output types. |
 | `src/output/json.ts` | Stable JSON (2-space) to stdout or a file. |
 | `src/output/csv.ts` | CSV via `csv-stringify` — header from keys, streaming-friendly. |
-| `src/output/xlsx.ts` | xlsx via `exceljs` — one worksheet, header row. **Requires a file destination.** |
+| `src/output/xlsx.ts` | xlsx via `exceljs` — a native Excel table (ListObject) with autofit columns. **Requires a file destination.** |
 | `src/output/table.ts` | Aligned console table for human reading — no dependency, a small manual column formatter. |
 
 ## Dispatch — `src/output/index.ts`
@@ -91,10 +91,16 @@ export function toCsv(rows: Row[], dest: OutputDestination): Promise<Result<void
 
 ## XLSX — `src/output/xlsx.ts`
 
+The workbook renders the data as a **native Excel table** (a ListObject via `addTable`: header row, filter buttons, banded rows) and **autofits each column** to the longest of its header and its cell values (bounded by `MIN_WIDTH`..`MAX_WIDTH`). A binary workbook cannot go to stdout, so a **file destination is required**.
+
 ```ts
 import ExcelJS from "exceljs";
 import type { Result } from "../types";
 import type { OutputDestination, Row } from "./index";
+
+const MIN_WIDTH = 10; // keep narrow columns readable
+const MAX_WIDTH = 60; // cap very long cells so the sheet stays usable
+const PADDING = 2;    // a little breathing room beyond the longest value
 
 export async function toXlsx(rows: Row[], dest: OutputDestination): Promise<Result<void>> {
   if (dest.kind !== "file") {   // a binary workbook cannot go to stdout — enforce a file destination
@@ -107,8 +113,31 @@ export async function toXlsx(rows: Row[], dest: OutputDestination): Promise<Resu
   const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Export");
-  sheet.columns = columns.map((key) => ({ header: key, key }));   // header row from the keys
-  for (const row of rows) sheet.addRow(row);
+
+  if (columns.length === 0) {
+    sheet.addRow(["(0 rows)"]);            // no data → placeholder cell (addTable needs ≥ 1 column)
+  } else {
+    // Data as a native Excel table (ListObject): header row + filter buttons + banded rows.
+    sheet.addTable({
+      name: "Export",
+      ref: "A1",
+      headerRow: true,
+      style: { theme: "TableStyleMedium2", showRowStripes: true },
+      columns: columns.map((name) => ({ name, filterButton: true })),
+      rows: rows.map((row) => columns.map((c) => row[c] ?? null)),
+    });
+    // Autofit each column to the longest of its header and its cell values (bounded).
+    columns.forEach((header, i) => {
+      let max = header.length;
+      for (const row of rows) {
+        const v = row[header];
+        const len = v == null ? 0 : String(v).length;
+        if (len > max) max = len;
+      }
+      sheet.getColumn(i + 1).width = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, max + PADDING));
+    });
+  }
+
   try {
     await workbook.xlsx.writeFile(dest.path);
     return { ok: true, data: undefined };
@@ -117,6 +146,9 @@ export async function toXlsx(rows: Row[], dest: OutputDestination): Promise<Resu
   }
 }
 ```
+
+- **Native table, not a plain grid**: `addTable` writes a ListObject (`TableStyleMedium2`, filter buttons, banded rows) so the export opens as a real Excel table. `getColumn(i + 1).width` autofits each column — exceljs has no true auto-width, so the width is computed from the string lengths of the header and the cells (capped `MIN_WIDTH`..`MAX_WIDTH`).
+- **Empty result**: with no rows there are no columns; skip `addTable` (a table needs at least one column) and write a `(0 rows)` placeholder cell.
 
 ## Table — `src/output/table.ts`
 
@@ -148,6 +180,7 @@ export function toTable(rows: Row[], _dest: OutputDestination): Result<void> {
 ## Large result sets
 
 - Prefer **streaming** for big SOQL exports: `csv-stringify` consumes a row stream (pipe the source into the stringifier), and `exceljs` offers a streaming writer — `new ExcelJS.stream.xlsx.WorkbookWriter({ filename })` — that flushes rows to disk instead of buffering the whole workbook.
+- The native `addTable` rendering uses the **in-memory** workbook. The **streaming writer does not support `addTable`** (a ListObject needs the full workbook), so a streamed xlsx is a header + rows grid with column widths, not a native table — use it only for very large datasets, accepting that trade-off.
 - `json` and `table` buffer in memory — fine for small/medium sets; for very large exports choose `csv` or `xlsx` **to a file**.
 - Server-side pagination beats in-memory paging: for big datasets use the `bulkExport` helper (`sf data export bulk`, `@rules/sf-cli.md`) rather than a single `query`. The **`pageSize`** config key bounds interactive queries; **`exportDir`** is the default output directory for file destinations (`@rules/config.md`).
 
@@ -167,4 +200,4 @@ export function toTable(rows: Row[], _dest: OutputDestination): Result<void> {
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: every user-facing dataset goes through `formatOutput(...)` (no `console.log(JSON.stringify(...))` in `commands/`); `xlsx` rejects a non-file destination; `csv` uses `csv-stringify` and never closes `stdout`; `table` has no external dependency and truncates wide cells; formatting lives in `output/` only (never in a service); `csv-stringify ^6.8.1` and `exceljs ^4.4.0` in `dependencies`; `--format` / `--output` map to `{ format, destination }` (`@rules/cli.md`).
+Detailed in `@rules/verification.md`. Key points: every user-facing dataset goes through `formatOutput(...)` (no `console.log(JSON.stringify(...))` in `commands/`); `xlsx` rejects a non-file destination and renders a native Excel table (`addTable`) with autofit column widths; `csv` uses `csv-stringify` and never closes `stdout`; `table` has no external dependency and truncates wide cells; formatting lives in `output/` only (never in a service); `csv-stringify ^6.8.1` and `exceljs ^4.4.0` in `dependencies`; `--format` / `--output` map to `{ format, destination }` (`@rules/cli.md`).

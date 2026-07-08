@@ -29,7 +29,7 @@ If disabled:
 | Layer | Target | What to test |
 | ----- | ------ | ------------ |
 | `src/*` pure (`types.ts` guards, `config.ts` `resolveConfig`) | Logic | the precedence cascade (`defaults < .env < flags`); the validators / type guards |
-| `src/output/*` | Formatters | the `csv` / `json` / `table` shape from sample rows; for `xlsx`, assert a Buffer / worksheet is produced (no file assertion) |
+| `src/output/*` | Formatters | the `csv` / `json` / `table` shape from sample rows; for `xlsx`, write to a temp file then re-read it with `exceljs` and assert the header row, a data cell, and a set column width (native table + autofit) |
 | `src/sf/runner.ts` | Parsing | **mock `cross-spawn`**: the args array passed ends with `--json`; envelope `status !== 0` → `Result` error (`kind: "error"`); `ENOENT` → `Result` error with a clear "sf not found" message; unparseable output → `Result` error |
 | `src/sf/helpers.ts` | Envelope mapping | inject a **fake `SfRunner`**: the args array a helper builds (user values discrete); the `sf` envelope mapped to the DTO (e.g. `nonScratchOrgs` + `scratchOrgs` merged into `OrgInfo[]`) |
 | `src/sf/project.ts` | sfdx-project | **mock the fs read** of `sfdx-project.json`: valid → parsed; missing / invalid → `Result` error |

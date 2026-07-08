@@ -104,6 +104,7 @@ A thrown named error that reaches the top-level `catch` is logged, its `message`
 - Build the user-facing wording at the command/boundary, not in the model — a service raises a typed error / returns `Result`; the command decides the message shown.
 - The `message` is a concise summary for stderr; the `detail` (and any stack) goes to the `pino` log — do not dump a stack trace to the user (`@rules/logging.md`).
 - Error handling on every fallible operation: the `sf` spawn (`@rules/sf-cli.md`), file IO (`--output`, `sfdx-project` reads), JSON parsing, config resolution.
+- **Interpret a Salesforce error before wording the `message`.** When a `Result` failure comes from an `sf` Apex/DML/limit/compile error (an exception name, a DML `StatusCode`, a `LimitException`), consult `sf-cli-reference/apex-errors.md` (routed by `@rules/sf-cli.md`) to write a clear, actionable `message`; keep the raw code/name in `detail` for the log — never surface an opaque code alone.
 - Never log a token, secret, or password (`@rules/security.md`).
 
 ## Anti-patterns — what NOT to do

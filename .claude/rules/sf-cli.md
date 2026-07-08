@@ -9,9 +9,10 @@ The runner lives in **`src/sf/runner.ts`** and is the **only place in the whole 
 This rule is the **hub** that routes every sf-aware skill to the command catalog under `.claude/sf-cli-reference/`. Whenever you write or modify an `sf` invocation (a helper's args array, a new subcommand, a flag):
 
 1. **Never invent** an `sf` command, subcommand, or flag from memory — verify it against the catalog.
-2. Read `sf-cli-reference/INDEX.md` first (small: convention + capability → file map), then **open only the section file** matching the capability you need (`auth-orgs.md`, `data.md`, `apex.md`, `metadata-deploy.md`, `packaging.md`, `users-schema.md`, `platform-api.md`, `advanced.md`). **Never read the whole catalog** — it is large; section-scoped reads keep the context lean.
+2. Read `sf-cli-reference/INDEX.md` first (small: convention + capability → file map), then **open only the section file** matching the capability you need (`auth-orgs.md`, `data.md`, `apex.md`, `metadata-deploy.md`, `packaging.md`, `users-schema.md`, `platform-api.md`, `advanced.md`; `apex-errors.md` for interpreting a returned error). **Never read the whole catalog** — it is large; section-scoped reads keep the context lean.
 3. Each catalog entry states the exact flags and whether `--json` / `--api-version` / `-o, --target-org` apply. The typed helpers below source their args from there.
 4. The catalog reflects `sf` v2 at a given release; field names/flags drift across versions. For anything uncertain or recent, confirm against the installed CLI with `sf <command> --help`.
+5. **Interpreting a returned error** — when an `sf` result carries a Salesforce error (an Apex exception name, a DML `StatusCode` such as `FIELD_CUSTOM_VALIDATION_EXCEPTION`, a `LimitException`, or a compile error), read `sf-cli-reference/apex-errors.md` to turn the raw code/name into a clear `Result` `message` (`@rules/errors.md`); keep the raw code in `detail` for the log. This is **design-time** interpretation — no error dictionary is baked into the generated tool.
 
 ## Principle
 

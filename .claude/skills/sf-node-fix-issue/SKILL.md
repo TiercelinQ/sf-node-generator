@@ -39,6 +39,7 @@ Read the actual error before touching code (command output, stack trace, the pin
 - Non-JSON / unreadable output → CLI version drift or a call missing `--json` (the runner appends it); verify the flags against the matching `sf-cli-reference/` section (`sf <cmd> --help`).
 - `status !== 0` in the envelope → read `message` / `name`, map it to a `Result` error (`kind: "error"`); the command surfaces it on stderr + exit 1; never throw across a layer.
 - An invented / misremembered flag → look it up in the catalog section; never guess. See `@rules/sf-cli.md`.
+- A Salesforce error in the envelope (an Apex exception, a DML `StatusCode` like `FIELD_CUSTOM_VALIDATION_EXCEPTION`, a `LimitException`, a compile error) → interpret it via `sf-cli-reference/apex-errors.md` to find the root cause (validation rule, missing FLS, SOQL-in-loop, mixed DML…) and craft a clear message (`@rules/errors.md`); keep the raw code in `detail`.
 
 ### 5. Security gap (`@rules/security.md` — never "acceptable for now")
 - A spawn outside `src/sf/runner.ts`, a concatenated shell string / `shell: true`, a user value spliced into a command string, `node:child_process` used directly → route through the runner with an args array (discrete user values).

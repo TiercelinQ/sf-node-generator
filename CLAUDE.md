@@ -82,7 +82,7 @@ The generation pipeline writes a persisted spec file per phase into `docs/specs/
 
 ## BINDING REFERENCES
 
-`sf-cli-reference/` is the binding reference for the **`sf` v2 command/flag catalog** — the source of truth for exact command names, subcommands, and flags (never invent an `sf` command or flag from memory). Because Salesforce coupling is **mandatory** in this framework, it is **always relevant**. It is **loaded on demand by section, never read whole**: read `sf-cli-reference/INDEX.md` first (the capability → file map), then open only the section file matching the needed capability (`auth-orgs.md`, `data.md`, `apex.md`, `metadata-deploy.md`, etc.). `@rules/sf-cli.md` is the hub that routes every sf-aware skill to it.
+`sf-cli-reference/` is the binding reference for the **`sf` v2 command/flag catalog** — the source of truth for exact command names, subcommands, and flags (never invent an `sf` command or flag from memory). Because Salesforce coupling is **mandatory** in this framework, it is **always relevant**. It is **loaded on demand by section, never read whole**: read `sf-cli-reference/INDEX.md` first (the capability → file map), then open only the section file matching the needed capability (`auth-orgs.md`, `data.md`, `apex.md`, `metadata-deploy.md`, etc.; `apex-errors.md` to interpret a Salesforce error surfaced by `sf`). `@rules/sf-cli.md` is the hub that routes every sf-aware skill to it.
 
 This framework has **no** `design-system.md` / `layout.md` (headless target — nothing to render).
 

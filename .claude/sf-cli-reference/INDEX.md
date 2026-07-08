@@ -28,6 +28,9 @@ For Dev Hub-targeting commands, the org flag is `-v, --target-dev-hub` instead o
 | Create users, assign permsets/licenses, describe/list sObjects, CMDT | `users-schema.md` | §10 Users & permissions · §11 Schema/sObjects/CMDT |
 | System/CLI info (help/version/plugins), org limits, direct REST/GraphQL requests, diagnostics | `platform-api.md` | §1 System & global · §12 Limits & diagnostics · §13 Direct API |
 | Experience Cloud, Lightning local dev, Agentforce, Code Analyzer, plugin development | `advanced.md` | §14-19 (recent plugins) |
+| **Interpret** a Salesforce error surfaced by `sf` (Apex exception, DML `StatusCode`, `LimitException`, compile error) | `apex-errors.md` | §1-5 error catalog (design-time — `@rules/errors.md`) |
+
+> `apex-errors.md` is an **error-interpretation reference** (a lookup of error names/codes → meaning), not a command-syntax section — the `Globals:` convention above does not apply to it. It complements `apex.md` (the Apex *commands*: run anonymous Apex, run tests, logs).
 
 ## Local verification
 

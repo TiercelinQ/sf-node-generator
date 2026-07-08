@@ -173,7 +173,7 @@ All commands below are Claude Code skills invocable with `/`:
 
 ## CALIBRATION (FROZEN AFTER PHASE 2)
 
-Canonical source of the calibration. Skills refer to it - do not duplicate this table elsewhere.
+Canonical source of the calibration. Skills refer to it - do not duplicate this table elsewhere. This is an **internal planning input** that drives the Phase 5 batch split - **not** a user-facing milestone: do not announce it in Phase 1, determine it internally at the end of Phase 2 from the v1.0 command count, and record it in the spec.
 
 | Size          | Files    | Commands/Features | Batches (no tests) | Batches (with tests) |
 | ------------- | -------- | ----------------- | ------------------ | -------------------- |

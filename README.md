@@ -12,7 +12,7 @@ Unified edition: the full generation pipeline **plus** post-delivery maintenance
 
 A structured prompt system that generates complete, production-ready Salesforce CLI tools through a 5-phase cycle, then maintains them:
 
-1. **Scoping** - coupling mode (`standalone` org via `sf`, or `sfdx-project` inside an SFDX folder), output formats, tests, runtime interactivity, execution shape, distribution, config strategy. No palette, no UI (headless).
+1. **Scoping** - 4 user-facing questions (coupling mode `standalone` org via `sf` / `sfdx-project` inside an SFDX folder, output formats, tests, runtime interactivity), each option with a plain-language consequence. Execution shape, distribution, and config strategy are stated framework defaults (overridable on request), not questions. No palette, no UI (headless).
 2. **Featuring** - command elicitation, MoSCoW prioritization, locked sizing.
 3. **Command Interface** - map each validated command onto its CLI surface (positional args, flags, input source, output format + destination, exit codes).
 4. **Architecture** - full file tree, command registry (command to service to `sf` helper to formatter), `Result<T>` + named errors, config keys - locked before any code is written.

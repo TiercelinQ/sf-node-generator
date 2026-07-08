@@ -142,4 +142,4 @@ if (COUPLING_MODE !== "sfdx-project") {
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points (if mode = `sfdx-project`): `src/sf/project.ts` present with `detectSfdxProject` validating `unknown` before use; the project root resolved once in `src/cli.ts`, a missing file → `ProjectNotFoundError` / clear error + non-zero exit; no hardcoded package dir (read from `packageDirectories`); `.forceignore` delegated to `sf` (never reimplemented); every `sf project ...` invocation goes through `SfRunner` (args array) with flags traceable to `metadata-deploy.md`; the mode guard prevents project-scoped commands in `standalone`.
+`@rules/verification.md` is the single source of truth for verification (run silently, report only on a discrepancy). The concrete checks for this domain are the **Anti-patterns** listed above (read each as a check) together with `@rules/verification.md` (§A executable checks + §B per-domain: sfdx-project). Not restated here, to avoid drift across files.

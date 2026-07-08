@@ -198,4 +198,4 @@ describe("services/org.service", () => {
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: if enabled, `test/` mirrors `src/`, each source module has a matching test (Phase 4 mapping), `npm test` (`vitest run`) exits 0, and `vitest` is present in `devDependencies` with the `"test"` script.
+`@rules/verification.md` is the single source of truth for verification (run silently, report only on a discrepancy). The concrete checks for this domain are the **Anti-patterns** listed above (read each as a check) together with `@rules/verification.md` (§A executable checks + §B per-domain: tests). Not restated here, to avoid drift across files.

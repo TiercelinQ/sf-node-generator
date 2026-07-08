@@ -1,6 +1,6 @@
 ---
 name: sf-node-p2-featuring
-description: Phase 2 of the sf-node CLI generation cycle — command elicitation, MoSCoW prioritization, v1.0 scope, calibration confirmed here, blocking validation before Phase 3, written to the featuring spec.
+description: Phase 2 of the sf-node CLI generation cycle — command elicitation, MoSCoW prioritization, v1.0 scope, sizing determined internally from the v1.0 count, blocking validation before Phase 3, written to the featuring spec.
 model: sonnet
 ---
 
@@ -23,9 +23,9 @@ Produce a prioritized command list, set the v1.0 perimeter, confirm the calibrat
 
 Read `docs/specs/01-scoping.md` first (objective + locked parameters: coupling mode, output formats, tests, interactivity, execution shape, distribution, config). Work in the user's language. Each closed/enumerable choice uses `AskUserQuestion`; open input (command ideas, custom name) stays free-form text.
 
-### Step 1 — Tool name
+### Step 1 — Confirm the tool name (the `bin`)
 
-Claude **proposes** 2-4 candidate names derived from the objective, **in kebab-case** (this is the `bin` name — e.g. `sf-export`, `org-audit`), then lets the user decide. **Do not mark a recommended option and do not auto-select** — the name is the user's call (a deliberate local exception to the "always recommend" rule in `CLAUDE.md`, limited to this step). Offer the candidates with `AskUserQuestion`; the built-in **Other** option carries a custom name as free-form text. Block until the user picks a candidate or provides their own name — never settle the name alone. The resolved name feeds the sheet, the spec, and `APP_NAME` / the `bin` downstream (`src/config.ts`, `package.json`).
+The tool name was already chosen in Phase 1 (it named the project folder). **By default the `bin` = that same name** — do not re-ask it. State it in one line: `Tool name / bin: [name] (from Phase 1). Keep it, or set a different bin name?` Only if the user wants the `bin` to differ from the folder do you offer candidates with `AskUserQuestion` (kebab-case; **Other** carries a custom name as free-form text — no recommended mark, the name is the user's call). The resolved name feeds the sheet, the spec, and `APP_NAME` / the `bin` downstream (`src/config.ts`, `package.json`).
 
 ### Step 2 — Command elicitation (iterative)
 
@@ -79,19 +79,16 @@ Produce the sheet (in the user's language):
 - Config strategy: [Phase 1]
 - Validated libraries: [Phase 1 list]
 
-**Calibration (confirmed here, from the v1.0 command count)**
-- Counted v1.0 commands: [N] (incl. the starter `org` + `data` commands, and `deploy`/`retrieve` in sfdx-project mode)
-- Estimated files: [N]
-- Chosen size: [Small | Medium / Large]
-- Batches: [N] (incl. 1 test batch if enabled)
+**Sizing (internal — drives the Phase 5 batch split, not a separate decision to validate)**
+- v1.0 commands counted: [N] · size: [Small | Medium / Large] · batches: [N] (incl. 1 test batch if enabled)
 
-Apply the CALIBRATION table in `CLAUDE.md` (canonical source). **The calibration is confirmed here, from the v1.0 command count, and locked upon validation.** Only the included (v1.0) commands are counted — deferred/dropped ones do not enter the count. The starter `org` group + `data` command (and the `deploy`/`retrieve` group in `sfdx-project` mode) are part of the scaffold — count them in the total.
+Determine the sizing **internally** from the CALIBRATION table in `CLAUDE.md` (canonical source): count only the included v1.0 commands (deferred/dropped excluded); the starter `org` group + `data` command (and the `deploy`/`retrieve` group in `sfdx-project` mode) are part of the scaffold, so count them. Record it in the spec — it fixes the Phase 5 batch split. It is **not** a separate validation gate: the user validates the commands / MoSCoW / v1.0 perimeter, and the sizing follows mechanically.
 
 End with:
 
 → Validation required before Phase 3.
-  The calibration is locked upon validation.
-  Confirm or list the adjustments.
+  Confirm the commands / MoSCoW / v1.0 perimeter, or list the adjustments.
+  (The sizing follows internally from the validated count — not a separate confirmation.)
 
 **Blocking rule**: do not move to Phase 3 until validation is explicit. If partial validation: list the open points, block until full resolution.
 

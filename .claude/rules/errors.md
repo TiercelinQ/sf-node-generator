@@ -120,4 +120,4 @@ A thrown named error that reaches the top-level `catch` is logged, its `message`
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: `Result<T>` defined once in `src/types.ts`; named errors in `src/errors.ts` each with a fixed `name`; services/`sf`/`output` return `Result` or raise a named error and never call `process.exit`; commands read `result.ok`, write the summary to stderr, and set the exit code (`error → 1`, `warning → 0`); `cli.ts` has the global `uncaughtException`/`unhandledRejection` handlers and maps thrown errors via `toExitCode` (`ValidationError → 2`, else `1`); no raw exception or stack trace reaches stdout; every non-re-throwing `catch` calls `log.error`; no secret in a message or a log.
+`@rules/verification.md` is the single source of truth for verification (run silently, report only on a discrepancy). The concrete checks for this domain are the **Anti-patterns** listed above (read each as a check) together with `@rules/verification.md` (§A executable checks + §B per-domain: errors). Not restated here, to avoid drift across files.

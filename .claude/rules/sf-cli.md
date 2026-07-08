@@ -181,4 +181,4 @@ Both modes use the same `SfRunner` and the same `Result<T>` contract.
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: all `sf` calls go through `src/sf/runner.ts` via **`cross-spawn`** with an args array (no `node:child_process` direct, no shell, no spawn from `services/` or `commands/`); the binary is resolved from `SF_CLI_PATH` / the `sfPath` config key (cross-OS, no platform branch); `ENOENT` → a clear error pointing to install / `SF_CLI_PATH`; no token stored or logged; every helper's command and flags are traceable to a catalog section file; `cross-spawn` in `dependencies` (`@types/cross-spawn` in dev); no `jsforce` / `@salesforce/core`; the runner returns `Result<T>` and never targets `sfdx`.
+`@rules/verification.md` is the single source of truth for verification (run silently, report only on a discrepancy). The concrete checks for this domain are the **Anti-patterns** listed above (read each as a check) together with `@rules/verification.md` (§A executable checks + §B per-domain: sf-cli). Not restated here, to avoid drift across files.

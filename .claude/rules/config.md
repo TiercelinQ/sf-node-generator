@@ -254,7 +254,7 @@ export default tseslint.config(
 ```json
 "dependencies":    { "commander": "^15.0.0", "cross-spawn": "^7.0.6", "pino": "^10.3.1",
                      "pino-pretty": "^13.1.3", "exceljs": "^4.4.0", "csv-stringify": "^6.8.1" },
-"devDependencies": { "typescript": "^6.0.3", "tsup": "^8.5.1", "tsx": "^4.23.0",
+"devDependencies": { "typescript": "^5.9.3", "tsup": "^8.5.1", "tsx": "^4.23.0",
                      "@types/node": "^24", "@types/cross-spawn": "^6.0.6",
                      "eslint": "^10.6.0", "typescript-eslint": "^8.63.0",
                      "prettier": "^3.9.4" }
@@ -266,7 +266,7 @@ Conditional (added only when the matching Phase 1 option is on):
 
 Versioning notes:
 - **`@types/node`**: match the **target Node LTS line** — `^24` for Node 24. Targeting current (Node 26) → `^26`. Keep it in sync with the `tsup` `target` and `engines.node`.
-- **`typescript ^6.0.3` + `typescript-eslint ^8.63.0`**: typescript-eslint 8's TypeScript peer range is `<6.1.0`, so **TS 6.0.x is supported**. Do not jump TypeScript to 6.1+ without checking typescript-eslint has widened its peer range.
+- **`typescript ^5.9.3` + `typescript-eslint ^8.63.0`**: typescript-eslint 8's TypeScript peer range is `>=4.8.4 <6.1.0`, so pin TypeScript to the **latest 5.x** line (`5.9.3` at authoring time — the newest stable within that range). **TypeScript 6.x never shipped stable** (it went from `6.0.0-beta` straight to the `7.x` line; the registry `latest` is `7.0.2`), and typescript-eslint 8 does **not** support TS 7. Do **not** pin `^6.x` / `^7.x` until a typescript-eslint major widens its peer range to include it. Confirm both at generation time: `npm view typescript dist-tags`, `npm view typescript-eslint peerDependencies`.
 - **`eslint ^10.6.0`**: **flat config only** (`eslint.config.mjs`) and needs **Node ≥ 20**. **`commander ^15.0.0`** also needs **Node ≥ 20** — both are satisfied by the Node 24 target.
 - **`csv-stringify ^6.8.1`**: the **standalone package from the `csv` project** (`csv-stringify`, not the umbrella `csv` bundle) — import `csv-stringify` / `csv-stringify/sync` for the sync API (`@rules/output.md`).
 - **`exceljs ^4.4.0`**: the maintained **xlsx** choice. **Avoid SheetJS / `xlsx`** (supply-chain / security history) — do not substitute it (`@rules/output.md`).
@@ -289,4 +289,4 @@ Versioning notes:
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: `config.ts` exposes `AppConfig` + `DEFAULTS` + `resolveConfig()`; the cascade resolves in order **`DEFAULTS < .env < flags`** in a single `resolveConfig()` with `prune` (no layer blanks a lower one); env read only from the documented **non-secret** keys, each validated; **no `dotenv`** dependency (`.env` loaded natively); `.env` gitignored + `.env.example` committed; `package.json` has `"type": "module"`, the mandatory scripts, and `bin → dist/cli.js`; `tsup` bundles `src/cli.ts` (esm, `node24`, shebang, `clean`); `tsconfig` is `strict` + `moduleResolution: "bundler"` (extensionless imports); caret-pinned dependencies match the Phase 1 selection.
+`@rules/verification.md` is the single source of truth for verification (run silently, report only on a discrepancy). The concrete checks for this domain are the **Anti-patterns** listed above (read each as a check) together with `@rules/verification.md` (§A executable checks + §B per-domain: config). Not restated here, to avoid drift across files.

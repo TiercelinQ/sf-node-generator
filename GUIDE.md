@@ -97,14 +97,13 @@ sf --version          # Salesforce CLI v2 (prérequis runtime des outils génér
 
 ### Phase 1 - Scoping
 
-Objectif (texte libre), puis racine du projet (nom kebab-case propose, emplacement, création), puis paramètres fermés en deux blocs `AskUserQuestion` :
+Objectif (texte libre), puis nom + racine du projet (un seul nom kebab-case, servant au dossier ET au `bin` ; emplacement ; création), puis les paramètres fermés en **un seul bloc `AskUserQuestion` (4 questions)**, chaque option assortie d'une conséquence en une ligne :
 
-- **Bloc 1** : mode de couplage (`standalone` / `sfdx-project` ; si `sfdx-project`, chemin du dossier demandé) · formats de sortie (JSON / CSV / xlsx / table) · tests (`vitest`) · interactivité (non-interactif / prompts).
-- **Bloc 2** : forme d'exécution (CLI à sous-commandes / + scripts autonomes / lib + bins) · distribution (local / paquet npm / exe bundle) · stratégie de config (cascade / `.env` + flags / flags + `config.ts`).
+- mode de couplage (`standalone` / `sfdx-project` ; si `sfdx-project`, chemin du dossier demandé) · formats de sortie (JSON / CSV / xlsx / table) · tests (`vitest`) · interactivité (non-interactif / prompts).
 
-Défauts framework non demandés (surchargés sur demande) : parseur `commander`, logger `pino`, TypeScript strict + ESM, build `tsup`. Détection Salesforce/SFDX sur l'objectif : `deploy`/`retrieve`/`source`/`sfdx-project` recommande `sfdx-project`, sinon `standalone`.
+Défauts framework non demandés : parseur `commander`, logger `pino`, TypeScript strict + ESM, build `tsup`. **Défauts de forme du projet, surchargés sur demande seulement** (plus posés en question) : forme d'exécution = CLI à sous-commandes, distribution = dépôt local, stratégie de config = cascade `config.ts < .env < flags`. Détection Salesforce/SFDX sur l'objectif : `deploy`/`retrieve`/`source`/`sfdx-project` recommande `sfdx-project`, sinon `standalone`.
 
-Calibrage **provisoire** annoncé (figé après Phase 2) :
+Calibrage **interne** (non annoncé en Phase 1, déterminé en Phase 2 ; pilote le découpage en lots de la Phase 5) :
 
 | Taille        | Lots (sans tests) | Lots (avec tests) |
 | ------------- | ----------------- | ----------------- |
@@ -115,7 +114,7 @@ Calibrage **provisoire** annoncé (figé après Phase 2) :
 
 ### Phase 2 - Featuring
 
-Nom de l'outil (proposé, confirmé par l'utilisateur, kebab-case pour le `bin`). Élicitation des **commandes**, MoSCoW, périmètre v1.0, calibrage **confirmé et verrouillé** sur le compte de commandes. Validation bloquante. Écrit `docs/specs/02-featuring.md`.
+Confirmation du nom (issu de Phase 1, ajustable seulement si le `bin` doit différer du dossier). Élicitation des **commandes**, MoSCoW, périmètre v1.0. Calibrage déterminé en interne à partir du compte de commandes v1.0 (pilote les lots, pas une étape validée distincte). Validation bloquante sur les commandes / le périmètre. Écrit `docs/specs/02-featuring.md`.
 
 ### Phase 3 - Command Interface
 

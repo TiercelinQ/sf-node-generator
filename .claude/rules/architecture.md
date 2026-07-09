@@ -11,7 +11,7 @@ The generated tool is a **headless Node.js/TypeScript CLI mandatorily coupled to
 | Salesforce       | `src/sf/`           | Process execution — `cross-spawn` `sf …`, defensive parse — `@rules/sf-cli.md` |
 | Output           | `src/output/`       | Formatters — `json` · `csv` · `xlsx` · `table` → stdout / file — `@rules/output.md` |
 | Composition root | `src/cli.ts`        | `commander` bootstrap, registers commands, maps `Result`/errors → exit code — `@rules/cli.md` |
-| Shared           | `src/config.ts`, `src/logger.ts`, `src/types.ts`, `src/errors.ts` | Defaults, `pino`, `Result<T>` + DTOs, named errors — importable by all |
+| Shared           | `src/config.ts`, `src/logger.ts`, `src/progress.ts`, `src/types.ts`, `src/errors.ts` | Defaults, `pino`, progress reporter, `Result<T>` + DTOs, named errors — importable by all |
 
 ## Responsibilities
 
@@ -35,12 +35,13 @@ The generated tool is a **headless Node.js/TypeScript CLI mandatorily coupled to
 ### Composition root — `src/cli.ts`
 - The bin entry (shebang, bundled to `dist/cli.js` by tsup). The **only** place that bootstraps `commander`, registers every command group, installs the global `uncaughtException`/`unhandledRejection` handlers, and owns the exit-code mapping (`0`/`1`/`2`). The **only** place `process.exit` is called. Detail: `@rules/cli.md` · `@rules/errors.md`.
 
-### Shared — `config.ts` · `logger.ts` · `types.ts` · `errors.ts`
+### Shared — `config.ts` · `logger.ts` · `progress.ts` · `types.ts` · `errors.ts`
 - `types.ts`: `Result<T>` (owned + quoted by `@rules/errors.md`) and the DTOs (`OrgInfo`, `QueryResult`, `OutputFormat`, …). Zero logic.
 - `errors.ts`: named error classes, each with a fixed `name` (`SfCliNotFoundError`, `SfCommandError`, `ValidationError`, `ProjectNotFoundError`). Zero IO.
 - `config.ts`: typed defaults + `resolveConfig()` (cascade `defaults < .env < CLI flags`, non-secret only) — `@rules/config.md`.
 - `logger.ts`: the `pino` instance (file + `stderr`) — `@rules/logging.md`.
-- All four are importable by **every** layer and import nothing from `commands`/`services`/`sf`/`output` (zero upward import).
+- `progress.ts`: the progress reporter singleton (`progress` — steps/spinner + bar on `stderr`, TTY-gated, degrades to `log` when disabled) — `@rules/progress.md`. Imports only `logger`.
+- All five are importable by **every** layer and import nothing from `commands`/`services`/`sf`/`output` (zero upward import).
 
 ## Unidirectional imports
 
@@ -49,7 +50,7 @@ src/cli.ts  (composition root — the only commander bootstrap, the only process
    └─▶ commands/ ──▶ services/ ──▶ sf/          business logic → process execution
               └───▶ output/                     commands format the returned data → stdout / file
 
-config.ts · logger.ts · types.ts · errors.ts    ◀── importable by ALL layers (never import upward)
+config.ts · logger.ts · progress.ts · types.ts · errors.ts    ◀── importable by ALL layers (never import upward)
 ```
 
 - The chain is strict: `cli → commands → services → sf`. Commands additionally import `output/` to render a service's returned DTOs. No layer skips another (a command never calls `sf/` directly; a service never formats).
@@ -72,6 +73,7 @@ config.ts · logger.ts · types.ts · errors.ts    ◀── importable by ALL l
 │   ├── cli.ts              # bin entry: commander program, registers commands, maps Result→exit code
 │   ├── config.ts           # typed defaults + resolveConfig() — @rules/config.md
 │   ├── logger.ts           # pino — @rules/logging.md
+│   ├── progress.ts         # progress reporter (stderr, TTY-gated) — @rules/progress.md
 │   ├── types.ts            # Result<T>, DTOs (OrgInfo, QueryResult…)
 │   ├── errors.ts           # named error classes
 │   ├── sf/
@@ -126,7 +128,7 @@ Sizing is frozen after Phase 2 (`## CALIBRATION` in `CLAUDE.md`). The layered or
 | ----- | --------------------------------------------------------------------------------------------------------- |
 | 1     | `src/types.ts` + `src/errors.ts` + `src/config.ts` + `src/sf/` (runner + helpers, `project.ts` if sfdx) + `src/output/` |
 | 2     | `src/services/` + `src/commands/` (starter `org.ts`, `data.ts`)                                           |
-| 3     | `src/cli.ts` + `src/logger.ts` + root configs (`tsconfig.json`, `tsup.config.ts`, `eslint.config.mjs`, `.prettierrc`, `.env.example`, `.gitignore`) + `package.json` + README + `CLAUDE.md` + `.claude/settings.json` + install instructions |
+| 3     | `src/cli.ts` + `src/logger.ts` + `src/progress.ts` + root configs (`tsconfig.json`, `tsup.config.ts`, `eslint.config.mjs`, `.prettierrc`, `.env.example`, `.gitignore`) + `package.json` + README + `CLAUDE.md` + `.claude/settings.json` + install instructions |
 
 **Medium / Large project (4 batches):** split the business layers so each ships on its own (services are the core, commands wire them).
 
@@ -135,7 +137,7 @@ Sizing is frozen after Phase 2 (`## CALIBRATION` in `CLAUDE.md`). The layered or
 | 1     | `src/types.ts` + `src/errors.ts` + `src/config.ts` + `src/sf/` + `src/output/`                            |
 | 2     | `src/services/`                                                                                            |
 | 3     | `src/commands/`                                                                                            |
-| 4     | `src/cli.ts` + `src/logger.ts` + root configs + `package.json` + README + `CLAUDE.md` + `.claude/settings.json` + install instructions |
+| 4     | `src/cli.ts` + `src/logger.ts` + `src/progress.ts` + root configs + `package.json` + README + `CLAUDE.md` + `.claude/settings.json` + install instructions |
 
 > **Salesforce integration (mandatory)** — no dedicated batch. `src/sf/runner.ts` + `src/sf/helpers.ts` (the runner and the starter set of typed `sf`-command helpers) ship in **Batch 1** — they are the core the services build on. The starter CLI command group `commands/org.ts` (+ `data.ts`) and their thin services ship with the services/commands batch (Batch 2 Small · Batch 2-3 Medium/Large). The coupling mode (`standalone` | `sfdx-project`) and the `output/` formatters add files and push the size up. See `@rules/sf-cli.md` · `@rules/sfdx-project.md`.
 
@@ -160,6 +162,7 @@ Per-batch and cross-file integrity checks (layer responsibilities, unidirectiona
 - **Do not** let `output/` import `sf/` or a service, or let `sf/` import a CLI concern — keep the bottom layers dependency-clean.
 - **Do not** skip a layer (a command reaching into `sf/`, a service formatting output) — the chain is `cli → commands → services → sf`, with `commands → output` for rendering.
 - **Do not** `console.log` a dataset — route every user-facing dataset through an `output/` formatter with an explicit destination (`@rules/output.md`).
+- **Do not** emit a progress/status line to `stdout` or from `output/` — the progress reporter (`src/progress.ts`) writes to `stderr` only; a command brackets a file write with a `progress.step`, `output/` stays pure (`@rules/progress.md`).
 - **Do not** spread one domain across more files than `service + command group`. If it grows, that is a contract change → declare the deviation (Phase 4 protocol).
 - **Do not** put a shared constant in a single layer — promote it to `config.ts`; a shared type to `types.ts`.
 - **Do not** invent an `sf` command or flag from memory — verify against `sf-cli-reference/` (`@rules/sf-cli.md`).

@@ -6,6 +6,7 @@
 - **pino writes to a log file AND to `stderr`** — `stdout` stays **data-only** (pipeable), per the CLI I/O contract (`@rules/cli.md`). A log line never reaches stdout.
 - **`pino-pretty` (runtime dependency)** is the human-readable transport, enabled **only in dev** (`NODE_ENV !== "production"` or `[TOOL]_DEBUG=1`). Production writes raw JSON to stderr. It is a **runtime `dependency`** (not a devDependency): `logger.ts` imports it at module load, and **tsup bundles devDependencies** — a bundled `pino-pretty` breaks the ESM output with `Dynamic require of "tty" is not supported` (`@rules/config.md`).
 - Level comes from `config.logLevel` (the cascade, `@rules/config.md`); `[TOOL]_DEBUG=1` forces `debug`.
+- When the **progress reporter** is active, `cli.ts` raises the `stderr` level to `warn` (the reporter owns the `info` narrative); debug logging auto-disables the reporter — see "Coexistence with the progress reporter" below and `@rules/progress.md`.
 - **Zero `console.log` / `console.error`** in delivered code — only `log.*`.
 - **Never log a token, secret, password, session id, or PII** (`@rules/security.md`).
 
@@ -125,10 +126,20 @@ log.info({ tool: APP_NAME }, "Starting");
 
 ---
 
+## Coexistence with the progress reporter
+
+`src/progress.ts` also writes to `stderr` (`@rules/progress.md`). To keep log lines from garbling the live animation:
+- **Progress active (TTY)** — `cli.ts` raises the `pino` level to **`warn`** (`configureLogger("warn")`); the reporter carries the `info` narrative on `stderr`. Warnings/errors still print. The **log file** gets `warn+` for that run — an accepted trade-off (the operator is watching the live steps).
+- **Progress disabled** (piped / cron / `CI` / `--no-progress`) — `pino` behaves exactly as documented above (`info` → file + `stderr`); the reporter degrades to `log.info` / `log.warn` lines (the enriched-logs view).
+- **Debug logging** (`[TOOL]_DEBUG=1` or `--log-level debug` / `trace`) — the reporter is **auto-disabled** so a debugging run keeps full logs; the animation never hides diagnostics.
+
+---
+
 ## Anti-patterns — what NOT to do
 
 - **Do not** use `console.log` / `console.error` in delivered code — only `log.*`.
 - **Do not** write a log line to `stdout` — stdout is **data only**; pino goes to the file + stderr (`@rules/cli.md`).
+- **Do not** emit progress via `console.*` — the progress reporter (`src/progress.ts`) is the only sanctioned direct-`stderr` writer besides `pino` (`@rules/progress.md`).
 - **Do not** log a token, secret, password, session id, or PII (`@rules/security.md`).
 - **Do not** configure pino outside `src/logger.ts` (single setup point; `configureLogger()` called once in `cli.ts`).
 - **Do not** silence a non-re-throwing `catch` without `log.error({ err }, ...)`.

@@ -4,7 +4,7 @@
 
 ## What the README documents
 
-objective · commands & subcommands (the CLI surface: args / flags, exit codes) · stack & dependencies · file tree · config keys (`.env` variables + CLI flags) · **Salesforce prerequisite** (`sf` v2 install + `SF_CLI_PATH` + the coupling mode: `standalone` vs `sfdx-project`) · output formats (`json` / `csv` / `xlsx` / `table`) · install & run (`npm install`, `npm run build`, `node dist/cli.js …`, scheduling note — Windows Task Scheduler / cron). Exact sections: `/sf-node-generate-readme`.
+objective · commands & subcommands (the CLI surface: args / flags, exit codes) · stack & dependencies · file tree · config keys (`.env` variables + CLI flags) · **Salesforce prerequisite** (`sf` v2 install + `SF_CLI_PATH` + the coupling mode: `standalone` vs `sfdx-project`) · output formats (`json` / `csv` / `xlsx` / `table`) · **runtime progress display** (steps/spinner on `stderr`, auto-on a TTY, `--no-progress` to disable — `@rules/progress.md`) · install & run (`npm install`, `npm run build`, `node dist/cli.js …`, scheduling note — Windows Task Scheduler / cron, where the progress display is auto-off). Exact sections: `/sf-node-generate-readme`.
 
 The **Salesforce prerequisite is always documented** — coupling is mandatory in this framework (`@rules/sf-cli.md`): the `sf` v2 CLI must be reachable (PATH or `SF_CLI_PATH`), and the README states the coupling mode the tool was generated for (`standalone` or `sfdx-project`).
 

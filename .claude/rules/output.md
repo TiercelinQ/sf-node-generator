@@ -2,7 +2,7 @@
 
 > Every user-facing dataset goes through the **`output/` layer** — one dispatch, `formatOutput(rows, { format, destination })`, with `format: "json" | "csv" | "xlsx" | "table"` and `destination: { kind: "stdout" } | { kind: "file"; path: string }`. **No ad-hoc `console.log(JSON.stringify(...))` in a command.** A command gets typed rows from a service, then hands them to `formatOutput` — the only place a dataset is serialized.
 
-The layering (`@rules/architecture.md`) is `commands` → `services` → `sf` + `output`. Services return data (`Result<T>`); **commands** format it through `output/`; **services never format**. Data goes to `stdout`, logs go to `stderr` (`@rules/cli.md`).
+The layering (`@rules/architecture.md`) is `commands` → `services` → `sf` + `output`. Services return data (`Result<T>`); **commands** format it through `output/`; **services never format**. Data goes to `stdout`, logs go to `stderr` (`@rules/cli.md`). Any progress feedback around a write (a `progress.step`, `@rules/progress.md`) is emitted by the **command** that brackets `formatOutput`, never by a formatter — `output/` stays pure and never writes to `stderr`.
 
 ## Files
 
@@ -206,6 +206,7 @@ export function toTable(rows: Row[], _dest: OutputDestination): Result<void> {
 - **Do not** send `xlsx` to stdout — it requires a file destination; the writer returns a `Result` error otherwise.
 - **Do not** add a heavy table dependency (`cli-table3`…) — the manual column formatter covers the console table.
 - **Do not** format inside a service — services return data (`Result<T>`); commands format. Keep serialization out of the business layer.
+- **Do not** import the progress reporter into `output/` or write a status line to `stderr` from a formatter — bracket the write with a `progress.step` in the command (`@rules/progress.md`).
 - **Do not** call `.end()` on `process.stdout` (pipe with `{ end: false }`) — closing stdout breaks piping and later writes.
 - **Do not** hand-roll CSV escaping — use `csv-stringify`.
 - **Do not** write a file output without first ensuring its parent directory exists — `mkdir(dirname(path), { recursive: true })` once in `formatOutput`, for every format (`json` / `csv` / `xlsx`); a missing dir (e.g. a fresh `exports/`) otherwise fails with `ENOENT`.

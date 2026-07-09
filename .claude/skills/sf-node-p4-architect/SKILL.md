@@ -19,7 +19,7 @@ Produce a complete, unambiguous architectural contract that freezes the file tre
 
 **Phase banner (show first)** — before anything else, output the phase banner as plain Markdown in the user's language, **never inside a code block or fenced block**. Three blocks, each on its own line: (1) H2 heading: Phase 4/5 — Architecture; (2) progress line: Scoping ✓ · Features ✓ · Interface ✓ · ▶ Architecture · Development; (3) intent in italics: Lock the file/structure contract. Use the short label `Interface` in the progress map. See `## PIPELINE` in `CLAUDE.md`.
 
-At start: read `@rules/architecture.md` (layer tree, batch tables, layering contract), `@rules/cli.md` (composition root, exit codes), `@rules/sf-cli.md` (runner, typed helpers, starter scaffold), `@rules/output.md`, `@rules/config.md`, `@rules/errors.md`. **If the coupling mode is `sfdx-project` (Phase 1), also read `@rules/sfdx-project.md`** (project detection, `deploy` / `retrieve`). **If tests were enabled (Phase 1), read `@rules/tests.md`.** Read `docs/specs/01-scoping.md` through `03-interface.md` for the validated decisions (coupling mode, output formats, interactivity, tests, and the full command surface).
+At start: read `@rules/architecture.md` (layer tree, batch tables, layering contract), `@rules/cli.md` (composition root, exit codes), `@rules/sf-cli.md` (runner, typed helpers, starter scaffold), `@rules/output.md`, `@rules/progress.md` (the runtime progress reporter), `@rules/config.md`, `@rules/errors.md`. **If the coupling mode is `sfdx-project` (Phase 1), also read `@rules/sfdx-project.md`** (project detection, `deploy` / `retrieve`). **If tests were enabled (Phase 1), read `@rules/tests.md`.** Read `docs/specs/01-scoping.md` through `03-interface.md` for the validated decisions (coupling mode, output formats, interactivity, tests, and the full command surface).
 
 Present (in the user's language, as plain Markdown — never inside a code block, except the tree, which is a fenced code block):
 
@@ -27,6 +27,7 @@ Present (in the user's language, as plain Markdown — never inside a code block
    - `src/sf/project.ts` ships **only** in `sfdx-project` mode; in `standalone` mode `src/sf/` is `runner.ts` + `helpers.ts`.
    - `scripts/` exists **only** when the execution shape (Phase 3) includes standalone one-off scripts.
    - `test/` exists **only** when tests were enabled in Phase 1.
+   - `src/progress.ts` (the runtime progress reporter) ships in **every** tool — steps/spinner + bar on `stderr`, auto-TTY, `--no-progress` (`@rules/progress.md`).
    - One `src/services/<domain>.service.ts` + one `src/commands/<group>.ts` per domain/group from the interface spec; the `output/` formatters that ship come from Phase 1/3.
 
 2. **Command registry table** — every command from `docs/specs/03-interface.md`, mapped end-to-end:
@@ -62,7 +63,7 @@ Present (in the user's language, as plain Markdown — never inside a code block
 
 7. **Source → test mapping** (only if tests enabled in Phase 1) — each source module → its `test/…test.ts` file, mirroring `src/` (`@rules/tests.md`): `test/sf/runner.test.ts` (mock `cross-spawn`), `test/sf/helpers.test.ts` (fake `SfRunner`), `test/services/*.service.test.ts` (fake `SfHelpers`), `test/output/*.test.ts`, `test/config.test.ts` (+ `test/sf/project.test.ts` in `sfdx-project` mode).
 
-**Frozen calibration** — restate the batch count fixed after Phase 2 (`## CALIBRATION` in `CLAUDE.md`): Small = **3** batches (**4** with tests) · Medium/Large = **4** batches (**5** with tests). Map the batch contents from `@rules/architecture.md`: Batch 1 = `types` + `errors` + `config` + `src/sf/` (runner + helpers, + `project.ts` if sfdx) + `src/output/`; the business layers next (`services` then `commands`, split for Medium/Large); the last batch = `cli.ts` + `logger.ts` + root configs + `package.json` + README + `CLAUDE.md` + `.claude/settings.json`; the test batch last (if tests). The `sf` runner + helpers ship in **Batch 1** (no dedicated Salesforce batch).
+**Frozen calibration** — restate the batch count fixed after Phase 2 (`## CALIBRATION` in `CLAUDE.md`): Small = **3** batches (**4** with tests) · Medium/Large = **4** batches (**5** with tests). Map the batch contents from `@rules/architecture.md`: Batch 1 = `types` + `errors` + `config` + `src/sf/` (runner + helpers, + `project.ts` if sfdx) + `src/output/`; the business layers next (`services` then `commands`, split for Medium/Large); the last batch = `cli.ts` + `logger.ts` + `progress.ts` + root configs + `package.json` + README + `CLAUDE.md` + `.claude/settings.json`; the test batch last (if tests). The `sf` runner + helpers ship in **Batch 1** (no dedicated Salesforce batch).
 
 **→ Validation required. This contract is locked.**
 

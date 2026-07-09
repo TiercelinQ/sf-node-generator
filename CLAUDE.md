@@ -102,6 +102,7 @@ This framework has **no** `design-system.md` / `layout.md` (headless target — 
 | Config               | Cascade `config.ts` < `.env` (native `--env-file`) < CLI flags · non-secret only — see @rules/config.md |
 | Secrets              | Never in a file — held by the `sf` OS keychain                |
 | Logging              | `pino` (file + `stderr`, `pino-pretty` in dev) — see @rules/logging.md |
+| Runtime feedback     | Progress reporter — steps/spinner + bar on `stderr`, auto-TTY, `--no-progress` — see @rules/progress.md |
 | Output               | Formatters - JSON · CSV (`csv-stringify`) · xlsx (`exceljs`) · console table — see @rules/output.md |
 | Error contract       | `Result<T>` + named errors + exit-code mapping at the CLI boundary — see @rules/errors.md |
 | Build                | `tsup` (bundle `dist/cli.js`, shebang) · `tsx` (dev) · `tsc --noEmit` (typecheck) |
@@ -121,6 +122,7 @@ This framework has **no** `design-system.md` / `layout.md` (headless target — 
 - **Config** — non-secret settings resolve through the cascade `config.ts` defaults < `.env` < CLI flags in a single `resolveConfig()`. `.env` is read natively (`node --env-file`), never committed. See @rules/config.md
 - **Output** — every user-facing dataset goes through the `output/` formatters (`json` | `csv` | `xlsx` | `table`) with an explicit destination (`stdout` | file). No ad-hoc `console.log(JSON.stringify(...))` in a command. See @rules/output.md
 - **Logging** — `src/logger.ts` (pino) mandatory; zero `console.log` in delivered code (only `log.*`); never log a token or secret. See @rules/logging.md
+- **Runtime feedback** — a hand-rolled progress reporter (`src/progress.ts`) shows the operations a command performs: steps/spinner + bar on **`stderr`**, **auto-on a TTY** (silent when piped / cron / CI or under debug logging), `--no-progress` to disable. `stdout` stays data-only; the reporter and `pino` are the only `stderr` writers (no `console.*`). See @rules/progress.md
 - If the coupling mode is `sfdx-project` (Phase 1): detect and read `sfdx-project.json`, respect `.forceignore`, and scope `sf project ...` commands to the project. See @rules/sfdx-project.md
 - If tests enabled in Phase 1: test suite mandatory (`vitest`) - see @rules/tests.md
 - Zero `// TODO`, zero unjustified empty implementation. ESLint clean · Prettier · TS strict with no unjustified `any` (incoming external data is `unknown` then validated).
@@ -129,7 +131,7 @@ This framework has **no** `design-system.md` / `layout.md` (headless target — 
 - After resolving an anomaly, offer: "Do you want to remember this point? `/sf-node-save-memory`"
 - NEVER read and write `settings.json`. ONLY read and write in `settings.local.json`.
 
-Per-domain rule detail (loaded on demand by `/sf-node-p4-architect`, `/sf-node-p5-development`, and the maintenance skills - not auto-imported): @rules/architecture.md · @rules/cli.md · @rules/errors.md · @rules/config.md · @rules/security.md · @rules/sf-cli.md · @rules/sfdx-project.md · @rules/output.md · @rules/logging.md · @rules/tests.md · @rules/verification.md · @rules/readme.md
+Per-domain rule detail (loaded on demand by `/sf-node-p4-architect`, `/sf-node-p5-development`, and the maintenance skills - not auto-imported): @rules/architecture.md · @rules/cli.md · @rules/errors.md · @rules/config.md · @rules/security.md · @rules/sf-cli.md · @rules/sfdx-project.md · @rules/output.md · @rules/logging.md · @rules/progress.md · @rules/tests.md · @rules/verification.md · @rules/readme.md
 
 ---
 

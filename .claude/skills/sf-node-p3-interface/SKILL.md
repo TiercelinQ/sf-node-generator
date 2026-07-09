@@ -69,8 +69,10 @@ Then, for **each** command, a spec block (template below — repeat it for every
 | `--page-size <n>` | `pageSize` | positive int | `2000` | `SF_PAGE_SIZE` |
 | `--log-level <lvl>` | `logLevel` | pino level | `info` | `LOG_LEVEL` |
 | `--sf-cli-path <path>` | `sfPath` | absolute path | resolved from `PATH` | `SF_CLI_PATH` |
+| `--no-progress` | — (UI toggle, not in the cascade) | boolean | progress auto-on a TTY | — |
 
 - `--help` / `--version` are **auto-provided** by commander — never re-specified. `--version` reads `APP_VERSION` from `config.ts`.
+- `--no-progress` disables the live progress display (steps/spinner on `stderr`); the display is auto-on when `stderr` is a TTY and off when piped / `CI` / debug logging — a runtime UI toggle, not a config-cascade key (`@rules/progress.md`).
 
 **Output convention** (`@rules/output.md`, `@rules/cli.md`) — the same across every command:
 - `-f, --format <table|json|csv|xlsx>` picks the `output/` formatter; the per-command default is confirmed in §2.

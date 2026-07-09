@@ -25,6 +25,7 @@ sf-node/
     │   ├── sfdx-project.md   # Mode sfdx-project : détection sfdx-project.json, .forceignore, deploy/retrieve
     │   ├── output.md         # Formatters json / csv / xlsx / table, destination stdout / fichier
     │   ├── logging.md        # pino obligatoire (fichier + stderr), zéro console.log
+    │   ├── progress.md       # Reporter runtime : étapes/spinner + barre sur stderr, auto-TTY, --no-progress
     │   ├── tests.md          # vitest opt-in, couverture par couche, mock cross-spawn
     │   ├── verification.md   # Vérification EXÉCUTABLE centralisée + intégrité statique
     │   └── readme.md         # Synchro README post-livraison (régénération auto)
@@ -101,7 +102,7 @@ Objectif (texte libre), puis nom + racine du projet (un seul nom kebab-case, ser
 
 - mode de couplage (`standalone` / `sfdx-project` ; si `sfdx-project`, chemin du dossier demandé) · formats de sortie (JSON / CSV / xlsx / table) · tests (`vitest`) · interactivité (non-interactif / prompts).
 
-Défauts framework non demandés : parseur `commander`, logger `pino`, TypeScript strict + ESM, build `tsup`. **Défauts de forme du projet, surchargés sur demande seulement** (plus posés en question) : forme d'exécution = CLI à sous-commandes, distribution = dépôt local, stratégie de config = cascade `config.ts < .env < flags`. Détection Salesforce/SFDX sur l'objectif : `deploy`/`retrieve`/`source`/`sfdx-project` recommande `sfdx-project`, sinon `standalone`.
+Défauts framework non demandés : parseur `commander`, logger `pino`, reporter de progression (étapes/spinner sur stderr, auto-TTY, `--no-progress`), TypeScript strict + ESM, build `tsup`. **Défauts de forme du projet, surchargés sur demande seulement** (plus posés en question) : forme d'exécution = CLI à sous-commandes, distribution = dépôt local, stratégie de config = cascade `config.ts < .env < flags`. Détection Salesforce/SFDX sur l'objectif : `deploy`/`retrieve`/`source`/`sfdx-project` recommande `sfdx-project`, sinon `standalone`.
 
 Calibrage **interne** (non annoncé en Phase 1, déterminé en Phase 2 ; pilote le découpage en lots de la Phase 5) :
 
@@ -226,7 +227,7 @@ mon-outil/
 ├── docs/specs/                    # Specs de génération (langue utilisateur)
 └── src/
     ├── cli.ts                     # bin : programme commander, mapping Result to code de sortie
-    ├── config.ts · logger.ts · types.ts · errors.ts   # partagé - importable par toutes les couches
+    ├── config.ts · logger.ts · progress.ts · types.ts · errors.ts   # partagé - importable par toutes les couches
     ├── sf/                        # runner.ts (cross-spawn) · helpers.ts · project.ts (mode sfdx)
     ├── services/                  # logique métier - retourne Result<T>
     ├── commands/                  # adaptateurs fins (starter : org.ts, data.ts)
@@ -239,6 +240,7 @@ mon-outil/
 
 - Salesforce est **obligatoire** : `sf` v2 uniquement, jamais `sfdx` legacy. Tout appel passe par `src/sf/runner.ts` (cross-spawn, tableau d'arguments).
 - `stdout` = données uniquement (pipeable), `stderr` = logs + messages. `pino` n'écrit jamais sur stdout.
+- Feedback runtime : le reporter de progression (`src/progress.ts`) affiche les étapes sur `stderr`, auto-actif en terminal (TTY), silencieux en pipe/cron/CI ; `--no-progress` le coupe. `stdout` reste des données.
 - Codes de sortie mappés une seule fois à la frontière `cli.ts` (0/1/2), jamais en dur ailleurs.
 - Le contrat (`docs/specs/04-architect.md`) est verrouillé. Tout changement structurel passe par `/sf-node-add-feature` ou le protocole de déclaration d'écart.
 - Aucun secret dans un fichier : `sf` détient les tokens dans le keychain de l'OS ; l'outil ne stocke qu'un alias non-secret.

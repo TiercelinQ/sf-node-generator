@@ -66,6 +66,7 @@ export class SfRunner {
 - The runner returns `Result<T>` (`@rules/errors.md`) — never throws across a layer. The command boundary maps a failed `Result` to a `stderr` message + a non-zero exit code (`@rules/cli.md`); the `sf` runner itself never calls `process.exit`.
 - Parse **defensively**: `sf` field names vary across CLI versions. Read the `status` / `result` envelope, guard missing fields, and verify the actual shape at generation time against the installed `sf`.
 - Map a non-zero `status` / `ENOENT` / unparseable output to a `Result` error. Named errors (`SfCliNotFoundError`, `SfCommandError`) live in `src/errors.ts` for the cases a service wants to raise instead of returning (`@rules/errors.md`).
+- The runner stays **uninstrumented for progress** — the surrounding **service** wraps each `sf` operation with a `progress.step` (the spinner animates during the async spawn); `sf/` keeps its purity (`@rules/progress.md`, `@rules/architecture.md`).
 
 ## Composition root wiring — `src/cli.ts`
 

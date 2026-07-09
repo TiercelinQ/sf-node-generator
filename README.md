@@ -40,6 +40,7 @@ Every generated tool enforces the same layered architecture, the `Result<T>` + s
 | Config          | Cascade `config.ts` < `.env` (native) < CLI flags · non-secret only |
 | Secrets         | Held by the `sf` OS keychain - never in a file                    |
 | Logging         | `pino` (file + stderr, `pino-pretty` in dev)                       |
+| Runtime feedback | Hand-rolled progress reporter - steps/spinner + bar on stderr, auto-TTY, `--no-progress` |
 | Output          | Formatters - JSON · CSV (`csv-stringify`) · xlsx (`exceljs`) · console table |
 | Error contract  | `Result<T>` + named errors + exit-code mapping (0/1/2)             |
 | Build           | `tsup` (bundle `dist/cli.js`, shebang) · `tsx` (dev)              |
@@ -109,7 +110,7 @@ mytool/
 ├── docs/specs/                    # Generation specs (user's language): 01-scoping ... 04-architect
 └── src/
     ├── cli.ts                     # bin entry: commander program, exit-code mapping
-    ├── config.ts · logger.ts · types.ts · errors.ts   # shared - importable by all layers
+    ├── config.ts · logger.ts · progress.ts · types.ts · errors.ts   # shared - importable by all layers
     ├── sf/                        # runner.ts (cross-spawn) · helpers.ts · project.ts (sfdx mode)
     ├── services/                  # business logic - returns Result<T>
     ├── commands/                  # thin adapters (starter: org.ts, data.ts)
@@ -127,6 +128,7 @@ mytool/
 - **Exit codes**: `0` success · `1` runtime error · `2` usage/validation error - mapped once at the `cli.ts` boundary, never scattered.
 - **`Result<T>`** flows up from `services`/`sf`/`output`; the command reads `result.ok`; the boundary maps a failure to an exit code.
 - **Non-interactive by default** (cron / Windows Task Scheduler friendly); interactive prompts (`@clack/prompts`) are opt-in and guarded against a non-TTY run.
+- **Runtime progress** on `stderr` (steps/spinner + bar) shows the operations a command performs - auto-on a TTY, silent when piped / cron / CI, `--no-progress` to disable; `stdout` stays clean.
 
 ---
 
@@ -151,7 +153,7 @@ Coupling is **mandatory** - every generated tool integrates the `sf` v2 CLI (nev
 
 - [GUIDE.md](GUIDE.md) - full usage guide (FR)
 - `.claude/rules/` - domain rules:
-  - `architecture.md` · `cli.md` · `errors.md` · `config.md` · `security.md` · `sf-cli.md` · `sfdx-project.md` · `output.md` · `logging.md` · `tests.md`
+  - `architecture.md` · `cli.md` · `errors.md` · `config.md` · `security.md` · `sf-cli.md` · `sfdx-project.md` · `output.md` · `logging.md` · `progress.md` · `tests.md`
   - `verification.md` - single source of truth for executable + static checks
   - `readme.md` - README synchronization rule
 - `.claude/sf-cli-reference/` - `sf` v2 command/flag catalog (loaded by section)

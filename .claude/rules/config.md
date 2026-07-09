@@ -104,6 +104,7 @@ export function resolveConfig(flags: CliFlags = {}): AppConfig {
 | `SF_CLI_PATH`    | `sfPath`    | string (abs path) | — (PATH)       | `--sf-cli-path` |
 
 - These are the **global** config flags read by `resolveConfig`. The **per-command** output flags `--format` / `--output` (`-f` / `-o`) are a separate concern, handled by the command and mapped to `{ format, destination }` (`@rules/output.md`, `@rules/cli.md`). `-o` is `--output`, not a short alias for `--target-org`.
+- **`--no-progress`** is also a **global** flag but **not part of the cascade**: it is a runtime UI toggle (no `.env` key, not in `AppConfig`), read directly in `cli.ts` to gate the progress reporter (`@rules/progress.md`, `@rules/cli.md`).
 
 ## `.env` — native load, no `dotenv`
 
@@ -278,6 +279,7 @@ Versioning notes:
 ## Anti-patterns — what NOT to do
 
 - **Do not** add `dotenv` — `.env` is read natively (`process.loadEnvFile()` / `--env-file`).
+- **Do not** add a spinner/progress dependency (`ora`, `nanospinner`, `cli-progress`) — the progress reporter is hand-rolled, zero-dependency (`@rules/progress.md`), same rationale as the `table` formatter.
 - **Do not** read `process.env` scattered across the code — the env layer is read **once** in `resolveConfig()`; modules receive the resolved `AppConfig`.
 - **Do not** put a token/password/secret in `.env` or `config.ts` — non-secret only; `sf` owns credentials, the tool stores at most a non-secret alias (`@rules/security.md`).
 - **Do not** commit `.env` — only `.env.example` (placeholder values).

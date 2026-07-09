@@ -48,6 +48,7 @@ Start with the objective, then establish the project name and root (name → loc
 State these once so the user knows what is non-negotiable — do **not** ask them:
 - **CLI parser** = `commander` (`node:util parseArgs` only for a 1-2 script project).
 - **Logger** = `pino` (file + `stderr`, `pino-pretty` in dev — @rules/logging.md).
+- **Runtime feedback** = progress reporter (`src/progress.ts`) — steps/spinner + bar on `stderr`, auto-on a TTY, `--no-progress` to disable (@rules/progress.md).
 - **Language / module** = TypeScript strict + ESM (`"type": "module"`).
 - **Build / dev** = `tsup` (bundle `dist/cli.js`, shebang) · `tsx` (dev) · `tsc --noEmit` (typecheck).
 - **Salesforce** = coupling mandatory, **`sf` v2 only** (never legacy `sfdx`); `cross-spawn` runner; the tool never handles tokens — `sf` owns the OS keychain (@rules/sf-cli.md · @rules/security.md).

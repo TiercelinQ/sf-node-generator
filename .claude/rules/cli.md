@@ -10,6 +10,7 @@
 - `program.name(...)`, `.description(...)`, `.version(...)` set the identity; `--help` and `--version` are **auto-provided** by commander (do not hand-roll them).
 - Subcommands are grouped: `program.command("<group>")` returns a group command, on which each `commands/<group>.ts` registers its own `.command("<verb>")`. So the surface reads `mytool org list`, `mytool data query …`.
 - `.exitOverride()` hands control back to the boundary instead of letting commander call `process.exit` itself — the boundary maps usage errors to exit `2` and help/version to `0`.
+- After `resolveConfig()` (and `configureLogger`), `cli.ts` decides progress activation and calls `configureProgress({ enabled })` — auto-on when `stderr` is a TTY, off under `--no-progress` / `CI` / debug logging — and raises the `pino` level to `warn` while it is active so log lines do not garble the animation (`@rules/progress.md`).
 
 ```ts
 // src/cli.ts — bootstrap + composition (runner → helpers → services) + global error handler + exit-code mapping.
@@ -122,6 +123,7 @@ export function registerOrgCommands(program: Command, deps: { orgService: OrgSer
 - **`--format <table|json|csv|xlsx>`** picks the `output/` formatter; **`--output, -o <file>`** redirects the data to a file instead of stdout. The command maps them to `{ format, destination }` (no `--output` → `{ kind: "stdout" }`, `--output <path>` → `{ kind: "file"; path }`) and passes them to `formatOutput` (`@rules/output.md`).
 - **Prefer `--format json` over a raw `--json` passthrough.** Exposing `sf`'s own `--json` envelope leaks the CLI-version-specific shape to the user; the tool's own `--format json` emits the tool's stable DTO. Keep `--json` out of the public surface unless a command explicitly documents an escape hatch.
 - **`--help` / `--version` are auto** (commander) — never re-implement them. `--version` reads `APP_VERSION` from `config.ts`.
+- **`--no-progress`** (global, boolean) disables the live progress display; the display is otherwise auto-on when `stderr` is a TTY (and off under `CI` or debug logging). It is a runtime UI toggle, not part of the config cascade — see `@rules/progress.md`.
 - Validate a flag's value in the command before calling the service; an out-of-range/unknown value is a `ValidationError` → exit `2`.
 
 ## Exit-code contract
@@ -145,6 +147,7 @@ The discipline that makes the tool pipeable and scriptable:
 - **`stdout` carries data only** — the `output/` formatter's bytes (JSON/CSV/xlsx/table), nothing else. `mytool data query … --format json | jq …` must see clean JSON with no log line mixed in.
 - **`stderr` carries everything human**: `pino` log lines (file + `stderr`, `@rules/logging.md`) and the one-line human error/warning messages a command writes on a failed `Result`.
 - A formatter writes to **stdout or the `--output` file**; it never writes to stderr. A log/message never goes to stdout.
+- The **progress reporter** (`src/progress.ts`) is the sanctioned live-UI surface on **`stderr`** (steps/spinner + bar), TTY-gated and silent when piped/cron/CI — it never touches stdout, so a piped run stays clean. The reporter and `pino` are the only `stderr` writers (`@rules/progress.md`).
 - Zero `console.log` in delivered code — data goes through `output/`, diagnostics through `log.*` (`@rules/logging.md`).
 
 This separation is what makes the tool **cron- and Windows Task Scheduler-friendly**: a scheduled run redirects `stdout` to a data file and `stderr` to a log, and the exit code drives success/failure alerting — no interactive prompt, no banner on stdout.

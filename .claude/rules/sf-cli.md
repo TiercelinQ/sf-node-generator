@@ -28,16 +28,42 @@ The tool shells out to the user's `sf` binary with `--json` and parses the envel
 
 ```ts
 import spawn from "cross-spawn";          // resolves the Windows sf.cmd shim, escapes args — no injectable shell
+import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { Result } from "../types";
 
 export interface SfEnvelope<T> { status: number; result: T; warnings?: string[]; message?: string; name?: string; }
 
+/** A large text argument that can be passed inline OR spilled to a temp file (see "Windows command-line length"). */
+export interface LargeArg { inlineFlag: string; fileFlag: string; value: string; ext: string; }
+
 export class SfRunner {
-  /** resolveBin returns the sf command/path (SF_CLI_PATH or the configured sfPath, else "sf"). Cross-OS, no platform branch. */
-  constructor(private readonly resolveBin: () => string = () => process.env.SF_CLI_PATH || "sf") {}
+  /**
+   * resolveBin returns the sf command/path (SF_CLI_PATH or the configured sfPath, else "sf"). Cross-OS, no platform branch.
+   * cmdLineBudget caps the assembled command line: on Windows `sf` is a `.cmd` shim run via cmd.exe, which rejects a line
+   * over ~8191 chars. Default 6000 on Windows (headroom for the cmd wrapper + arg quoting), generous elsewhere. Injectable for tests.
+   */
+  constructor(
+    private readonly resolveBin: () => string = () => process.env.SF_CLI_PATH || "sf",
+    private readonly cmdLineBudget: number = process.platform === "win32" ? 6000 : 100_000,
+  ) {}
+
+  /** Approximate the assembled command line and tell whether it would blow the budget (Windows cmd.exe ~8191 hard limit). */
+  private overflows(args: string[]): boolean {
+    const parts = [this.resolveBin(), ...args, "--json"];
+    const approx = parts.reduce((n, p) => n + p.length + 3, 0) + 32; // +3 quoting/space per part, +32 cmd wrapper
+    return approx > this.cmdLineBudget;
+  }
 
   /** Run `sf <args> --json`. args is an ARRAY — never a concatenated shell string (security). */
   async run<T>(args: string[]): Promise<Result<T>> {
+    if (this.overflows(args)) {   // guard BEFORE spawning: a too-long line dies in cmd.exe with an opaque message
+      return this.fail(
+        "Commande sf trop longue pour la ligne de commande Windows (~8191 caractères). Passez l'argument volumineux (ex. SOQL) via un fichier, ou réduisez-le.",
+        `Longueur estimée > budget (${this.cmdLineBudget}).`,
+      );
+    }
     return new Promise((resolve) => {
       const child = spawn(this.resolveBin(), [...args, "--json"]);   // cross-spawn — args array, no injectable shell
       let out = "", err = "";
@@ -48,13 +74,42 @@ export class SfRunner {
           ? "Salesforce CLI (sf) introuvable. Installez le CLI ou définissez SF_CLI_PATH."
           : e.message)));
       child.on("close", () => {
+        const raw = out || err;
+        if (/too long|trop longue/i.test(raw)) {   // belt-and-suspenders: cmd.exe rejected the line despite the budget
+          return resolve(this.fail(
+            "Commande sf trop longue pour la ligne de commande Windows. Passez l'argument volumineux via un fichier.",
+            raw.trim(),
+          ));
+        }
         let parsed: SfEnvelope<T> | undefined;
-        try { parsed = JSON.parse(out || err); } catch { /* non-JSON output */ }
-        if (!parsed) return resolve(this.fail("Réponse sf illisible.", err || out));
+        try { parsed = JSON.parse(raw); } catch { /* non-JSON output */ }
+        if (!parsed) return resolve(this.fail("Réponse sf illisible.", raw));
         if (parsed.status !== 0) return resolve(this.fail(parsed.message ?? "Commande sf en échec.", parsed.name));
         resolve({ ok: true, data: parsed.result });
       });
     });
+  }
+
+  /**
+   * Run sf with a large text argument passed **inline when it fits**, or **spilled to a temp file** when it would overflow
+   * the command line (Windows). Generic — any command with an inline flag + a file-input flag can use it: `sf data query`
+   * (`--query` / `--file`), `sf data export bulk` (`--query` / `--query-file`), `sf data search` (`--query` / `--file`).
+   * The temp file (non-secret SOQL) lives under the OS temp dir and is always removed (@rules/security.md).
+   */
+  async runWithLargeArg<T>(baseArgs: string[], large: LargeArg): Promise<Result<T>> {
+    const inline = [...baseArgs, large.inlineFlag, large.value];
+    if (!this.overflows(inline)) return this.run<T>(inline);   // fits → inline as usual
+    let dir: string | undefined;
+    try {
+      dir = await mkdtemp(join(tmpdir(), "sf-node-"));          // unique temp dir — name not built from user input
+      const file = join(dir, `arg${large.ext}`);
+      await writeFile(file, large.value, "utf8");               // spill the SOQL to a file (not a secret)
+      return await this.run<T>([...baseArgs, large.fileFlag, file]);
+    } catch (e) {
+      return this.fail("Échec de l'écriture de l'argument volumineux dans un fichier temporaire.", (e as Error).message);
+    } finally {
+      if (dir) await rm(dir, { recursive: true, force: true }).catch(() => { /* best-effort cleanup */ });
+    }
   }
   private fail(message: string, detail?: string): Result<never> {
     return { ok: false, error: { kind: "error", message, detail } };
@@ -67,6 +122,21 @@ export class SfRunner {
 - Parse **defensively**: `sf` field names vary across CLI versions. Read the `status` / `result` envelope, guard missing fields, and verify the actual shape at generation time against the installed `sf`.
 - Map a non-zero `status` / `ENOENT` / unparseable output to a `Result` error. Named errors (`SfCliNotFoundError`, `SfCommandError`) live in `src/errors.ts` for the cases a service wants to raise instead of returning (`@rules/errors.md`).
 - The runner stays **uninstrumented for progress** — the surrounding **service** wraps each `sf` operation with a `progress.step` (the spinner animates during the async spawn); `sf/` keeps its purity (`@rules/progress.md`, `@rules/architecture.md`).
+- **Windows command-line length** — on Windows `sf` is a `.cmd` shim run via cmd.exe, which rejects a command line over ~8191 chars, so a large inline argument (a many-field SOQL, a long `WHERE IN`) overflows before `sf` even starts. `run()` **guards** the assembled length and returns a **clear `Result` error** (never the opaque "Réponse sf illisible") when it would overflow; `runWithLargeArg()` **spills** the large argument to a temp file and switches to the command's file-input flag when needed. Generic, not query-specific — see below.
+
+## Windows command-line length — robust length handling
+
+Failure mode: `sf` is a Windows `.cmd` shim launched through cmd.exe (~8191-char command-line limit). A big inline argument — the classic case is a `SELECT` over ~170 `PermissionsXxx` fields, but also a long `WHERE Id IN (...)`, a big SOSL, a long value list — pushes the line past the limit, and cmd.exe aborts with "La ligne de commande est trop longue" before `sf` runs. Two layers, applied to **every** generated tool:
+
+1. **Spill large args to a file (preventive, transparent).** `runWithLargeArg(baseArgs, { inlineFlag, fileFlag, value, ext })` passes `value` inline (`inlineFlag value`) when the assembled line fits the budget, and otherwise writes `value` to a temp file and uses the command's **file-input flag** instead — each pair verified against `data.md`:
+   - `sf data query` → inline `--query`, file `--file`.
+   - `sf data query --use-tooling-api` → inline `--query`, file `--file`.
+   - `sf data export bulk` → inline `--query`, file `--query-file`.
+   - `sf data search` (SOSL) → inline `--query`, file `--file`.
+   The temp file holds non-secret SOQL under the OS temp dir and is **always removed** (`finally`, `@rules/security.md`).
+2. **Length guard (defensive backstop).** `run()` checks the assembled command line against `cmdLineBudget` (default **6000** chars on Windows, generous elsewhere — injectable for tests) and returns a **clear** `Result` error if it would overflow, so any command that did not spill (a future helper, a huge flag value) fails with an actionable message instead of the opaque parse error. A secondary check maps a cmd.exe "too long" / "trop longue" message to the same clear error.
+
+Any new helper carrying a potentially-large text argument (SOQL, SOSL, a long value list) **must** route it through `runWithLargeArg` with the correct inline/file flag pair from the catalog — never `run()` with a raw inline arg.
 
 ## Composition root wiring — `src/cli.ts`
 
@@ -89,9 +159,9 @@ setDefaultOrg(alias: string): Promise<Result<void>>         // sf config set tar
 loginWeb(alias: string): Promise<Result<void>>              // sf org login web --alias <alias>  (sf opens the browser) → auth-orgs.md §2
 logout(alias: string): Promise<Result<void>>                // sf org logout --target-org <alias> --no-prompt → auth-orgs.md §2
 reconnect(alias: string): Promise<Result<void>>             // re-run sf org login web on an expired token    → auth-orgs.md §2
-query(soql: string, org?: string): Promise<Result<QueryResult>>          // sf data query --query <soql>                   → data.md §8
-queryTooling(soql: string, org?: string): Promise<Result<QueryResult>>   // sf data query --use-tooling-api --query <soql> → data.md §8
-bulkExport(soql: string, outputFile: string, org?: string): Promise<Result<BulkJobInfo>>  // sf data export bulk --query <soql> --output-file <f> → data.md §8
+query(soql: string, org?: string): Promise<Result<QueryResult>>          // sf data query (--query, or --file for long SOQL)      → data.md §8
+queryTooling(soql: string, org?: string): Promise<Result<QueryResult>>   // sf data query --use-tooling-api (--query|--file)       → data.md §8
+bulkExport(soql: string, outputFile: string, org?: string): Promise<Result<BulkJobInfo>>  // sf data export bulk (--query|--query-file) --output-file <f> → data.md §8
 bulkImport(file: string, sobject: string, org?: string): Promise<Result<BulkJobInfo>>     // sf data import bulk --file <f> --sobject <s>         → data.md §8
 runApex(file: string, org?: string): Promise<Result<ApexRunResult>>      // sf apex run --file <file>                      → apex.md §7
 ```
@@ -122,11 +192,13 @@ export class SfHelpers {
     return this.runner.run<void>(["config", "set", `target-org=${alias}`]);
   }
 
-  /** sf data query --query <soql> [--target-org <org>] — data.md §8. org omitted → sf uses the default target-org. */
+  /** sf data query — data.md §8. Large SOQL spills to `--file` when it would overflow the Windows command line
+   *  ("Windows command-line length"); otherwise inline `--query`. org omitted → sf uses the default target-org. */
   query(soql: string, org?: string): Promise<Result<QueryResult>> {
-    const args = ["data", "query", "--query", soql];   // soql is one argv element — never spliced into a string
-    if (org) args.push("--target-org", org);           // org is a separate element
-    return this.runner.run<QueryResult>(args);
+    const base = ["data", "query"];
+    if (org) base.push("--target-org", org);           // org is a separate argv element
+    // soql is never spliced into a string: inline as a discrete element, or written to a temp file when too long.
+    return this.runner.runWithLargeArg<QueryResult>(base, { inlineFlag: "--query", fileFlag: "--file", value: soql, ext: ".soql" });
   }
 }
 ```
@@ -179,6 +251,8 @@ Both modes use the same `SfRunner` and the same `Result<T>` contract.
 - **Do not** assume exact `sf --json` field names — parse defensively and verify against the installed CLI.
 - **Do not** target `sfdx` (legacy) — `sf` v2 only.
 - **Do not** emit a dataset with `console.log(JSON.stringify(...))` from a command — route it through the `output/` formatters (`@rules/output.md`).
+- **Do not** pass a potentially-large SOQL/SOSL/value inline via `run()` on Windows — route it through `runWithLargeArg` (inline when it fits, temp `--file` / `--query-file` when it would overflow the ~8191-char command line).
+- **Do not** let a command-line-too-long failure surface as the opaque "Réponse sf illisible" — the runner guards the assembled length and returns a clear, actionable error.
 
 ## Integrity verification
 

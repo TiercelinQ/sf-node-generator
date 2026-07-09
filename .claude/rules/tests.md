@@ -31,7 +31,7 @@ If disabled:
 | `src/*` pure (`types.ts` guards, `config.ts` `resolveConfig`) | Logic | the precedence cascade (`defaults < .env < flags`); the validators / type guards |
 | `src/output/*` | Formatters | the `csv` / `json` / `table` shape from sample rows; for `xlsx`, write to a temp file then re-read it with `exceljs` and assert the header row, a data cell, and a set column width (native table + autofit) |
 | `src/progress.ts` | Reporter (disabled path) | tests are **not a TTY**, so `configureProgress` is never enabled: `step().succeed()` / `bar().done()` map to a `log` line and **write nothing to `stdout`** — spy on `log`/`process.stdout.write` and assert no progress content reaches `stdout`. Do **not** assert on animation frames |
-| `src/sf/runner.ts` | Parsing | **mock `cross-spawn`**: the args array passed ends with `--json`; envelope `status !== 0` → `Result` error (`kind: "error"`); `ENOENT` → `Result` error with a clear "sf not found" message; unparseable output → `Result` error |
+| `src/sf/runner.ts` | Parsing + length handling | **mock `cross-spawn`**: the args array passed ends with `--json`; envelope `status !== 0` → `Result` error (`kind: "error"`); `ENOENT` → `Result` error with a clear "sf not found" message; unparseable output → `Result` error. With a small injected `cmdLineBudget`: an over-budget `run()` returns a clear "command line too long" error **without spawning**, and `runWithLargeArg` **spills** the value to a temp `--file` (mock `node:fs/promises`) instead of inline `--query` |
 | `src/sf/helpers.ts` | Envelope mapping | inject a **fake `SfRunner`**: the args array a helper builds (user values discrete); the `sf` envelope mapped to the DTO (e.g. `nonScratchOrgs` + `scratchOrgs` merged into `OrgInfo[]`) |
 | `src/sf/project.ts` | sfdx-project | **mock the fs read** of `sfdx-project.json`: valid → parsed; missing / invalid → `Result` error |
 | `src/services/*` | Business logic | inject a **fake `SfHelpers`**; assert the business rule + `Result` flow (empty → `warning`, a helper failure propagated unmasked) |
@@ -117,6 +117,32 @@ describe("sf/runner", () => {
     child.emit("close", 0);
     expect((await p).ok).toBe(false);
   });
+
+  it("garde une commande trop longue sans lancer sf", async () => {
+    // small injected budget forces the guard; the platform default (win32 6000 / else 100000) is not needed for the test
+    const res = await new SfRunner(() => "sf", 50).run(["data", "query", "--query", "SELECT " + "Id,".repeat(50)]);
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.error.message).toMatch(/trop longue|too long/i);
+    expect(spawn).not.toHaveBeenCalled();   // the guard returns before spawning
+  });
+});
+```
+
+For the spill path, add `vi.mock("node:fs/promises", () => ({ mkdtemp: vi.fn(async () => "/tmp/sf-node-x"), writeFile: vi.fn(async () => {}), rm: vi.fn(async () => {}) }))` at file top, then:
+
+```ts
+it("bascule une SOQL trop longue sur --file (fichier temporaire)", async () => {
+  const child = fakeChild();
+  vi.mocked(spawn).mockReturnValue(child as never);
+  const runner = new SfRunner(() => "sf", 50);   // tiny budget → force the spill
+  const p = runner.runWithLargeArg(["data", "query"],
+    { inlineFlag: "--query", fileFlag: "--file", value: "SELECT " + "Id,".repeat(50), ext: ".soql" });
+  child.stdout.emit("data", JSON.stringify({ status: 0, result: { records: [] } }));
+  child.emit("close", 0);
+  await p;
+  const passed = vi.mocked(spawn).mock.calls[0][1] as string[];
+  expect(passed).toContain("--file");     // spilled to a file, not inline --query
+  expect(passed).not.toContain("--query");
 });
 ```
 

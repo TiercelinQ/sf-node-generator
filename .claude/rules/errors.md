@@ -42,7 +42,7 @@ export class ProjectNotFoundError extends Error {     // sfdx-project mode — @
 }
 ```
 
-- The `sf` runner **returns** a `Result` error (`kind: "error"`) on `ENOENT` (a clear "sf not found" message) and on a non-zero `sf` status — it never throws a raw spawn error across a layer. `Result.error` is a **plain object** (`{ kind, message, detail? }`), not a named-error instance. The named `SfCliNotFoundError` / `SfCommandError` classes exist for a layer that prefers to **raise** (throw) instead of return (`@rules/sf-cli.md`).
+- The `sf` runner **returns** a `Result` error (`kind: "error"`) on `ENOENT` (a clear "sf not found" message), on a non-zero `sf` status, and when the assembled command line would overflow the Windows ~8191-char limit (a clear "command line too long" message, not the opaque "Réponse sf illisible" — `@rules/sf-cli.md`) — it never throws a raw spawn error across a layer. `Result.error` is a **plain object** (`{ kind, message, detail? }`), not a named-error instance. The named `SfCliNotFoundError` / `SfCommandError` classes exist for a layer that prefers to **raise** (throw) instead of return (`@rules/sf-cli.md`).
 - A service raises `ValidationError` for a business-rule violation it cannot express as data; a flag guard in a command raises it for bad input. Both surface as exit `2`.
 
 ## Service returning `Result`

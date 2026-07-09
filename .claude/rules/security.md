@@ -19,6 +19,7 @@ spawn(`sf data query --query "${soql}"`, { shell: true });
 
 - The binary is resolved from **`config.sfPath`** (populated by `SF_CLI_PATH` / `--sf-cli-path`) or the bare `sf` on `PATH` — cross-OS, no `if (win32)` (`@rules/sf-cli.md`).
 - The runner returns **`Result<T>`** (`@rules/errors.md`): it maps `ENOENT` → a clear "sf not found" error and a non-zero `sf` status / unparseable `--json` → an error — it never throws a raw spawn error at the user.
+- **Windows command-line limit**: `sf` is a `.cmd` shim run via cmd.exe (~8191-char line). A large argument (e.g. a many-field SOQL) is passed via a **temp file** (`runWithLargeArg` → `--file` / `--query-file`) instead of a huge inline flag; the runner also guards the assembled length and fails clearly if it would still overflow. The temp file holds **non-secret** SOQL, lives under the OS temp dir with a generated name (no path from user input), and is **always removed** (`finally`) — `@rules/sf-cli.md`.
 
 ## 2. Input validation — external data is `unknown` then validated
 

@@ -2,7 +2,7 @@
 
 > Claude Code generator for **headless Node.js / TypeScript command-line tools** mandatorily coupled to **Salesforce** (`sf` v2 CLI).
 
-Part of a family of Claude Code generators. See also [electron-app-generator](https://github.com/TiercelinQ/electron-app-generator), [python-app-generator](https://github.com/TiercelinQ/claude-python-app-generator), [flutter-app-generator](https://github.com/TiercelinQ/flutter-app-generator), and [vscode-ext-generator](https://github.com/TiercelinQ/vscode-ext-generator). Where those generate UI apps, `sf-node` generates **headless CLI automation tools** that shell out to the `sf` CLI.
+Part of a family of Claude Code generators. See also [electron-app-generator](https://github.com/TiercelinQ/electron-app-generator), [flutter-app-generator](https://github.com/TiercelinQ/flutter-app-generator), [claude-python-app-generator](https://github.com/TiercelinQ/claude-python-app-generator), and [vscode-ext-generator](https://github.com/TiercelinQ/vscode-ext-generator). Where those generate UI apps, `sf-node` generates **headless CLI automation tools** that shell out to the `sf` CLI.
 
 Unified edition: the full generation pipeline **plus** post-delivery maintenance skills, an explicit role per skill, persisted specs, centralized executable verification, and native memory.
 
@@ -167,6 +167,7 @@ Coupling is **mandatory** - every generated tool integrates the `sf` v2 CLI (nev
 | [claude-python-app-generator](https://github.com/TiercelinQ/claude-python-app-generator) | Python · PyQt6 · QSS | Windows desktop |
 | [electron-app-generator](https://github.com/TiercelinQ/electron-app-generator) | Node.js · Electron · React · TS | Windows desktop |
 | [flutter-app-generator](https://github.com/TiercelinQ/flutter-app-generator) | Flutter · Dart · Riverpod | Android |
+| [sf-node-generator](https://github.com/TiercelinQ/sf-node-generator) | Node.js · TypeScript · Salesforce CLI | Headless CLI |
 | [vscode-ext-generator](https://github.com/TiercelinQ/vscode-ext-generator) | TypeScript · esbuild · native theming | VS Code extension |
 | **sf-node-generator** | Node.js · TypeScript · `sf` v2 CLI | Headless CLI tool (Salesforce) |
 

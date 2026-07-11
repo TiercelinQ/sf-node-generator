@@ -19,7 +19,7 @@ Lock the project parameters (coupling mode, output formats, tests, interactivity
 
 ## 1. Questions
 
-**Phase banner (show first)** — on a new tool, first list the 5 phases once (overview in `## PIPELINE` of `CLAUDE.md`). Then output the phase banner as plain Markdown in the user's language, **never inside a code block or fenced block**. Three blocks, each on its own line: (1) H2 heading: Phase 1/5 — Scoping; (2) progress line: ▶ Scoping · Features · Interface · Architecture · Development; (3) intent in italics: Destination folder, project parameters, Salesforce coupling mode.
+**Phase banner (show first)** — on a new tool, first list the 5 phases once (overview in `## PIPELINE` of `CLAUDE.md`). Then output the phase banner as plain Markdown in the user's language, **never inside a code block or fenced block**. Three blocks, each on its own line: (1) H2 heading: Phase 1/5 — Scoping; (2) progress line: ▶ Scoping · Features · Surfaces · Architecture · Development; (3) intent in italics: Destination folder, project parameters, Salesforce coupling mode.
 
 Start with the objective, then establish the project name and root (name → location → creation), then ask the closed parameters in **a single `AskUserQuestion` call** (clickable options, the recommended one first, one plain-language consequence per option). Anything the user cannot decide without seeing its consequence is **auto-detected or a stated default** (§2), never a question — Phase 1 asks only what genuinely needs the user's input.
 

@@ -90,6 +90,7 @@ export function resolveConfig(flags: CliFlags = {}): AppConfig {
 - **Pure merge.** The cascade is `DEFAULTS` (typed) < the env layer (validated non-secret keys) < global CLI flags. `prune` drops `undefined` so a higher layer overrides only the keys it actually sets — a missing flag never blanks a default.
 - **Validated at the boundary.** Env values are parsed/validated (`toLevel`, `toPositiveInt`) — external input is never trusted raw (`@rules/security.md`). An invalid `SF_PAGE_SIZE` / `LOG_LEVEL` silently falls back to the lower layer.
 - **Non-secret only.** No token/password/session id ever lives in `config.ts` or `.env` — `sf` owns credentials in the OS keychain; the tool stores at most a non-secret org alias (`@rules/security.md`).
+- **Path confinement.** `config.ts` also exports **`resolveWithin(baseDir, candidate)`** (impl + rationale in `@rules/security.md §3`), co-located with the `exportDir` it confines against: every command resolves a user `--output` path under `config.exportDir` with it before writing, so a traversal (`..`) or absolute escape is rejected (`@rules/output.md`, `@rules/cli.md`).
 - Any constant reused in more than one file lives here (identity + `DEFAULTS`); a shared **type** lives in `src/types.ts` (`@rules/architecture.md`).
 
 ## Environment keys (`.env`, non-secret only)

@@ -16,7 +16,7 @@
 // src/cli.ts — bootstrap + composition (runner → helpers → services) + global error handler + exit-code mapping.
 import { Command, CommanderError } from "commander";
 import { log } from "./logger";
-import { APP_VERSION } from "./config";
+import { APP_VERSION, resolveConfig } from "./config";
 import { ValidationError } from "./errors";
 import { SfRunner } from "./sf/runner";
 import { SfHelpers } from "./sf/helpers";
@@ -44,9 +44,10 @@ program
   .exitOverride();                                                // do not let commander own the exit
 
 // composition: runner → helpers → services → command groups (unidirectional — @rules/architecture.md)
+const config = resolveConfig(toCliFlags(program.opts())); // resolve once — threads exportDir to the commands (@rules/config.md)
 const sf = new SfHelpers(new SfRunner());              // SfRunner default resolves SF_CLI_PATH || "sf" — @rules/sf-cli.md
-registerOrgCommands(program, { orgService: new OrgService(sf) });
-registerDataCommands(program, { dataService: new DataService(sf) });
+registerOrgCommands(program, { orgService: new OrgService(sf), exportDir: config.exportDir });
+registerDataCommands(program, { dataService: new DataService(sf), exportDir: config.exportDir });
 
 try {
   await program.parseAsync(process.argv);
@@ -73,6 +74,7 @@ No business logic, no direct `sf`/`cross-spawn` call, no `console.log`, no `proc
 import type { Command } from "commander";
 import { log } from "../logger";
 import { ValidationError } from "../errors";
+import { resolveWithin } from "../config";     // confine a user --output path under exportDir — @rules/security.md §3
 import { formatOutput } from "../output";
 import type { OutputFormat, OutputDestination, Row } from "../output";
 import type { OrgService } from "../services/org.service";
@@ -83,7 +85,7 @@ function parseFormat(v: string): OutputFormat {                    // bad value 
   throw new ValidationError(`Unknown --format '${v}' (expected: ${FORMATS.join(" | ")}).`);
 }
 
-export function registerOrgCommands(program: Command, deps: { orgService: OrgService }): void {
+export function registerOrgCommands(program: Command, deps: { orgService: OrgService; exportDir: string }): void {
   const org = program.command("org").description("Manage authenticated Salesforce orgs");
 
   org
@@ -93,7 +95,10 @@ export function registerOrgCommands(program: Command, deps: { orgService: OrgSer
     .option("-o, --output <file>", "write to a file instead of stdout")
     .action(async (opts: { format: string; output?: string }) => {
       const format = parseFormat(opts.format);
-      const destination: OutputDestination = opts.output ? { kind: "file", path: opts.output } : { kind: "stdout" };
+      // Confine a user --output path under exportDir (no traversal / absolute escape) before any write — @rules/security.md §3.
+      const destination: OutputDestination = opts.output
+        ? { kind: "file", path: resolveWithin(deps.exportDir, opts.output) }
+        : { kind: "stdout" };
       const result = await deps.orgService.listOrgs();             // service owns the logic + the sf call
       if (!result.ok) {
         if (result.error.kind === "error") {                       // "warning" is non-fatal → exit stays 0

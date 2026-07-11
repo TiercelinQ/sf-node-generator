@@ -14,7 +14,7 @@ A structured prompt system that generates complete, production-ready Salesforce 
 
 1. **Scoping** - 4 user-facing questions (coupling mode `standalone` org via `sf` / `sfdx-project` inside an SFDX folder, output formats, tests, runtime interactivity), each option with a plain-language consequence. Execution shape, distribution, and config strategy are stated framework defaults (overridable on request), not questions. No palette, no UI (headless).
 2. **Featuring** - command elicitation, MoSCoW prioritization, locked sizing.
-3. **Command Interface** - map each validated command onto its CLI surface (positional args, flags, input source, output format + destination, exit codes).
+3. **Surfaces** - map each validated command onto its CLI surface (positional args, flags, input source, output format + destination, exit codes).
 4. **Architecture** - full file tree, command registry (command to service to `sf` helper to formatter), `Result<T>` + named errors, config keys - locked before any code is written.
 5. **Development** - auto-chained batch delivery, executable verification (typecheck, lint, build, smoke `--help`).
 
@@ -82,7 +82,7 @@ Then in Claude Code:
 | `/sf-node-app`              | Start menu (4 entry points incl. maintenance)           |
 | `/sf-node-p1-scoping`       | Scoping - coupling mode, output, tests, execution        |
 | `/sf-node-p2-featuring`     | Featuring - command sheet + locked sizing                |
-| `/sf-node-p3-interface`     | Command Interface - the CLI contract                     |
+| `/sf-node-p3-surfaces`     | Surfaces - the CLI contract                     |
 | `/sf-node-p4-architect`     | Architect - locked architecture contract                 |
 | `/sf-node-p5-development`   | Auto-chained batch delivery                              |
 | `/sf-node-add-feature`      | Add a command to a shipped tool                          |

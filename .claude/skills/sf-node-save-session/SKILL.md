@@ -48,7 +48,7 @@ Next batch: [X+1/total] (if Phase 5)
 
 ## Specs
 
-Reference: docs/specs/01-scoping.md · 02-featuring.md · 03-interface.md · 04-architect.md
+Reference: docs/specs/01-scoping.md · 02-featuring.md · 03-surfaces.md · 04-architect.md
 (the locked contract in 04-architect.md is authoritative — do not duplicate it here)
 
 ## Delivered batches

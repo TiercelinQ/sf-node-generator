@@ -1,10 +1,10 @@
 ---
-name: sf-node-p3-interface
+name: sf-node-p3-surfaces
 description: Phase 3 of the sf-node generation cycle — map each validated v1.0 command onto its concrete CLI surface (subcommands, positional args, flags, I/O sources, output format, exit codes), grouped confirmation, validated synthesis written to the interface spec before Phase 4.
 model: sonnet
 ---
 
-# /sf-node-p3-interface — Command Interface
+# /sf-node-p3-surfaces — Surfaces
 
 ## Role
 CLI/interface designer — map the validated commands onto the concrete `commander` surface.
@@ -13,13 +13,13 @@ CLI/interface designer — map the validated commands onto the concrete `command
 Define, per command, the exact CLI contract: full name, positional args, flags, input source, output format + destination, and the `0`/`1`/`2` exit conditions — plus the global flags and the `--format`/`--output` convention that make the tool pipeable and schedulable.
 
 ## Deliverable
-`docs/specs/03-interface.md` (written in the user's language) + on-screen synthesis.
+`docs/specs/03-surfaces.md` (written in the user's language) + on-screen synthesis.
 
 ---
 
 ## 1. Proposal
 
-**Phase banner (show first)** — before anything else, output the phase banner as plain Markdown in the user's language, **never inside a code block or fenced block**. Three blocks, each on its own line: (1) H2 heading: Phase 3/5 — Command Interface; (2) progress line: Scoping ✓ · Features ✓ · ▶ Interface · Architecture · Development; (3) intent in italics: Map the validated features onto the CLI surface. Use the short label `Interface` in the progress map. See `## PIPELINE` in `CLAUDE.md`.
+**Phase banner (show first)** — before anything else, output the phase banner as plain Markdown in the user's language, **never inside a code block or fenced block**. Three blocks, each on its own line: (1) H2 heading: Phase 3/5 — Surfaces; (2) progress line: Scoping ✓ · Features ✓ · ▶ Surfaces · Architecture · Development; (3) intent in italics: Map the validated features onto the CLI surface. Use the label `Surfaces` in the progress map. See `## PIPELINE` in `CLAUDE.md`.
 
 **Read `@rules/cli.md`, `@rules/output.md`, and `@rules/config.md` first** (not auto-imported). Read `docs/specs/01-scoping.md` (coupling mode, output formats, interactivity opt-in, tests) and `docs/specs/02-featuring.md` (the validated v1.0 commands) for the decisions this phase builds on.
 
@@ -108,6 +108,6 @@ Produce the complete synthesis of the validated interface (in the user's languag
 
 ## 4. Write the spec
 
-Once validated, write the synthesis to `docs/specs/03-interface.md` (in the user's language).
+Once validated, write the synthesis to `docs/specs/03-surfaces.md` (in the user's language).
 
 → Chain to `/sf-node-p4-architect` after validation.

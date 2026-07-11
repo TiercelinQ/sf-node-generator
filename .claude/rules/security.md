@@ -34,6 +34,7 @@ spawn(`sf data query --query "${soql}"`, { shell: true });
 - **Every path derived from user input** (`--output` / `EXPORT_DIR` destinations, an `--input` file to import, an Apex `--file`) is resolved with `path.resolve` and **verified to stay under the allowed base directory** before any read/write. No traversal (`..`), no absolute escape.
 
 ```ts
+// src/config.ts — exported alongside the config cascade, co-located with the exportDir it confines against (@rules/config.md).
 import { resolve, relative, isAbsolute, sep } from "node:path";
 import { ValidationError } from "./errors"; // bad input → exit 2 (@rules/errors.md)
 

@@ -33,7 +33,7 @@ sf-node/
     │   ├── sf-node-app/            # Menu démarrage / reprise / maintenance (4 options)
     │   ├── sf-node-p1-scoping/     # Scoping to docs/specs/01-scoping.md
     │   ├── sf-node-p2-featuring/   # Fiche commandes to docs/specs/02-featuring.md
-    │   ├── sf-node-p3-interface/   # Contrat de commandes CLI to docs/specs/03-interface.md
+    │   ├── sf-node-p3-surfaces/   # Contrat de commandes CLI to docs/specs/03-surfaces.md
     │   ├── sf-node-p4-architect/   # Contrat architectural verrouillé to docs/specs/04-architect.md
     │   ├── sf-node-p5-development/ # Livraison par lots (enchaînement auto)
     │   ├── sf-node-add-feature/    # Ajouter une commande à un outil livré
@@ -117,9 +117,9 @@ Calibrage **interne** (non annoncé en Phase 1, déterminé en Phase 2 ; pilote 
 
 Confirmation du nom (issu de Phase 1, ajustable seulement si le `bin` doit différer du dossier). Élicitation des **commandes**, MoSCoW, périmètre v1.0. Calibrage déterminé en interne à partir du compte de commandes v1.0 (pilote les lots, pas une étape validée distincte). Validation bloquante sur les commandes / le périmètre. Écrit `docs/specs/02-featuring.md`.
 
-### Phase 3 - Command Interface
+### Phase 3 - Surfaces
 
-Pour chaque commande : nom complet (`groupe verbe`), args positionnels, flags/options (type, défaut, requis), source d'entrée, format + destination de sortie, conditions de sortie (0/1/2), prompt interactif (si activé). Flags globaux (`--target-org`, `--format`, `--output`, `--log-level`, ...). Validation bloquante. Écrit `docs/specs/03-interface.md`.
+Pour chaque commande : nom complet (`groupe verbe`), args positionnels, flags/options (type, défaut, requis), source d'entrée, format + destination de sortie, conditions de sortie (0/1/2), prompt interactif (si activé). Flags globaux (`--target-org`, `--format`, `--output`, `--log-level`, ...). Validation bloquante. Écrit `docs/specs/03-surfaces.md`.
 
 ### Phase 4 - Architect
 
@@ -199,7 +199,7 @@ Après correction (`/sf-node-fix-issue` ou Phase 5), Claude produit un bilan de 
 | `/sf-node-app`             | Haiku  | Menu démarrage / reprise / maintenance          |
 | `/sf-node-p1-scoping`      | Sonnet | Scoping (couplage, sorties, tests, exécution)   |
 | `/sf-node-p2-featuring`    | Sonnet | Fiche commandes + calibrage verrouillé          |
-| `/sf-node-p3-interface`    | Sonnet | Contrat de commandes CLI                        |
+| `/sf-node-p3-surfaces`    | Sonnet | Contrat de commandes CLI                        |
 | `/sf-node-p4-architect`    | Sonnet | Contrat architectural verrouillé                |
 | `/sf-node-p5-development`  | Sonnet | Livraison par lots - enchaînement automatique   |
 | `/sf-node-add-feature`     | Sonnet | Ajouter une commande à un outil livré           |

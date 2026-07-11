@@ -50,7 +50,7 @@ export async function formatOutput(rows: Row[], opts: OutputOptions): Promise<Re
 
 The writers return `Result<void>` so an invalid request (xlsx to stdout, a file write error) becomes a `Result` error the command maps to `stderr` + a non-zero exit code (`@rules/errors.md`, `@rules/cli.md`) — never a thrown exception reaching the user.
 
-**Always ensure the output directory exists before writing — for every file format.** A file destination whose parent directory is absent (e.g. the default `exports/` on a fresh checkout) fails with `ENOENT` otherwise. Create it **once, centrally, in `formatOutput`** (`mkdir(dirname(path), { recursive: true })`, confined under `exportDir` — `@rules/security.md`), never per-writer and never assuming the directory is already there. This covers `json` / `csv` / `xlsx` identically.
+**Always ensure the output directory exists before writing — for every file format.** A file destination whose parent directory is absent (e.g. the default `exports/` on a fresh checkout) fails with `ENOENT` otherwise. Create it **once, centrally, in `formatOutput`** (`mkdir(dirname(path), { recursive: true })`), never per-writer and never assuming the directory is already there. This covers `json` / `csv` / `xlsx` identically. The path is already **confined under `exportDir` by the command** (`resolveWithin`, `@rules/security.md §3`) before it reaches `formatOutput`; the formatter stays pure and never resolves a path itself (`@rules/cli.md`).
 
 ## JSON — `src/output/json.ts`
 

@@ -7,10 +7,11 @@
 ```ts
 // src/config.ts
 import type { LevelWithSilent } from "pino";
+import { version } from "../package.json" with { type: "json" }; // single source for APP_VERSION (see "Version — single source" below)
 
 // --- Static identity (not part of the runtime cascade) ----------------------
 export const APP_NAME = "mytool";        // tool name — the `bin`, the log context, the [TOOL]_DEBUG var (@rules/logging.md)
-export const APP_VERSION = "1.0.0";      // surfaced by `--version` (@rules/cli.md)
+export const APP_VERSION = version;      // derived from package.json (single source) — surfaced by `--version` (@rules/cli.md)
 export const COUPLING_MODE: "standalone" | "sfdx-project" = "standalone"; // fixed in Phase 1 — @rules/sfdx-project.md
 
 // --- Typed configuration ----------------------------------------------------
@@ -91,6 +92,7 @@ export function resolveConfig(flags: CliFlags = {}): AppConfig {
 - **Validated at the boundary.** Env values are parsed/validated (`toLevel`, `toPositiveInt`) — external input is never trusted raw (`@rules/security.md`). An invalid `SF_PAGE_SIZE` / `LOG_LEVEL` silently falls back to the lower layer.
 - **Non-secret only.** No token/password/session id ever lives in `config.ts` or `.env` — `sf` owns credentials in the OS keychain; the tool stores at most a non-secret org alias (`@rules/security.md`).
 - **Path confinement.** `config.ts` also exports **`resolveWithin(baseDir, candidate)`** (impl + rationale in `@rules/security.md §3`), co-located with the `exportDir` it confines against: every command resolves a user `--output` path under `config.exportDir` with it before writing, so a traversal (`..`) or absolute escape is rejected (`@rules/output.md`, `@rules/cli.md`).
+- **Version — single source.** `APP_VERSION` is imported from `package.json` (`import { version } from "../package.json" with { type: "json" }`) so the version is bumped in **one** place. `resolveJsonModule` is on (`tsconfig.json` below) and tsup/esbuild inline the JSON at build (`--version` reads the inlined literal; the file need not ship at runtime); `tsx` resolves it in dev too. Never also hardcode the version in `config.ts` — that duplicate is exactly the desync this removes.
 - Any constant reused in more than one file lives here (identity + `DEFAULTS`); a shared **type** lives in `src/types.ts` (`@rules/architecture.md`).
 
 ## Environment keys (`.env`, non-secret only)
@@ -256,7 +258,7 @@ export default tseslint.config(
 ```json
 "dependencies":    { "commander": "^15.0.0", "cross-spawn": "^7.0.6", "pino": "^10.3.1",
                      "pino-pretty": "^13.1.3", "exceljs": "^4.4.0", "csv-stringify": "^6.8.1" },
-"devDependencies": { "typescript": "^5.9.3", "tsup": "^8.5.1", "tsx": "^4.23.0",
+"devDependencies": { "typescript": "^6.0.0", "tsup": "^8.5.1", "tsx": "^4.23.0",
                      "@types/node": "^24", "@types/cross-spawn": "^6.0.6",
                      "eslint": "^10.6.0", "typescript-eslint": "^8.63.0",
                      "prettier": "^3.9.4" }
@@ -268,7 +270,7 @@ Conditional (added only when the matching Phase 1 option is on):
 
 Versioning notes:
 - **`@types/node`**: match the **target Node LTS line** — `^24` for Node 24. Targeting current (Node 26) → `^26`. Keep it in sync with the `tsup` `target` and `engines.node`.
-- **`typescript ^5.9.3` + `typescript-eslint ^8.63.0`**: typescript-eslint 8's TypeScript peer range is `>=4.8.4 <6.1.0`, so pin TypeScript to the **latest 5.x** line (`5.9.3` at authoring time — the newest stable within that range). **TypeScript 6.x never shipped stable** (it went from `6.0.0-beta` straight to the `7.x` line; the registry `latest` is `7.0.2`), and typescript-eslint 8 does **not** support TS 7. Do **not** pin `^6.x` / `^7.x` until a typescript-eslint major widens its peer range to include it. Confirm both at generation time: `npm view typescript dist-tags`, `npm view typescript-eslint peerDependencies`.
+- **`typescript ^6.0.0` + `typescript-eslint ^8.63.0`**: typescript-eslint 8's TypeScript peer range is `>=4.8.4 <6.1.0`. **TypeScript 6.0.x shipped stable** (`6.0.2`, `6.0.3`), so pin `^6.0.0` — it resolves to the highest 6.0.x, inside that range. Caveat: the registry `latest` tag is now **7.x** (`7.0.2`, the native/Go-port line), which typescript-eslint 8 does **not** support (peer `<6.1.0`), so a bare `npm install typescript` would pull an unsupported 7.x — the `^6.0.0` pin is deliberate. Do **not** take `latest` / `^7.x` until a typescript-eslint major widens its peer range. Confirm at generation: `npm view typescript dist-tags`, `npm view typescript-eslint peerDependencies`.
 - **`eslint ^10.6.0`**: **flat config only** (`eslint.config.mjs`) and needs **Node ≥ 20**. **`commander ^15.0.0`** also needs **Node ≥ 20** — both are satisfied by the Node 24 target.
 - **`csv-stringify ^6.8.1`**: the **standalone package from the `csv` project** (`csv-stringify`, not the umbrella `csv` bundle) — import `csv-stringify` / `csv-stringify/sync` for the sync API (`@rules/output.md`).
 - **`exceljs ^4.4.0`**: the maintained **xlsx** choice. **Avoid SheetJS / `xlsx`** (supply-chain / security history) — do not substitute it (`@rules/output.md`).

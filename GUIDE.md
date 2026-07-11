@@ -11,7 +11,7 @@ sf-node/
 ├── CLAUDE.md                 # Instructions core (EN) : persona, communication, pipeline, stack, règles, index commandes, calibrage
 ├── GUIDE.md                  # Ce fichier
 ├── README.md                 # Présentation du repo (EN)
-├── LICENSE.txt
+├── LICENSE
 ├── .gitignore / .gitattributes
 └── .claude/
     ├── sf-cli-reference/     # Catalogue commandes/flags sf v2 (chargé par section, jamais en entier)

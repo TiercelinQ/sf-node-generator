@@ -9,11 +9,12 @@
 ## COMMUNICATION
 
 - **Respond in the user's language.** Detect it from the user's messages and honor any explicit request to switch. Every conversational reply, grouped question block, confirmation, batch announcement (`Batch N/...`), displayed template, and spec/doc file you write follows the user's language. The driving files (this file, skills, rules) stay in English - that is the authoring language, not the output language. The English prompts, question wording, and on-screen templates quoted inside the skills are authoring templates too: render them in the user's language when shown, never paste the English verbatim.
+- **Generated-tool runtime strings** (the built CLI's user-facing messages on `stderr`: `Result.message`, errors) follow the user's language, **French by default** for this framework. The French string literals shown in the rules are that default; render them in the user's language when it differs. `stdout` stays **data-only** regardless (`rules/cli.md`).
 - Dense, direct answers. Lists over prose. Short confirmations.
 - **Closed/enumerable choices are asked with the `AskUserQuestion` tool** (clickable options, the recommended option first / marked `(recommended)`) — never make the user type an answer that can be enumerated (coupling mode, Yes/No, output formats, start menu…). Free-form text is reserved for non-enumerable input only (free description, file/folder paths, SOQL). Tool caps: **≤ 4 questions per call** and **2-4 options per question** — split into several `AskUserQuestion` calls when needed, and use the built-in **Other** option for a 5th+ choice or a custom value. **Never call `AskUserQuestion` for a free-form / non-enumerable prompt** (objective, folder name/location, file path): the tool requires ≥ 2 options and errors otherwise — ask those as plain text.
 - Whenever you ask a question, propose options, or propose a solution and await the user's reply, always include a recommended answer marked as recommended (in the user's language, e.g. `(recommended)`), chosen as the most pertinent for the context.
 - No unsolicited recap. No emojis. No filler.
-- Append at the end of every reply (except after `/sf-node-save-session`, `/sf-node-show-state`, `/sf-node-show-contract`):
+- Append at the end of every reply (except after `/sf-node-save-session`, `/sf-node-show-state`, `/sf-node-show-contract`, `/sf-node-save-memory`):
   `/sf-node-save-session` · `/sf-node-show-state` · `/sf-node-show-contract`
 
 ---

@@ -37,10 +37,10 @@ Present (in the user's language, as plain Markdown — never inside a code block
 | `org list` | `OrgService.listOrgs()` | `SfHelpers.listOrgs()` (`sf org list`) | `table` |
 | `org use <alias>` | `OrgService.setDefault()` | `SfHelpers.setDefaultOrg()` (`sf config set target-org`) | `table` |
 | `data query <soql>` | `DataService.query()` | `SfHelpers.query()` (`sf data query`) | *(Phase 3 default)* |
-| `data export <soql>` | `DataService.export()` | `SfHelpers.bulkExport()` (`sf data export bulk`) | `csv` / `xlsx` → file |
+| `data export <soql>` | `DataService.export()` | `SfHelpers.bulkExport()` (`sf data export bulk`) | `csv` / `json` → file |
 | `<group> <verb>` | `…Service.…()` | `SfHelpers.…()` (`sf …`) | *(Phase 3 default)* |
 
-   Every helper's `sf` command/flags trace to a `sf-cli-reference/` section (`@rules/sf-cli.md`) — no invented flag. **If `sfdx-project`**: add the `deploy` / `retrieve` rows (`SfProjectCommands.deployStart()` / `retrieveStart()` → `sf project deploy start` / `sf project retrieve start`, `@rules/sfdx-project.md`).
+   Every helper's `sf` command/flags trace to a `sf-cli-reference/` section (`@rules/sf-cli.md`) — no invented flag. `data export` writes via `sf data export bulk --result-format csv|json --output-file` (Bulk API, **not** the `output/` formatters), so its formats are `csv` / `json` only; `xlsx` is available exclusively on the query path (`data query -f xlsx -o <file>` → `formatOutput`, `@rules/output.md`). **If `sfdx-project`**: add the `deploy` / `retrieve` rows (`SfProjectCommands.deployStart()` / `retrieveStart()` → `sf project deploy start` / `sf project retrieve start`, `@rules/sfdx-project.md`).
 
 3. **Error model** — the `Result<T>` contract in `src/types.ts` (`ok: true; data` | `ok: false; error: { kind: "error" | "warning"; message; detail? }`) plus the named errors in scope in `src/errors.ts`: `SfCliNotFoundError`, `SfCommandError`, `ValidationError` (+ `ProjectNotFoundError` in `sfdx-project` mode). State the **exit-code mapping at the boundary** (`@rules/cli.md`, `@rules/errors.md`): thrown errors via the single `toExitCode` (`ValidationError`/commander usage → `2`, else `1`); returned `Result` failures via the fixed `warning → 0` / `error → 1`; success → `0`. `process.exit` only in `cli.ts`; global `uncaughtException` / `unhandledRejection` handlers mandatory.
 

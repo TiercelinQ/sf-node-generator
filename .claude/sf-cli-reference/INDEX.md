@@ -32,6 +32,8 @@ For Dev Hub-targeting commands, the org flag is `-v, --target-dev-hub` instead o
 
 > `apex-errors.md` is an **error-interpretation reference** (a lookup of error names/codes → meaning), not a command-syntax section — the `Globals:` convention above does not apply to it. It complements `apex.md` (the Apex *commands*: run anonymous Apex, run tests, logs).
 
+> **Scaffold scope (v1)**: the default generated scaffold uses the **org** capabilities (list/login/logout/config → `auth-orgs.md`) plus a `data query` / `data export` demo (`data.md`, with `apex.md` for the Apex demo). `packaging.md`, `advanced.md`, and the deeper reaches of `users-schema.md` / `platform-api.md` are **beyond the default v1 scaffold** — catalog reference for when a validated feature needs them, not part of the auto-generated starter. Pull a section in only when a Phase 1/2 feature calls for it.
+
 ## Local verification
 
 ```bash

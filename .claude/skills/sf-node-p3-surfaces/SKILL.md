@@ -4,7 +4,7 @@ description: Phase 3 of the sf-node generation cycle — map each validated v1.0
 model: sonnet
 ---
 
-# /sf-node-p3-surfaces — Surfaces
+# /sf-node-p3-surfaces — Surfaces (CLI contract)
 
 ## Role
 CLI/interface designer — map the validated commands onto the concrete `commander` surface.
@@ -96,7 +96,7 @@ Grouped confirmations (first call, ≤ 4 questions):
 3. **Default destination for an export-style command**: `stdout` (recommended for `data query`) · a file under `exportDir` (recommended for `data export` / bulk).
 4. **[Only if interactivity was enabled in Phase 1]** which destructive command(s) prompt for confirmation (always guarded — non-TTY / `--yes` → safe default): the enumerated destructive commands (e.g. `org logout`, a delete/import command). If interactivity is off, skip this — every command is fully flag-driven.
 
-Per-command default format (next call(s), one question per data-producing command, batched ≤ 4 per call, split as needed): `table` · `json` · `csv` · `xlsx`. Recommend `table` for interactive reads, `csv` / `xlsx` (to a file) for bulk exports.
+Per-command default format (next call(s), one question per data-producing command, batched ≤ 4 per call, split as needed): `table` · `json` · `csv` · `xlsx`. Recommend `table` for interactive reads, and `csv` / `xlsx` to a file for a `data query` written out. (`data export` uses the Bulk API — `csv` / `json` only, always to a file — not the `output/` formatters, so `xlsx` does not apply there.)
 
 Command/verb renames beyond the enumerable grouping choice are handled free-form at the synthesis validation, not via `AskUserQuestion`.
 

@@ -204,6 +204,7 @@ export class SfHelpers {
 ```
 
 - **Every helper's command and flags are verified against the catalog** (the comment after each signature points at its section file). Do not guess a flag — look it up: orgs/auth/config → `auth-orgs.md`, `query` / `queryTooling` / `bulkExport` / `bulkImport` → `data.md`, `runApex` → `apex.md`, project-scoped deploy/retrieve → `metadata-deploy.md` (`@rules/sfdx-project.md`).
+- **`--target-org` is "required" *or* a default org.** The catalog marks `-o, --target-org` **(required)** for the `data` / `apex` commands (`data.md`, `apex.md`), but `sf` satisfies it from a **configured default org** (`sf config set target-org`, or the `SF_TARGET_ORG` / `config.targetOrg` the tool sets) when the flag is absent — it is not a hard failure. That is why every helper takes `org?` optional and appends `--target-org` **only when a caller supplies one**, falling back to the default otherwise (`@rules/config.md` `targetOrg`). Read the catalog's "(required)" as "required unless a default target-org is set".
 - Model the return types **defensively** in `src/types.ts` — only the fields the tool reads, all optional where `sf` may omit them:
   - `OrgInfo`: `alias?`, `username`, `orgId?`, `instanceUrl?`, `connectedStatus?` (`"Connected"`, `"RefreshTokenAuthError"`…), `isDefaultUsername?`, `isScratch?`.
   - `QueryResult`: `totalSize`, `done`, `records: Record<string, unknown>[]` (or a generic `QueryResult<T>`).

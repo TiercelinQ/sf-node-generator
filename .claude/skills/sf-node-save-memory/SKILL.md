@@ -65,3 +65,5 @@ Procedure:
 ## Step 3 — Confirmation
 
 If auto-memory is not enabled: say so (`/config → Memory`), still formulate the entry. Confirm in one line (in the user's language).
+
+Do not append the `/sf-node-save-session` · `/sf-node-show-state` · `/sf-node-show-contract` reminder after this reply.

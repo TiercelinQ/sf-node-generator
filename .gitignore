@@ -4,7 +4,7 @@
 # Claude Code auto memory - personal, never committed
 .claude/agent-memory/
 
-# Node / builds (a generated tool scaffolded here during testing)
+# Generated app artifacts - a test tool scaffolded here during generation testing
 node_modules/
 dist/
 

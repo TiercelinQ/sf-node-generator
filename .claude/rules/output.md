@@ -213,4 +213,4 @@ export function toTable(rows: Row[], _dest: OutputDestination): Result<void> {
 
 ## Integrity verification
 
-`@rules/verification.md` is the single source of truth for verification (run silently, report only on a discrepancy). The concrete checks for this domain are the **Anti-patterns** listed above (read each as a check) together with `@rules/verification.md` (§A executable checks + §B per-domain: output). Not restated here, to avoid drift across files.
+Detailed in `@rules/verification.md`. Key points: the **Anti-patterns** listed above are the concrete checks for this domain — read each as a check; §A executable checks and §B per-domain: output cover the rest. Run silently; report only on a discrepancy.

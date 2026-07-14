@@ -169,7 +169,6 @@ Coupling is **mandatory** - every generated tool integrates the `sf` v2 CLI (nev
 | [flutter-app-generator](https://github.com/TiercelinQ/flutter-app-generator) | Flutter · Dart · Riverpod | Android |
 | [sf-node-generator](https://github.com/TiercelinQ/sf-node-generator) | Node.js · TypeScript · Salesforce CLI | Headless CLI |
 | [vscode-ext-generator](https://github.com/TiercelinQ/vscode-ext-generator) | TypeScript · esbuild · native theming | VS Code extension |
-| **sf-node-generator** | Node.js · TypeScript · `sf` v2 CLI | Headless CLI tool (Salesforce) |
 
 ---
 

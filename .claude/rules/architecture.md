@@ -150,10 +150,6 @@ Add a final dedicated batch — `test/` (mirroring `src/`) + `vitest.config.ts` 
 - Automatic chaining between batches without confirmation.
 - Last batch: install/run instructions (`npm install`, `npm run dev`, `npm run typecheck`, `npm run lint`, `npm run build`) + the `sf` v2 prerequisite note (`@rules/sf-cli.md`) + `README.md` at the root (`@rules/readme.md`).
 
-## Integrity verification
-
-Per-batch and cross-file integrity checks (layer responsibilities, unidirectional imports, `Result<T>` flow, exit-code mapping at the boundary, stdout/stderr discipline, contract) live in **`@rules/verification.md`** — the single source of truth for verification. Run them silently every batch; report only on a discrepancy. Cross-file checks (all inter-layer imports resolved, every command group registered in `cli.ts`, the contract in `docs/specs/04-architect.md` respected) run on the last batch.
-
 ## Anti-patterns — what NOT to do
 
 - **Do not** put business logic in a command or a formatter. Commands parse + delegate + format; services own the logic; `sf/` owns the process; `output/` renders.
@@ -187,3 +183,7 @@ File [name]:
 ## Deletions
 
 Total deletion across all files: code, imports, a command/subcommand (its `.command` registration + `.action` + the service it called if now orphaned), flags, types, exit-code branches. Forbidden: commented-out code, empty implementations, residue. Deliver the complete modified files.
+
+## Integrity verification
+
+Detailed in `@rules/verification.md`. Key points: layer responsibilities respected (thin `commands/`, logic in `services/`, process execution in `sf/`, rendering in `output/`) with no layer skipped; unidirectional imports and no CLI concern (`commander`, `process.argv`, `process.exit`) below `commands/`; `Result<T>` flow and exit-code mapping held at the CLI boundary; `stdout`/`stderr` discipline respected; every command group registered in `cli.ts`; architectural contract (`docs/specs/04-architect.md`) respected. Run silently every batch; cross-file checks on the last batch.

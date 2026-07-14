@@ -98,14 +98,14 @@ This framework has **no** `design-system.md` / `layout.md` (headless target — 
 | Language             | TypeScript strict (`strict: true`)                            |
 | Architecture         | Layered - `commands` → `services` → `sf` / `output` · composition root `cli.ts` |
 | CLI parser           | `commander` (default) · `node:util parseArgs` (fallback for a 1-2 script project) |
-| Salesforce CLI       | **`sf` v2 — mandatory** · `cross-spawn` runner — see rules/sf-cli.md + `sf-cli-reference/INDEX.md` |
-| Coupling mode        | `standalone` (org via `sf`) **or** `sfdx-project` (inside an SFDX folder) - chosen in Phase 1 - see rules/sfdx-project.md |
-| Config               | Cascade `config.ts` < `.env` (native `--env-file`) < CLI flags · non-secret only — see rules/config.md |
+| Salesforce CLI       | **`sf` v2 — mandatory** · `cross-spawn` runner — see `rules/sf-cli.md` + `sf-cli-reference/INDEX.md` |
+| Coupling mode        | `standalone` (org via `sf`) **or** `sfdx-project` (inside an SFDX folder) - chosen in Phase 1 - see `rules/sfdx-project.md` |
+| Config               | Cascade `config.ts` < `.env` (native `--env-file`) < CLI flags · non-secret only — see `rules/config.md` |
 | Secrets              | Never in a file — held by the `sf` OS keychain                |
-| Logging              | `pino` (file + `stderr`, `pino-pretty` in dev) — see rules/logging.md |
-| Runtime feedback     | Progress reporter — steps/spinner + bar on `stderr`, auto-TTY, `--no-progress` — see rules/progress.md |
-| Output               | Formatters - JSON · CSV (`csv-stringify`) · xlsx (`exceljs`) · console table — see rules/output.md |
-| Error contract       | `Result<T>` + named errors + exit-code mapping at the CLI boundary — see rules/errors.md |
+| Logging              | `pino` (file + `stderr`, `pino-pretty` in dev) — see `rules/logging.md` |
+| Runtime feedback     | Progress reporter — steps/spinner + bar on `stderr`, auto-TTY, `--no-progress` — see `rules/progress.md` |
+| Output               | Formatters - JSON · CSV (`csv-stringify`) · xlsx (`exceljs`) · console table — see `rules/output.md` |
+| Error contract       | `Result<T>` + named errors + exit-code mapping at the CLI boundary — see `rules/errors.md` |
 | Build                | `tsup` (bundle `dist/cli.js`, shebang) · `tsx` (dev) · `tsc --noEmit` (typecheck) |
 | Tests                | `vitest` (if selected in Phase 1)                            |
 | Quality              | ESLint (flat config) + Prettier · TSDoc on classes and public API |
@@ -114,25 +114,25 @@ This framework has **no** `design-system.md` / `layout.md` (headless target — 
 
 ## ABSOLUTE RULES
 
-- **Salesforce coupling is mandatory** — the generated tool always integrates `sf`. Target **`sf` v2 only, never `sfdx` (legacy)**. `sf` is a runtime prerequisite (the runner maps `ENOENT` to a clear error). The tool **never** handles OAuth tokens — `sf` owns the auth flow and the OS keychain. See rules/sf-cli.md
-- All `sf` calls go through `src/sf/runner.ts` via **`cross-spawn`** (resolves the Windows `sf.cmd` shim, escapes args) with an **argument array** - never `node:child_process` directly, never a concatenated shell string, never from a `services`/`commands` module. See rules/sf-cli.md and rules/security.md
-- **Layering** — `commands/` are thin adapters (parse flags → call a service → format output); business logic lives in `services/`; `sf/` owns process execution; `output/` owns formatting. `cli.ts` is the only composition root. No layer skips another. See rules/architecture.md
-- **CLI I/O contract** — `stdout` carries **data only** (pipeable); `stderr` carries logs and human messages; `pino` writes to file + `stderr`. Exit codes: `0` success · `1` runtime error · `2` usage/validation error. `process.exit` only in `cli.ts`. See rules/cli.md
-- **Error contract** — library layers (`services`, `sf`, `output`) return `Result<T>` or raise a **named error** (`src/errors.ts`); never throw a raw exception to the user. The CLI boundary maps a failed `Result` / caught named error to a `stderr` message + exit code. A global `uncaughtException` / `unhandledRejection` handler is mandatory. See rules/errors.md
-- **Secrets** — never written to `.env`, `config.ts`, logs, or committed. `sf` holds all tokens in the OS keychain; the tool stores at most a **non-secret** org alias. See rules/security.md
-- **Config** — non-secret settings resolve through the cascade `config.ts` defaults < `.env` < CLI flags in a single `resolveConfig()`. `.env` is read natively (`node --env-file`), never committed. See rules/config.md
-- **Output** — every user-facing dataset goes through the `output/` formatters (`json` | `csv` | `xlsx` | `table`) with an explicit destination (`stdout` | file). No ad-hoc `console.log(JSON.stringify(...))` in a command. See rules/output.md
-- **Logging** — `src/logger.ts` (pino) mandatory; zero `console.log` in delivered code (only `log.*`); never log a token or secret. See rules/logging.md
-- **Runtime feedback** — a hand-rolled progress reporter (`src/progress.ts`) shows the operations a command performs: steps/spinner + bar on **`stderr`**, **auto-on a TTY** (silent when piped / cron / CI or under debug logging), `--no-progress` to disable. `stdout` stays data-only; the reporter and `pino` are the only `stderr` writers (no `console.*`). See rules/progress.md
-- If the coupling mode is `sfdx-project` (Phase 1): detect and read `sfdx-project.json`, respect `.forceignore`, and scope `sf project ...` commands to the project. See rules/sfdx-project.md
-- If tests enabled in Phase 1: test suite mandatory (`vitest`) - see rules/tests.md
+- **Salesforce coupling is mandatory** — the generated tool always integrates `sf`. Target **`sf` v2 only, never `sfdx` (legacy)**. `sf` is a runtime prerequisite (the runner maps `ENOENT` to a clear error). The tool **never** handles OAuth tokens — `sf` owns the auth flow and the OS keychain. See `rules/sf-cli.md`
+- All `sf` calls go through `src/sf/runner.ts` via **`cross-spawn`** (resolves the Windows `sf.cmd` shim, escapes args) with an **argument array** - never `node:child_process` directly, never a concatenated shell string, never from a `services`/`commands` module. See `rules/sf-cli.md` and `rules/security.md`
+- **Layering** — `commands/` are thin adapters (parse flags → call a service → format output); business logic lives in `services/`; `sf/` owns process execution; `output/` owns formatting. `cli.ts` is the only composition root. No layer skips another. See `rules/architecture.md`
+- **CLI I/O contract** — `stdout` carries **data only** (pipeable); `stderr` carries logs and human messages; `pino` writes to file + `stderr`. Exit codes: `0` success · `1` runtime error · `2` usage/validation error. `process.exit` only in `cli.ts`. See `rules/cli.md`
+- **Error contract** — library layers (`services`, `sf`, `output`) return `Result<T>` or raise a **named error** (`src/errors.ts`); never throw a raw exception to the user. The CLI boundary maps a failed `Result` / caught named error to a `stderr` message + exit code. A global `uncaughtException` / `unhandledRejection` handler is mandatory. See `rules/errors.md`
+- **Secrets** — never written to `.env`, `config.ts`, logs, or committed. `sf` holds all tokens in the OS keychain; the tool stores at most a **non-secret** org alias. See `rules/security.md`
+- **Config** — non-secret settings resolve through the cascade `config.ts` defaults < `.env` < CLI flags in a single `resolveConfig()`. `.env` is read natively (`node --env-file`), never committed. See `rules/config.md`
+- **Output** — every user-facing dataset goes through the `output/` formatters (`json` | `csv` | `xlsx` | `table`) with an explicit destination (`stdout` | file). No ad-hoc `console.log(JSON.stringify(...))` in a command. See `rules/output.md`
+- **Logging** — `src/logger.ts` (pino) mandatory; zero `console.log` in delivered code (only `log.*`); never log a token or secret. See `rules/logging.md`
+- **Runtime feedback** — a hand-rolled progress reporter (`src/progress.ts`) shows the operations a command performs: steps/spinner + bar on **`stderr`**, **auto-on a TTY** (silent when piped / cron / CI or under debug logging), `--no-progress` to disable. `stdout` stays data-only; the reporter and `pino` are the only `stderr` writers (no `console.*`). See `rules/progress.md`
+- If the coupling mode is `sfdx-project` (Phase 1): detect and read `sfdx-project.json`, respect `.forceignore`, and scope `sf project ...` commands to the project. See `rules/sfdx-project.md`
+- If tests enabled in Phase 1: test suite mandatory (`vitest`) - see `rules/tests.md`
 - Zero `// TODO`, zero unjustified empty implementation. ESLint clean · Prettier · TS strict with no unjustified `any` (incoming external data is `unknown` then validated).
 - No library that was not validated in Phase 1.
 - At project finalization (last batch of Phase 5): generate a `CLAUDE.md` at the generated project root - origin (framework + version), business context, framework deviations. See `/sf-node-p5-development`.
 - After resolving an anomaly, offer: "Do you want to remember this point? `/sf-node-save-memory`"
 - NEVER read and write the generator's own `.claude/settings.json` — ONLY read and write in `settings.local.json`. (The `.claude/settings.json` written into a delivered project in Phase 5 is a legitimate deliverable; this rule concerns this framework's own file, not the generated one.)
 
-Per-domain rule detail (loaded on demand by `/sf-node-p4-architect`, `/sf-node-p5-development`, and the maintenance skills - not auto-imported): rules/architecture.md · rules/cli.md · rules/errors.md · rules/config.md · rules/security.md · rules/sf-cli.md · rules/sfdx-project.md · rules/output.md · rules/logging.md · rules/progress.md · rules/tests.md · rules/verification.md · rules/readme.md
+Per-domain rule detail (loaded on demand by `/sf-node-p4-architect`, `/sf-node-p5-development`, and the maintenance skills - not auto-imported): `rules/architecture.md` · `rules/cli.md` · `rules/errors.md` · `rules/config.md` · `rules/security.md` · `rules/sf-cli.md` · `rules/sfdx-project.md` · `rules/output.md` · `rules/logging.md` · `rules/progress.md` · `rules/tests.md` · `rules/verification.md` · `rules/readme.md`
 
 ---
 
@@ -200,4 +200,4 @@ Canonical source of the calibration. Skills refer to it - do not duplicate this 
 | Small         | < 10     | ≤ 5               | 3                  | 4                    |
 | Medium / Large| ≥ 10     | > 5               | 4                  | 5                    |
 
-The extra batch corresponds to the test suite + dev dependencies (see rules/tests.md). Divergent criteria (e.g. < 10 files but > 5 commands): the highest criterion wins → Medium/Large. The `sf` runner + starter command ship in **Batch 1** (no dedicated batch); the `output/` formatters and each coupling mode add files and push the size up.
+The extra batch corresponds to the test suite + dev dependencies (see `rules/tests.md`). Divergent criteria (e.g. < 10 files but > 5 commands): the highest criterion wins → Medium/Large. The `sf` runner + starter command ship in **Batch 1** (no dedicated batch); the `output/` formatters and each coupling mode add files and push the size up.

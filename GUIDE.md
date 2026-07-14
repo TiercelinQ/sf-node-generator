@@ -18,7 +18,7 @@ sf-node/
     ├── rules/
     │   ├── architecture.md   # Couches commands / services / sf / output, racine cli.ts, livraison par lots
     │   ├── cli.md            # Programme commander, codes de sortie 0/1/2, stdout=données / stderr=logs
-    │   ├── errors.md         # Contrat Result<T>, erreurs nommées, escalade service to commande to frontière
+    │   ├── errors.md         # Contrat Result<T>, erreurs nommées, escalade service → commande → frontière
     │   ├── config.md         # config.ts (cascade), package.json, tsup, tsconfig, versions de dépendances
     │   ├── security.md       # cross-spawn args array, validation, chemins confinés, secrets keychain
     │   ├── sf-cli.md         # Intégration Salesforce OBLIGATOIRE : runner + helpers typés + starter org/data
@@ -31,10 +31,10 @@ sf-node/
     │   └── readme.md         # Synchro README post-livraison (régénération auto)
     ├── skills/
     │   ├── sf-node-app/            # Menu démarrage / reprise / maintenance (4 options)
-    │   ├── sf-node-p1-scoping/     # Scoping to docs/specs/01-scoping.md
-    │   ├── sf-node-p2-featuring/   # Fiche commandes to docs/specs/02-featuring.md
-    │   ├── sf-node-p3-surfaces/   # Contrat de commandes CLI to docs/specs/03-surfaces.md
-    │   ├── sf-node-p4-architect/   # Contrat architectural verrouillé to docs/specs/04-architect.md
+    │   ├── sf-node-p1-scoping/     # Scoping → docs/specs/01-scoping.md
+    │   ├── sf-node-p2-featuring/   # Fiche commandes → docs/specs/02-featuring.md
+    │   ├── sf-node-p3-surfaces/   # Contrat de commandes CLI → docs/specs/03-surfaces.md
+    │   ├── sf-node-p4-architect/   # Contrat architectural verrouillé → docs/specs/04-architect.md
     │   ├── sf-node-p5-development/ # Livraison par lots (enchaînement auto)
     │   ├── sf-node-add-feature/    # Ajouter une commande à un outil livré
     │   ├── sf-node-trace-feature/  # Tracer une commande à travers les couches
@@ -85,7 +85,7 @@ sf --version          # Salesforce CLI v2 (prérequis runtime des outils génér
 ### Activer la mémoire (une seule fois, par machine)
 
 ```
-/config to Memory to Enable auto memory to On
+/config → Memory → Enable auto memory → On
 ```
 
 ---
@@ -93,7 +93,7 @@ sf --version          # Salesforce CLI v2 (prérequis runtime des outils génér
 ## Démarrer un nouvel outil
 
 ```
-/sf-node-app to 1
+/sf-node-app → 1
 ```
 
 ### Phase 1 - Scoping
@@ -123,7 +123,7 @@ Pour chaque commande : nom complet (`groupe verbe`), args positionnels, flags/op
 
 ### Phase 4 - Architect
 
-Arborescence + rôle de chaque fichier + **registre des commandes** (commande to service to helper `sf` to formatter) + `Result<T>` + erreurs nommées + table des clés de config + mode de couplage. **Verrouillé après validation.** Écrit `docs/specs/04-architect.md` (source de vérité).
+Arborescence + rôle de chaque fichier + **registre des commandes** (commande → service → helper `sf` → formatter) + `Result<T>` + erreurs nommées + table des clés de config + mode de couplage. **Verrouillé après validation.** Écrit `docs/specs/04-architect.md` (source de vérité).
 
 ### Phase 5 - Development
 
@@ -135,7 +135,7 @@ Fichiers écrits directement sur le disque. Annonce `Lot N/[total] - [contenu]`.
 
 ```
 /sf-node-save-session            # sauvegarder en fin de session (docs/sessions/)
-/sf-node-app to 2                # reprendre : fournir le chemin du fichier SESSION
+/sf-node-app → 2                # reprendre : fournir le chemin du fichier SESSION
 ```
 
 ---
@@ -143,12 +143,12 @@ Fichiers écrits directement sur le disque. Annonce `Lot N/[total] - [contenu]`.
 ## Travailler sur un outil livré
 
 ```
-/sf-node-app to 3     # ou directement /sf-node-load-project depuis la racine du projet
+/sf-node-app → 3     # ou directement /sf-node-load-project depuis la racine du projet
 ```
 
 Claude lit `docs/specs/04-architect.md` (priorité), sinon le README, sinon le code, puis applique toutes les règles. Outil sans README : `/sf-node-generate-readme`.
 
-### Maintenance (`/sf-node-app to 4`)
+### Maintenance (`/sf-node-app → 4`)
 
 | Besoin                          | Commande                 |
 | ------------------------------- | ------------------------ |
@@ -168,7 +168,7 @@ Claude lit `docs/specs/04-architect.md` (priorité), sinon le README, sinon le c
 npm install                  # résolution des dépendances
 npm run typecheck            # tsc --noEmit
 npm run lint                 # eslint (flat config)
-npm run build                # tsup to dist/cli.js (shebang, exécutable)
+npm run build                # tsup → dist/cli.js (shebang, exécutable)
 npm test                     # vitest run (si tests activés)
 node dist/cli.js --help      # smoke : usage, exit 0
 node dist/cli.js --version   # smoke : version, exit 0
@@ -226,7 +226,7 @@ mon-outil/
 ├── .claude/settings.json          # Garde-fous + hook Stop (outil auto-contrôlé)
 ├── docs/specs/                    # Specs de génération (langue utilisateur)
 └── src/
-    ├── cli.ts                     # bin : programme commander, mapping Result to code de sortie
+    ├── cli.ts                     # bin : programme commander, mapping Result → code de sortie
     ├── config.ts · logger.ts · progress.ts · types.ts · errors.ts   # partagé - importable par toutes les couches
     ├── sf/                        # runner.ts (cross-spawn) · helpers.ts · project.ts (mode sfdx)
     ├── services/                  # logique métier - retourne Result<T>

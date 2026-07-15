@@ -1,7 +1,7 @@
 # Salesforce Node CLI Generator (`sf-node`)
 
 > Senior Node.js / TypeScript / Salesforce CLI (`sf` v2) expert. Headless command-line tools and automation scripts, **mandatorily coupled to Salesforce**, for personal and professional use. Layered architecture (`commands` → `services` → `sf` / `output`, composition root `cli.ts`).
-> The user has 11 years of Apex/Salesforce experience. Do not explain general programming concepts. Explain only the Node.js / TypeScript / CLI / `sf` specifics that deviate from what an Apex developer would expect.
+> Do not explain general programming concepts. Explain only the Node.js / TypeScript / CLI / `sf` specifics that deviate from what a generic senior developer would expect.
 > Framework version: 1.0.0 (unified edition). This version is recorded in each generated tool's `CLAUDE.md`.
 
 ---
@@ -41,6 +41,7 @@ Each skill opens with an explicit **Role / Goal / Deliverable** header that scop
 The generation pipeline has 5 phases. Each phase skill **opens by displaying a visible banner** (rendered in the user's language) so the user knows where they are and follows the thread. This banner is the **visible counterpart** of the internal Role/Goal/Deliverable header (which stays hidden - see ROLE PER SKILL).
 
 Phases - user-facing name + one-line intent:
+
 1. **Scoping** - destination folder, project parameters, Salesforce coupling mode.
 2. **Features** - elicit commands, prioritize (MoSCoW), bound the v1.0 scope.
 3. **Surfaces** - map the validated features onto the CLI surface (subcommands, args/flags, I/O, exit codes).
@@ -48,15 +49,17 @@ Phases - user-facing name + one-line intent:
 5. **Development** - deliver the tool in batches.
 
 Banner format - **output it as plain Markdown, never inside a code block / fenced block** (a fenced block shows raw code-fence markers to the user). Three blocks, each on its own line, in the user's language:
+
 - an H2 heading: `## Phase N/5 — [Name]`
-- the progress map: completed phases followed by `✓`, the current phase preceded by `▶`, upcoming phases plain, joined with ` · `
-- the one-line intent, in *italics*
+- the progress map: completed phases followed by `✓`, the current phase preceded by `▶`, upcoming phases plain, joined with `·`
+- the one-line intent, in _italics_
 
 Example for Phase 3 (renders as a heading + two lines, not a fenced block):
 
 > ## Phase 3/5 — Surfaces
+>
 > Scoping ✓ · Features ✓ · ▶ Surfaces · Architecture · Development
-> *Map the validated features onto the CLI surface.*
+> _Map the validated features onto the CLI surface._
 
 - Progress map: completed phases marked `✓`, the current phase marked `▶`, upcoming phases plain. These are **intentional progress markers** (not decorative - the no-emoji rule does not strip them). Use the label `Surfaces` for Phase 3 in the progress map.
 - Render every phase label and intent in the user's language.
@@ -70,12 +73,12 @@ This target is **headless**: no UI, no palette, no design system, no i18n. Phase
 
 The generation pipeline writes a persisted spec file per phase into `docs/specs/` of the generated project, **in addition** to showing it on screen. **Spec files are written in the user's language** (for user review).
 
-| Phase | Spec file |
-| ----- | --------------------------------- |
-| 1 - Scoping           | `docs/specs/01-scoping.md`   |
-| 2 - Featuring         | `docs/specs/02-featuring.md`   |
-| 3 - Surfaces | `docs/specs/03-surfaces.md`    |
-| 4 - Architect         | `docs/specs/04-architect.md` (locked architectural contract) |
+| Phase         | Spec file                                                    |
+| ------------- | ------------------------------------------------------------ |
+| 1 - Scoping   | `docs/specs/01-scoping.md`                                   |
+| 2 - Featuring | `docs/specs/02-featuring.md`                                 |
+| 3 - Surfaces  | `docs/specs/03-surfaces.md`                                  |
+| 4 - Architect | `docs/specs/04-architect.md` (locked architectural contract) |
 
 `docs/specs/04-architect.md` is the **source of truth** for the project structure - re-read by `/sf-node-load-project`, `/sf-node-show-contract`, `/sf-node-add-feature`, and `/sf-node-refactor-code`.
 
@@ -91,24 +94,24 @@ This framework has **no** `design-system.md` / `layout.md` (headless target — 
 
 ## STACK (NON-NEGOTIABLE)
 
-| Item                 | Value                                                          |
-| -------------------- | -------------------------------------------------------------- |
-| Target               | Headless CLI tool (cross-OS, Windows-first)                   |
-| Runtime              | Node.js 24 LTS+ · ESM (`"type": "module"`)                    |
-| Language             | TypeScript strict (`strict: true`)                            |
-| Architecture         | Layered - `commands` → `services` → `sf` / `output` · composition root `cli.ts` |
-| CLI parser           | `commander` (default) · `node:util parseArgs` (fallback for a 1-2 script project) |
-| Salesforce CLI       | **`sf` v2 — mandatory** · `cross-spawn` runner — see `rules/sf-cli.md` + `sf-cli-reference/INDEX.md` |
-| Coupling mode        | `standalone` (org via `sf`) **or** `sfdx-project` (inside an SFDX folder) - chosen in Phase 1 - see `rules/sfdx-project.md` |
-| Config               | Cascade `config.ts` < `.env` (native `--env-file`) < CLI flags · non-secret only — see `rules/config.md` |
-| Secrets              | Never in a file — held by the `sf` OS keychain                |
-| Logging              | `pino` (file + `stderr`, `pino-pretty` in dev) — see `rules/logging.md` |
-| Runtime feedback     | Progress reporter — steps/spinner + bar on `stderr`, auto-TTY, `--no-progress` — see `rules/progress.md` |
-| Output               | Formatters - JSON · CSV (`csv-stringify`) · xlsx (`exceljs`) · console table — see `rules/output.md` |
-| Error contract       | `Result<T>` + named errors + exit-code mapping at the CLI boundary — see `rules/errors.md` |
-| Build                | `tsup` (bundle `dist/cli.js`, shebang) · `tsx` (dev) · `tsc --noEmit` (typecheck) |
-| Tests                | `vitest` (if selected in Phase 1)                            |
-| Quality              | ESLint (flat config) + Prettier · TSDoc on classes and public API |
+| Item             | Value                                                                                                                       |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Target           | Headless CLI tool (cross-OS, Windows-first)                                                                                 |
+| Runtime          | Node.js 24 LTS+ · ESM (`"type": "module"`)                                                                                  |
+| Language         | TypeScript strict (`strict: true`)                                                                                          |
+| Architecture     | Layered - `commands` → `services` → `sf` / `output` · composition root `cli.ts`                                             |
+| CLI parser       | `commander` (default) · `node:util parseArgs` (fallback for a 1-2 script project)                                           |
+| Salesforce CLI   | **`sf` v2 — mandatory** · `cross-spawn` runner — see `rules/sf-cli.md` + `sf-cli-reference/INDEX.md`                        |
+| Coupling mode    | `standalone` (org via `sf`) **or** `sfdx-project` (inside an SFDX folder) - chosen in Phase 1 - see `rules/sfdx-project.md` |
+| Config           | Cascade `config.ts` < `.env` (native `--env-file`) < CLI flags · non-secret only — see `rules/config.md`                    |
+| Secrets          | Never in a file — held by the `sf` OS keychain                                                                              |
+| Logging          | `pino` (file + `stderr`, `pino-pretty` in dev) — see `rules/logging.md`                                                     |
+| Runtime feedback | Progress reporter — steps/spinner + bar on `stderr`, auto-TTY, `--no-progress` — see `rules/progress.md`                    |
+| Output           | Formatters - JSON · CSV (`csv-stringify`) · xlsx (`exceljs`) · console table — see `rules/output.md`                        |
+| Error contract   | `Result<T>` + named errors + exit-code mapping at the CLI boundary — see `rules/errors.md`                                  |
+| Build            | `tsup` (bundle `dist/cli.js`, shebang) · `tsx` (dev) · `tsc --noEmit` (typecheck)                                           |
+| Tests            | `vitest` (if selected in Phase 1)                                                                                           |
+| Quality          | ESLint (flat config) + Prettier · TSDoc on classes and public API                                                           |
 
 ---
 
@@ -142,35 +145,35 @@ All commands below are Claude Code skills invocable with `/`:
 
 ### Generation pipeline
 
-| Command                    | Skill                            | Action                                             |
-| -------------------------- | -------------------------------- | -------------------------------------------------- |
-| `/sf-node-app`             | `skills/sf-node-app/`            | Start / resume / maintenance menu                  |
-| `/sf-node-p1-scoping`      | `skills/sf-node-p1-scoping/`     | Scoping - questions (coupling mode, output, tests…) |
-| `/sf-node-p2-featuring`    | `skills/sf-node-p2-featuring/`   | Tool name + commands (MoSCoW) + v1.0 scope + locked sizing |
-| `/sf-node-p3-surfaces`    | `skills/sf-node-p3-surfaces/`   | Command interface contract (subcommands, args, I/O) |
-| `/sf-node-p4-architect`    | `skills/sf-node-p4-architect/`   | Locked architectural contract                      |
-| `/sf-node-p5-development`  | `skills/sf-node-p5-development/` | Batch delivery                                     |
+| Command                   | Skill                            | Action                                                     |
+| ------------------------- | -------------------------------- | ---------------------------------------------------------- |
+| `/sf-node-app`            | `skills/sf-node-app/`            | Start / resume / maintenance menu                          |
+| `/sf-node-p1-scoping`     | `skills/sf-node-p1-scoping/`     | Scoping - questions (coupling mode, output, tests…)        |
+| `/sf-node-p2-featuring`   | `skills/sf-node-p2-featuring/`   | Tool name + commands (MoSCoW) + v1.0 scope + locked sizing |
+| `/sf-node-p3-surfaces`    | `skills/sf-node-p3-surfaces/`    | Command interface contract (subcommands, args, I/O)        |
+| `/sf-node-p4-architect`   | `skills/sf-node-p4-architect/`   | Locked architectural contract                              |
+| `/sf-node-p5-development` | `skills/sf-node-p5-development/` | Batch delivery                                             |
 
 ### Post-delivery maintenance
 
-| Command                    | Skill                            | Action                                                  |
-| -------------------------- | -------------------------------- | ------------------------------------------------------- |
-| `/sf-node-trace-feature`   | `skills/sf-node-trace-feature/`  | Trace a command across the layers, report               |
-| `/sf-node-add-feature`     | `skills/sf-node-add-feature/`    | Add a command/feature (contract-compliant)              |
-| `/sf-node-fix-issue`       | `skills/sf-node-fix-issue/`      | Fix a bug - decision tree, root cause                   |
-| `/sf-node-refactor-code`   | `skills/sf-node-refactor-code/`  | Refactor under explicit validation only                 |
-| `/sf-node-run-tests`       | `skills/sf-node-run-tests/`      | Run executable verification (typecheck, lint, build, test) |
+| Command                  | Skill                           | Action                                                     |
+| ------------------------ | ------------------------------- | ---------------------------------------------------------- |
+| `/sf-node-trace-feature` | `skills/sf-node-trace-feature/` | Trace a command across the layers, report                  |
+| `/sf-node-add-feature`   | `skills/sf-node-add-feature/`   | Add a command/feature (contract-compliant)                 |
+| `/sf-node-fix-issue`     | `skills/sf-node-fix-issue/`     | Fix a bug - decision tree, root cause                      |
+| `/sf-node-refactor-code` | `skills/sf-node-refactor-code/` | Refactor under explicit validation only                    |
+| `/sf-node-run-tests`     | `skills/sf-node-run-tests/`     | Run executable verification (typecheck, lint, build, test) |
 
 ### State / utilities
 
-| Command                     | Skill                             | Action                                          |
-| --------------------------- | --------------------------------- | ----------------------------------------------- |
-| `/sf-node-load-project`     | `skills/sf-node-load-project/`    | Load an existing delivered project              |
-| `/sf-node-generate-readme`  | `skills/sf-node-generate-readme/` | Generate the README.md of an existing project   |
-| `/sf-node-save-session`     | `skills/sf-node-save-session/`    | Generate the session save file                  |
-| `/sf-node-show-state`       | `skills/sf-node-show-state/`      | Current project state                           |
-| `/sf-node-show-contract`    | `skills/sf-node-show-contract/`   | Validated contract tree                         |
-| `/sf-node-save-memory`      | `skills/sf-node-save-memory/`     | Memorize an error, decision, or preference      |
+| Command                    | Skill                             | Action                                        |
+| -------------------------- | --------------------------------- | --------------------------------------------- |
+| `/sf-node-load-project`    | `skills/sf-node-load-project/`    | Load an existing delivered project            |
+| `/sf-node-generate-readme` | `skills/sf-node-generate-readme/` | Generate the README.md of an existing project |
+| `/sf-node-save-session`    | `skills/sf-node-save-session/`    | Generate the session save file                |
+| `/sf-node-show-state`      | `skills/sf-node-show-state/`      | Current project state                         |
+| `/sf-node-show-contract`   | `skills/sf-node-show-contract/`   | Validated contract tree                       |
+| `/sf-node-save-memory`     | `skills/sf-node-save-memory/`     | Memorize an error, decision, or preference    |
 
 ---
 
@@ -195,9 +198,9 @@ Which command(s) to run for a given intent. The **generation pipeline** (p1→p5
 
 Canonical source of the calibration. Skills refer to it - do not duplicate this table elsewhere. This is an **internal planning input** that drives the Phase 5 batch split - **not** a user-facing milestone: do not announce it in Phase 1, determine it internally at the end of Phase 2 from the v1.0 command count, and record it in the spec.
 
-| Size          | Files    | Commands/Features | Batches (no tests) | Batches (with tests) |
-| ------------- | -------- | ----------------- | ------------------ | -------------------- |
-| Small         | < 10     | ≤ 5               | 3                  | 4                    |
-| Medium / Large| ≥ 10     | > 5               | 4                  | 5                    |
+| Size           | Files | Commands/Features | Batches (no tests) | Batches (with tests) |
+| -------------- | ----- | ----------------- | ------------------ | -------------------- |
+| Small          | < 10  | ≤ 5               | 3                  | 4                    |
+| Medium / Large | ≥ 10  | > 5               | 4                  | 5                    |
 
 The extra batch corresponds to the test suite + dev dependencies (see `rules/tests.md`). Divergent criteria (e.g. < 10 files but > 5 commands): the highest criterion wins → Medium/Large. The `sf` runner + starter command ship in **Batch 1** (no dedicated batch); the `output/` formatters and each coupling mode add files and push the size up.

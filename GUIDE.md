@@ -40,6 +40,7 @@ sf-node/
     │   ├── sf-node-trace-feature/  # Tracer une commande à travers les couches
     │   ├── sf-node-fix-issue/      # Corriger un bug : arbre de décision, cause racine
     │   ├── sf-node-refactor-code/  # Restructurer sous validation explicite uniquement
+    │   ├── sf-node-release/        # Figer une version SemVer (changelog cumulé)
     │   ├── sf-node-run-tests/      # Vérification exécutable (typecheck, lint, build, smoke)
     │   ├── sf-node-load-project/   # Chargement d'un outil existant
     │   ├── sf-node-generate-readme/ # Génération README.md d'un outil existant
@@ -150,13 +151,14 @@ Claude lit `docs/specs/04-architect.md` (priorité), sinon le README, sinon le c
 
 ### Maintenance (`/sf-node-app → 4`)
 
-| Besoin                          | Commande                 |
-| ------------------------------- | ------------------------ |
-| Ajouter une commande            | `/sf-node-add-feature`   |
-| Comprendre / tracer le code     | `/sf-node-trace-feature` |
-| Corriger un bug                 | `/sf-node-fix-issue`     |
-| Restructurer (sous validation)  | `/sf-node-refactor-code` |
-| Vérifier le build / les checks  | `/sf-node-run-tests`     |
+| Besoin                                      | Commande                 |
+| ------------------------------------------- | ------------------------ |
+| Ajouter une commande                        | `/sf-node-add-feature`   |
+| Comprendre / tracer le code                 | `/sf-node-trace-feature` |
+| Corriger un bug                             | `/sf-node-fix-issue`     |
+| Restructurer (sous validation)              | `/sf-node-refactor-code` |
+| Figer une version SemVer (changelog cumulé) | `/sf-node-release`       |
+| Vérifier le build / les checks              | `/sf-node-run-tests`     |
 
 ---
 
@@ -206,6 +208,7 @@ Après correction (`/sf-node-fix-issue` ou Phase 5), Claude produit un bilan de 
 | `/sf-node-trace-feature`   | Sonnet | Tracer une commande à travers les couches       |
 | `/sf-node-fix-issue`       | Sonnet | Corriger un bug - cause racine                  |
 | `/sf-node-refactor-code`   | Sonnet | Restructurer sous validation                    |
+| `/sf-node-release`         | Sonnet | Figer une version SemVer depuis le changelog cumulé |
 | `/sf-node-run-tests`       | Sonnet | Vérification exécutable                          |
 | `/sf-node-load-project`    | Sonnet | Charger un outil existant                        |
 | `/sf-node-generate-readme` | Sonnet | Générer README.md d'un outil existant           |
@@ -225,6 +228,7 @@ mon-outil/
 ├── CLAUDE.md                      # Identité de l'outil (origine, contexte, écarts) - généré en fin de Phase 5
 ├── .claude/settings.json          # Garde-fous + hook Stop (outil auto-contrôlé)
 ├── docs/specs/                    # Specs de génération (langue utilisateur)
+├── docs/release/CHANGELOG.md       # Changelog SemVer (Keep a Changelog, anglais) - figé par /sf-node-release
 └── src/
     ├── cli.ts                     # bin : programme commander, mapping Result → code de sortie
     ├── config.ts · logger.ts · progress.ts · types.ts · errors.ts   # partagé - importable par toutes les couches
@@ -233,6 +237,12 @@ mon-outil/
     ├── commands/                  # adaptateurs fins (starter : org.ts, data.ts)
     └── output/                    # index.ts (dispatch) · csv.ts · xlsx.ts · table.ts
 ```
+
+---
+
+## Versioning & changelog
+
+Chaque outil généré porte une version SemVer et un changelog `docs/release/CHANGELOG.md` (format Keep a Changelog, rédigé en anglais). Les skills de maintenance (`add-feature`, `fix-issue`, `refactor-code`) accumulent leurs entrées sous `## [Unreleased]` ; `/sf-node-release` les fige en un bloc de version daté et incrémente la source de version (`package.json` ; `APP_VERSION` en est dérivé, rien à synchroniser). La version n'est jamais incrémentée en silence. Voir `rules/versioning.md`.
 
 ---
 

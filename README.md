@@ -20,7 +20,7 @@ A structured prompt system that generates complete, production-ready Salesforce 
 
 Each phase writes a spec in the user's language to `docs/specs/` (`01-scoping` ... `04-architect`); the contract is the source of truth.
 
-**Maintenance commands**: `/sf-node-add-feature` (add a command, contract-compliant), `/sf-node-trace-feature` (trace behavior across the layers), `/sf-node-fix-issue` (root-cause debugging), `/sf-node-refactor-code` (validated, behavior-preserving), `/sf-node-run-tests` (executable verification). Plus `/sf-node-load-project` and `/sf-node-generate-readme` for existing tools.
+**Maintenance commands**: `/sf-node-add-feature` (add a command, contract-compliant), `/sf-node-trace-feature` (trace behavior across the layers), `/sf-node-fix-issue` (root-cause debugging), `/sf-node-refactor-code` (validated, behavior-preserving), `/sf-node-release` (cut a SemVer release from the accumulated changelog), `/sf-node-run-tests` (executable verification). Plus `/sf-node-load-project` and `/sf-node-generate-readme` for existing tools.
 
 Every generated tool enforces the same layered architecture, the `Result<T>` + stdout/stderr + exit-code contract, the `cross-spawn` `sf` runner, and secret-safe handling (tokens stay in the `sf` OS keychain, never in a file).
 
@@ -89,6 +89,7 @@ Then in Claude Code:
 | `/sf-node-trace-feature`    | Trace a command across the layers                        |
 | `/sf-node-fix-issue`        | Fix a bug - decision tree, root cause                    |
 | `/sf-node-refactor-code`    | Refactor under explicit validation only                  |
+| `/sf-node-release`          | Cut a SemVer release from the accumulated changelog      |
 | `/sf-node-run-tests`        | Executable verification (typecheck, lint, build, smoke)  |
 | `/sf-node-load-project`     | Load an existing tool from its specs/README              |
 | `/sf-node-generate-readme`  | Generate README.md for an existing tool                  |
@@ -108,6 +109,7 @@ mytool/
 ├── CLAUDE.md                      # Tool identity (origin, business context, deviations)
 ├── .claude/settings.json          # Guardrails + Stop verification hook (self-enforced tool)
 ├── docs/specs/                    # Generation specs (user's language): 01-scoping ... 04-architect
+├── docs/release/CHANGELOG.md       # SemVer changelog (Keep a Changelog, English) - cut by /sf-node-release
 └── src/
     ├── cli.ts                     # bin entry: commander program, exit-code mapping
     ├── config.ts · logger.ts · progress.ts · types.ts · errors.ts   # shared - importable by all layers
@@ -116,6 +118,12 @@ mytool/
     ├── commands/                  # thin adapters (starter: org.ts, data.ts)
     └── output/                    # index.ts (dispatch) · csv.ts · xlsx.ts · table.ts
 ```
+
+---
+
+## Versioning & changelog
+
+Every generated tool carries a SemVer version and a changelog at `docs/release/CHANGELOG.md` (Keep a Changelog format, written in English). Maintenance skills (`add-feature`, `fix-issue`, `refactor-code`) accumulate entries under `## [Unreleased]`; `/sf-node-release` freezes them into a dated version block and bumps the version source (`package.json` version; `APP_VERSION` is derived from it, nothing to sync). The version is never bumped silently. See `rules/versioning.md`.
 
 ---
 

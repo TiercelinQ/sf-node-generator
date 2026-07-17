@@ -61,7 +61,8 @@ Read the actual error before touching code (command output, stack trace, the pin
 3. **Ask: "knowing what I know now, what is the clean fix?"** Implement that, not the quickest patch. If the clean fix is larger than expected, say so before applying.
 4. Apply the minimum correct change. Respect the layers, the contract (`docs/specs/04-architect.md`), and the security rules.
 5. **Verify**: re-run `@rules/verification.md §A` for the affected area (typecheck, lint, build, smoke `--help` / `--version`; `npm test` if tests exist); confirm the targeted failure is gone and nothing else broke. Then apply `@rules/readme.md` — if the fix changed a documented aspect (a command, flag, config key, dependency, tree, coupling mode), regenerate the README. A purely internal fix does not trigger a refresh.
-6. If it took several attempts: produce the **cleanup report** (`@rules/architecture.md`), then offer `Do you want to remember this point? /sf-node-save-memory`.
+6. **Changelog**: append a `### Fixed` entry under `## [Unreleased]` in `docs/release/CHANGELOG.md` (`@rules/versioning.md`) — in English, one concise line, no version bump (the bump happens at `/sf-node-release`). If the file is absent (legacy tool), skip silently and suggest `/sf-node-load-project` to initialize it. Skip for a non-code fix with no user-visible effect (e.g. a doc typo).
+7. If it took several attempts: produce the **cleanup report** (`@rules/architecture.md`), then offer `Do you want to remember this point? /sf-node-save-memory`.
 
 ## Cleanup report — multi-attempt anomaly
 

@@ -44,6 +44,7 @@ Project root to maintain? (folder path, e.g. C:\projects\sf-export)
 - add a command / feature → `/sf-node-add-feature`
 - fix a bug → `/sf-node-fix-issue`
 - restructure existing code → `/sf-node-refactor-code`
+- cut a release / bump the version → `/sf-node-release`
 - verify the build / run checks → `/sf-node-run-tests`
 
 If `/sf-node-app` is typed mid-project: show the menu only, without resetting the current state.

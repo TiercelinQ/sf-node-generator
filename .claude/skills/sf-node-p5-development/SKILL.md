@@ -21,7 +21,7 @@ The full project source on disk + `README.md` + `CLAUDE.md` + `.claude/settings.
 
 ## Code rules
 
-At start, read and fully apply: `@rules/architecture.md` · `@rules/cli.md` · `@rules/sf-cli.md` · `@rules/errors.md` · `@rules/config.md` · `@rules/security.md` · `@rules/logging.md` · `@rules/output.md` · `@rules/progress.md` · `@rules/sfdx-project.md` (if coupling mode = `sfdx-project`) · `@rules/tests.md` (if tests) · `@rules/verification.md` (not auto-imported). Read `docs/specs/04-architect.md` — the **locked contract** this build follows. Verify every `sf` command/flag against `sf-cli-reference/` **by section** (`INDEX.md` first, then the matching capability file) — never invent one.
+At start, read and fully apply: `@rules/architecture.md` · `@rules/cli.md` · `@rules/sf-cli.md` · `@rules/errors.md` · `@rules/config.md` · `@rules/security.md` · `@rules/logging.md` · `@rules/output.md` · `@rules/progress.md` · `@rules/sfdx-project.md` (if coupling mode = `sfdx-project`) · `@rules/tests.md` (if tests) · `@rules/versioning.md` · `@rules/verification.md` (not auto-imported). Read `docs/specs/04-architect.md` — the **locked contract** this build follows. Verify every `sf` command/flag against `sf-cli-reference/` **by section** (`INDEX.md` first, then the matching capability file) — never invent one.
 
 Critical reminders:
 - ESLint clean · Prettier · TypeScript strict · TSDoc on classes and public API. Zero `// TODO`, zero unjustified empty implementation, zero unjustified `any` (external data — `sf --json`, files, args, env — is `unknown` then validated).
@@ -62,13 +62,14 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
 - **`src/cli.ts`** (+ **`src/logger.ts`**, the pino setup — `@rules/logging.md`, + **`src/progress.ts`**, the progress reporter — `@rules/progress.md`) with the strict composition order (`@rules/architecture.md`, `@rules/cli.md`): global `uncaughtException` / `unhandledRejection` handlers first → `process.loadEnvFile()` (guarded) → `resolveConfig()` → `configureLogger()` → decide progress activation + `configureProgress()` (auto-on a TTY, off under `--no-progress` / `CI` / debug; raises the `pino` level to `warn` while active) → build the `commander` program (`.name` / `.description` / `.version(APP_VERSION)` / `.option("--no-progress", …)` / `.exitOverride()` / `configureOutput` errors → `stderr`) → `SfRunner` → `SfHelpers` → services → register command groups → `parseAsync` in a `try/catch` mapping the outcome to an exit code. **If `sfdx-project`**: `detectSfdxProject(process.cwd())` at startup, fatal `ProjectNotFoundError` if absent.
 - **`package.json`** + the root configs per `@rules/config.md`: `tsconfig.json` (strict, `moduleResolution: "bundler"`, extensionless imports), `tsup.config.ts` (bundle `src/cli.ts` → `dist/cli.js`, esm, `target: node24`, shebang, `clean`), `eslint.config.mjs` (flat config), `.prettierrc`, `.env.example` (non-secret keys only), `.gitignore` (`node_modules/`, `dist/`, `logs/`, `.env`, `exports/`). `"type": "module"`, `bin → dist/cli.js`, caret-pinned dependencies matching the Phase 1 selection; the `"test"` script only if tests enabled.
 - **`README.md`** at the root (`@rules/readme.md`): objective · commands & subcommands (positional args / flags, exit codes) · stack & dependencies · file tree · config keys (`.env` variables + CLI flags) · **Salesforce prerequisite** (cross-OS `sf` v2 install + `SF_CLI_PATH` fallback + the coupling mode this tool was generated for: `standalone` or `sfdx-project`) · output formats (`json` / `csv` / `xlsx` / `table`) · runtime progress display (auto-on a TTY, `--no-progress`) · install & run (`npm install`, `npm run build`, `node dist/cli.js …`) + a **scheduling note** (cron / Windows Task Scheduler: redirect `stdout` → a data file, `stderr` → a log, the exit code drives success/failure alerting) + the `npm audit` reminder.
+- **`docs/release/CHANGELOG.md`** written at the project root (create `docs/release/`), seeded per `@rules/versioning.md` — **in English**, Keep a Changelog shape: the preamble, an empty `## [Unreleased]`, and the initial `## [1.0.0] - <YYYY-MM-DD>` block with `### Added` / `- Initial release.`. The `1.0.0` matches the tool version in `package.json` (and therefore `APP_VERSION`, which is derived from it — `@rules/config.md`). Later releases are cut with `/sf-node-release`.
 - **`CLAUDE.md`** at the generated project root (in the user's language), recording the tool's identity for future sessions:
 
   ```markdown
   # [nom-outil]
 
   ## Origin
-  Framework: sf-node v1.0.0
+  Framework: sf-node v1.1.0
 
   ## Business context
   [What the tool does — synthesized from docs/specs/02-featuring.md: objective + key commands. Coupling mode: standalone | sfdx-project.]
@@ -76,7 +77,7 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
   ## Deviations from the framework
   - None
   ```
-  `[nom-outil]` = the tool name (`APP_NAME`). The version is the one declared at the top of the framework `CLAUDE.md` (currently 1.0.0). Replace the `Deviations` list with every deviation validated via the Phase 4/5 deviation protocol (`- [deviation] — reason: [justification]`); if none, keep `- None`.
+  `[nom-outil]` = the tool name (`APP_NAME`). The version here is the **framework** version declared at the top of the framework `CLAUDE.md` (currently 1.1.0) — not the tool's own version (which starts at 1.0.0 in `package.json` / `docs/release/CHANGELOG.md`). Replace the `Deviations` list with every deviation validated via the Phase 4/5 deviation protocol (`- [deviation] — reason: [justification]`); if none, keep `- None`.
 - **`.claude/settings.json`** at the generated project root so the tool stays self-enforced in later maintenance sessions:
 
   ```json

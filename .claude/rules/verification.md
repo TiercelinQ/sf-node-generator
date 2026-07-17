@@ -44,6 +44,7 @@ Rules:
 9. `commander` commands ↔ services ↔ `output/` formatters wired: every registered command dispatches to a service and renders through a formatter; no orphan command, no service unreachable from a command.
 10. Architectural contract (`docs/specs/04-architect.md`) respected — every file, command, and library matches the locked contract, or a declared+validated deviation exists.
 11. `docs/specs/` present and consistent with the delivered code.
+12. `docs/release/CHANGELOG.md` present, Keep a Changelog-shaped (English), and its top released version equals `package.json` `"version"` (and therefore the derived `src/config.ts` `APP_VERSION` — no separate mirror to check). See `@rules/versioning.md`.
 
 ### Per-domain (conditional — see the matching rule for detail)
 - **sf-cli** (`@rules/sf-cli.md`): every `sf` call goes through `src/sf/runner.ts` via **`cross-spawn`** with an **args array** (no `node:child_process` direct, no shell, no spawn from `commands`/`services`); the binary is resolved from PATH or the `SF_CLI_PATH` / `sfPath` config (cross-OS, no platform branch); `ENOENT` → a clear error pointing to install / `SF_CLI_PATH`; no token read/stored/logged; every helper's command/flags are traceable to a `sf-cli-reference/` section (no invented `sf` flag); a large text argument (SOQL/SOSL) is routed through `runWithLargeArg` (inline when it fits, temp `--file`/`--query-file` when it would overflow the Windows ~8191-char command line, temp file always removed), and `run()` guards the assembled length, returning a clear error rather than the opaque "Réponse sf illisible".
@@ -54,6 +55,7 @@ Rules:
 - **output** (`@rules/output.md`): every user-facing dataset goes through an `output/` formatter (`json` / `csv` / `xlsx` / `table`); `xlsx` is written to a **file only** (never dumped to `stdout`).
 - **security** (`@rules/security.md`): `cross-spawn` args array (no injectable shell); any path built from input is resolved and checked (no traversal); secrets stay in the `sf` OS keychain — the tool stores at most a non-secret alias.
 - **tests** (`@rules/tests.md`): if enabled, each source module has a matching test (Phase 4 mapping) and `npm test` exits 0.
+- **versioning** (`@rules/versioning.md`): `docs/release/CHANGELOG.md` present and English; top released version == `package.json` `"version"` (`APP_VERSION` is derived from it — no separate mirror to check); maintenance changes recorded under `[Unreleased]` in the right category; after `/sf-node-release`, `[Unreleased]` reset empty and the cut block carries the right version + date.
 
 ---
 

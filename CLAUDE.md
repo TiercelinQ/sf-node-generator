@@ -2,7 +2,7 @@
 
 > Senior Node.js / TypeScript / Salesforce CLI (`sf` v2) expert. Headless command-line tools and automation scripts, **mandatorily coupled to Salesforce**, for personal and professional use. Layered architecture (`commands` → `services` → `sf` / `output`, composition root `cli.ts`).
 > Do not explain general programming concepts. Explain only the Node.js / TypeScript / CLI / `sf` specifics that deviate from what a generic senior developer would expect.
-> Framework version: 1.0.0 (unified edition). This version is recorded in each generated tool's `CLAUDE.md`.
+> Framework version: 1.1.0 (unified edition). This version is recorded in each generated tool's `CLAUDE.md`.
 
 ---
 
@@ -131,11 +131,12 @@ This framework has **no** `design-system.md` / `layout.md` (headless target — 
 - If tests enabled in Phase 1: test suite mandatory (`vitest`) - see `rules/tests.md`
 - Zero `// TODO`, zero unjustified empty implementation. ESLint clean · Prettier · TS strict with no unjustified `any` (incoming external data is `unknown` then validated).
 - No library that was not validated in Phase 1.
-- At project finalization (last batch of Phase 5): generate a `CLAUDE.md` at the generated project root - origin (framework + version), business context, framework deviations. See `/sf-node-p5-development`.
+- At project finalization (last batch of Phase 5): generate a `CLAUDE.md` at the generated project root - origin (framework + version), business context, framework deviations - and seed `docs/release/CHANGELOG.md` (Keep a Changelog, English, initial `1.0.0`). See `/sf-node-p5-development` and `rules/versioning.md`.
+- Maintenance changes (`add-feature`/`fix-issue`/`refactor-code`) append an entry under `## [Unreleased]` in `docs/release/CHANGELOG.md`; the version is bumped only by `/sf-node-release` (it bumps `package.json` `"version"`; `APP_VERSION` is derived from it, nothing to sync). Never bump the version silently. See `rules/versioning.md`.
 - After resolving an anomaly, offer: "Do you want to remember this point? `/sf-node-save-memory`"
 - NEVER read and write the generator's own `.claude/settings.json` — ONLY read and write in `settings.local.json`. (The `.claude/settings.json` written into a delivered project in Phase 5 is a legitimate deliverable; this rule concerns this framework's own file, not the generated one.)
 
-Per-domain rule detail (loaded on demand by `/sf-node-p4-architect`, `/sf-node-p5-development`, and the maintenance skills - not auto-imported): `rules/architecture.md` · `rules/cli.md` · `rules/errors.md` · `rules/config.md` · `rules/security.md` · `rules/sf-cli.md` · `rules/sfdx-project.md` · `rules/output.md` · `rules/logging.md` · `rules/progress.md` · `rules/tests.md` · `rules/verification.md` · `rules/readme.md`
+Per-domain rule detail (loaded on demand by `/sf-node-p4-architect`, `/sf-node-p5-development`, and the maintenance skills - not auto-imported): `rules/architecture.md` · `rules/cli.md` · `rules/errors.md` · `rules/config.md` · `rules/security.md` · `rules/sf-cli.md` · `rules/sfdx-project.md` · `rules/output.md` · `rules/logging.md` · `rules/progress.md` · `rules/tests.md` · `rules/versioning.md` · `rules/verification.md` · `rules/readme.md`
 
 ---
 
@@ -162,6 +163,7 @@ All commands below are Claude Code skills invocable with `/`:
 | `/sf-node-add-feature`   | `skills/sf-node-add-feature/`   | Add a command/feature (contract-compliant)                 |
 | `/sf-node-fix-issue`     | `skills/sf-node-fix-issue/`     | Fix a bug - decision tree, root cause                      |
 | `/sf-node-refactor-code` | `skills/sf-node-refactor-code/` | Refactor under explicit validation only                    |
+| `/sf-node-release`       | `skills/sf-node-release/`       | Cut a SemVer release from the accumulated changelog        |
 | `/sf-node-run-tests`     | `skills/sf-node-run-tests/`     | Run executable verification (typecheck, lint, build, test) |
 
 ### State / utilities
@@ -189,6 +191,7 @@ Which command(s) to run for a given intent. The **generation pipeline** (p1→p5
   - Refactor (behavior-preserving, plan validated first) — `/sf-node-refactor-code` → `/sf-node-run-tests`
   - Understand / audit the code — `/sf-node-trace-feature`
   - Refresh the README — `/sf-node-generate-readme`
+  - Cut a release / prepare a GitHub deploy — `/sf-node-release` (turns the accumulated `docs/release/CHANGELOG.md` `[Unreleased]` entries into a dated SemVer version)
 - **Verify on demand** — `/sf-node-run-tests` (install · typecheck · lint · build · --help/--version smoke).
 - **End of session** — `/sf-node-save-session`; remember a lesson not to repeat — `/sf-node-save-memory`.
 

@@ -25,7 +25,7 @@ A validated plan, then the refactored files on disk + a passing verification + a
 
 ## Steps
 
-1. **Load context**: `docs/specs/04-architect.md` (locked contract), then `@rules/architecture.md` · `@rules/cli.md` · `@rules/errors.md` · `@rules/security.md` · `@rules/sf-cli.md` · `@rules/output.md` (not auto-imported).
+1. **Load context**: `docs/specs/04-architect.md` (locked contract), then `@rules/architecture.md` · `@rules/cli.md` · `@rules/errors.md` · `@rules/security.md` · `@rules/sf-cli.md` · `@rules/output.md` · `@rules/versioning.md` (not auto-imported).
 
 2. **Diagnose** what is actually wrong: duplication, a command doing business logic, a god-service, a service that formats output or imports `commander`, a spawn outside `src/sf/runner.ts`, a `Result` → exit-code mapping duplicated instead of at the `cli.ts` boundary, a magic exit number, a `console.log` where an `output/` formatter belongs, a config constant duplicated instead of in `config.ts`, a shared type inlined instead of in `types.ts`, an `sf` command/flag string repeated instead of a typed helper. Anchor each finding to `file:line`.
 
@@ -38,6 +38,8 @@ A validated plan, then the refactored files on disk + a passing verification + a
 5. **Apply** only after validation. Minimum diff. Respect the layers, the contract, and `@rules/security.md`.
 
 6. **Verify**: `@rules/verification.md §A` — behavior unchanged, typecheck / lint / build clean, smoke `node dist/cli.js --help` / `--version` unchanged, `npm test` (if tests) still green. If the structure changed (a new shared file, moved code, a renamed command/flag), update `docs/specs/04-architect.md`, regenerate the README (`@rules/readme.md`), and keep the composition in `cli.ts` consistent (every command group registered, every service reachable, the `Result` → exit-code mapping still at the boundary).
+
+7. **Changelog**: append a `### Changed` entry under `## [Unreleased]` in `docs/release/CHANGELOG.md` (`@rules/versioning.md`) — in English, one line describing the internal restructuring, no version bump (the bump happens at `/sf-node-release`; a refactor infers PATCH). If the file is absent (legacy tool), skip silently and suggest `/sf-node-load-project`. Skip if the refactor is trivially invisible (e.g. renamed a local variable).
 
 ## Anti-patterns — what NOT to do
 - **Do not** refactor without a validated plan, ever.

@@ -25,7 +25,7 @@ If the project root has not been provided in this flow, first ask: `Project root
 
 If no contract is known: stop and ask for `/sf-node-load-project`.
 
-**Load context**: read `docs/specs/04-architect.md` (locked contract), then `@rules/architecture.md` · `@rules/cli.md` · `@rules/errors.md` · `@rules/config.md` · `@rules/security.md` · `@rules/sf-cli.md` · `@rules/output.md` · `@rules/logging.md` · `@rules/sfdx-project.md` (if the coupling mode is `sfdx-project`) · `@rules/tests.md` (if tests are enabled) · `@rules/verification.md` (not auto-imported). For any `sf`-related change, read `sf-cli-reference/INDEX.md` then the matching section file **before** writing a single command/flag.
+**Load context**: read `docs/specs/04-architect.md` (locked contract), then `@rules/architecture.md` · `@rules/cli.md` · `@rules/errors.md` · `@rules/config.md` · `@rules/security.md` · `@rules/sf-cli.md` · `@rules/output.md` · `@rules/logging.md` · `@rules/sfdx-project.md` (if the coupling mode is `sfdx-project`) · `@rules/tests.md` (if tests are enabled) · `@rules/versioning.md` · `@rules/verification.md` (not auto-imported). For any `sf`-related change, read `sf-cli-reference/INDEX.md` then the matching section file **before** writing a single command/flag.
 
 ## Step 1 — Light feature scoping
 
@@ -96,6 +96,15 @@ Single batch for the feature:
 Feature [name] — [N files]
 
 Deliver each created/modified file as a complete block, written to disk. If tests requested: deliver in the same batch, at the end.
+
+## Step 5b — Changelog entry
+
+After the feature is delivered, append an entry under `## [Unreleased]` in `docs/release/CHANGELOG.md` (`@rules/versioning.md`) — **in English**, no version bump:
+- `### Added` — the new command/capability, one concise line (add a `### Changed` line too if it alters existing behavior).
+- If the change is backward-incompatible (a renamed/removed command or flag, a changed exit-code or `stdout` shape, a changed default), mark it `**BREAKING:**` (drives a MAJOR at release).
+- If `docs/release/CHANGELOG.md` is absent (tool predates the system), skip silently and suggest `/sf-node-load-project` to initialize it.
+
+Do **not** bump the version — that happens at `/sf-node-release`. Mention it once, at the end: the change is recorded under `[Unreleased]`; run `/sf-node-release` when ready to cut a version.
 
 ## Step 6 — Anomaly
 

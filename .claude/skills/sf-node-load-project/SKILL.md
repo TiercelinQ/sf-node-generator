@@ -41,9 +41,11 @@ Services : [count]
 Output formats : [json · csv · xlsx · table]
 Salesforce CLI : sf v2 (mandatory) — runner src/sf/runner.ts
 Tests : [present ([N] files) | absent]
+Changelog : [present (top vX.Y.Z, [N] unreleased entries) | absent (init offered)]
 Specs : [docs/specs present: yes/no]
 
 Generator rules applied. Ready for: add-feature | fix-issue | refactor-code | run-tests | trace-feature.
 
-6. Read and apply all rules to any later change (not auto-imported — read them before touching code): `CLAUDE.md`, @rules/architecture.md · @rules/cli.md · @rules/errors.md · @rules/config.md · @rules/security.md · @rules/sf-cli.md · @rules/output.md · @rules/logging.md · @rules/sfdx-project.md (if coupling = sfdx-project) · @rules/tests.md (if tests present) · @rules/verification.md · @rules/readme.md.
+5b. **Changelog / versioning check (retroactive init).** Look for `docs/release/CHANGELOG.md`. If **present**, read the top released version and count the `## [Unreleased]` entries for the confirmation block. If **absent** (tool predates the versioning system), propose **once**, right after the confirmation block: initialize it with `/sf-node-release`'s format via a seed — read the current version from `package.json` `"version"` (the canonical source; `src/config.ts` `APP_VERSION` is derived from it), create `docs/release/CHANGELOG.md` (create `docs/release/`) with the Keep a Changelog preamble, an empty `## [Unreleased]`, and a `## [<current-version>] - <YYYY-MM-DD>` block noting the baseline (`### Added` / `- Baseline (changelog started).`). Proposed, not imposed; if the user declines, do not re-propose (only on explicit request). Follow `@rules/versioning.md` for the shape.
+6. Read and apply all rules to any later change (not auto-imported — read them before touching code): `CLAUDE.md`, @rules/architecture.md · @rules/cli.md · @rules/errors.md · @rules/config.md · @rules/security.md · @rules/sf-cli.md · @rules/output.md · @rules/logging.md · @rules/sfdx-project.md (if coupling = sfdx-project) · @rules/tests.md (if tests present) · @rules/versioning.md · @rules/verification.md · @rules/readme.md.
 7. Any structural, layering, or security deviation detected between the code and the rules (or vs `docs/specs/04-architect.md`): report it, do not fix without a request (hand off to `/sf-node-fix-issue` or `/sf-node-refactor-code`).

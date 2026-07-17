@@ -1,7 +1,7 @@
 # SF CLI v2 — Command & flag reference (INDEX)
 
 > Binding reference for the `sf` v2 command catalog. **Only relevant when the Salesforce CLI integration is on** (Phase 1 = Yes). Loaded on demand **by section, never read whole**: read this file first, then open only the section file(s) matching the capability you need.
-> Executable: `sf` | CLI version: 2.142.0 | Release: Summer '26 | Updated: 2026-06-27
+> Executable: `sf` | Catalog verified against sf CLI 2.143.6 (Summer '26) on 2026-07-17. Version and freshness live here only; section files are version-agnostic.
 > Source: Salesforce CLI Command Reference (developer.salesforce.com).
 
 ## Reading convention

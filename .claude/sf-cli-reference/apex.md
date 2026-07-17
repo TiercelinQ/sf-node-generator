@@ -1,6 +1,6 @@
 # sf CLI v2 — Apex & Logic
 
-> `sf` v2 catalog (2.142.0, Summer '26). Section §7 extracted from the reference. Conventions and global flags: see `INDEX.md`.
+> `sf` v2 command catalog, section §7. Catalog version, conventions, and global flags: see `INDEX.md`.
 
 ## 7. Apex & Logic
 

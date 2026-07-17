@@ -1,6 +1,6 @@
 # sf CLI v2 — Authentication, orgs & configuration
 
-> `sf` v2 catalog (2.142.0, Summer '26). Sections §2-§4 extracted from the reference. Conventions and global flags: see `INDEX.md`.
+> `sf` v2 command catalog, sections §2-§4. Catalog version, conventions, and global flags: see `INDEX.md`.
 
 ## 2. Authentication & org authorization
 

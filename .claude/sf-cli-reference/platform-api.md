@@ -1,6 +1,6 @@
 # sf CLI v2 — System/CLI, limits & direct API
 
-> `sf` v2 catalog (2.142.0, Summer '26). Sections §1, §12, §13 extracted from the reference. Conventions and global flags: see `INDEX.md`.
+> `sf` v2 command catalog, sections §1, §12, §13. Catalog version, conventions, and global flags: see `INDEX.md`.
 
 ## 1. System & global
 

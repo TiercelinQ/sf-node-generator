@@ -260,7 +260,7 @@ export default tseslint.config(
                      "pino-pretty": "^13.1.3", "exceljs": "^4.4.0", "csv-stringify": "^6.8.1" },
 "devDependencies": { "typescript": "^6.0.0", "tsup": "^8.5.1", "tsx": "^4.23.0",
                      "@types/node": "^24", "@types/cross-spawn": "^6.0.6",
-                     "eslint": "^10.6.0", "typescript-eslint": "^8.63.0",
+                     "eslint": "^10.6.0", "typescript-eslint": "^8.0.0",
                      "prettier": "^3.9.4" }
 ```
 
@@ -270,7 +270,7 @@ Conditional (added only when the matching Phase 1 option is on):
 
 Versioning notes:
 - **`@types/node`**: match the **target Node LTS line** — `^24` for Node 24. Targeting current (Node 26) → `^26`. Keep it in sync with the `tsup` `target` and `engines.node`.
-- **`typescript ^6.0.0` + `typescript-eslint ^8.63.0`**: typescript-eslint 8's TypeScript peer range is `>=4.8.4 <6.1.0`. **TypeScript 6.0.x shipped stable** (`6.0.2`, `6.0.3`), so pin `^6.0.0` — it resolves to the highest 6.0.x, inside that range. Caveat: the registry `latest` tag is now **7.x** (`7.0.2`, the native/Go-port line), which typescript-eslint 8 does **not** support (peer `<6.1.0`), so a bare `npm install typescript` would pull an unsupported 7.x — the `^6.0.0` pin is deliberate. Do **not** take `latest` / `^7.x` until a typescript-eslint major widens its peer range. Confirm at generation: `npm view typescript dist-tags`, `npm view typescript-eslint peerDependencies`.
+- **`typescript ^6.0.0` + `typescript-eslint ^8.0.0`**: typescript-eslint 8's TypeScript peer range is `>=4.8.4 <6.1.0`. **TypeScript 6.0.x shipped stable** (`6.0.2`, `6.0.3`), so pin `^6.0.0` — it resolves to the highest 6.0.x, inside that range. Caveat: the registry `latest` tag is now **7.x** (`7.0.2`, the native/Go-port line), which typescript-eslint 8 does **not** support (peer `<6.1.0`), so a bare `npm install typescript` would pull an unsupported 7.x — the `^6.0.0` pin is deliberate. Do **not** take `latest` / `^7.x` until a typescript-eslint major widens its peer range. Confirm at generation: `npm view typescript dist-tags`, `npm view typescript-eslint peerDependencies`.
 - **`eslint ^10.6.0`**: **flat config only** (`eslint.config.mjs`) and needs **Node ≥ 20**. **`commander ^15.0.0`** also needs **Node ≥ 20** — both are satisfied by the Node 24 target.
 - **`csv-stringify ^6.8.1`**: the **standalone package from the `csv` project** (`csv-stringify`, not the umbrella `csv` bundle) — import `csv-stringify` / `csv-stringify/sync` for the sync API (`@rules/output.md`).
 - **`exceljs ^4.4.0`**: the maintained **xlsx** choice. **Avoid SheetJS / `xlsx`** (supply-chain / security history) — do not substitute it (`@rules/output.md`).

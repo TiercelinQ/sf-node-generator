@@ -1,6 +1,6 @@
 # sf CLI v2 — Deployment, retrieval & component generation
 
-> `sf` v2 catalog (2.142.0, Summer '26). Sections §5-§6 extracted from the reference. Conventions and global flags: see `INDEX.md`.
+> `sf` v2 command catalog, sections §5-§6. Catalog version, conventions, and global flags: see `INDEX.md`.
 
 ## 5. Metadata deployment & retrieval
 

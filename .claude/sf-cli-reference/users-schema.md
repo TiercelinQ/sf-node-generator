@@ -1,6 +1,6 @@
 # sf CLI v2 — Users, permissions, schema & sObjects
 
-> `sf` v2 catalog (2.142.0, Summer '26). Sections §10-§11 extracted from the reference. Conventions and global flags: see `INDEX.md`.
+> `sf` v2 command catalog, sections §10-§11. Catalog version, conventions, and global flags: see `INDEX.md`.
 
 ## 10. Users & permissions
 

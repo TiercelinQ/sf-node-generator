@@ -1,6 +1,6 @@
 # sf CLI v2 — Recent plugins (Experience Cloud, Lightning Dev, Agentforce, Code Analyzer, Dev)
 
-> `sf` v2 catalog (2.142.0, Summer '26). Sections §14-§19 extracted from the reference. Conventions and global flags: see `INDEX.md`.
+> `sf` v2 command catalog, sections §14-§19. Catalog version, conventions, and global flags: see `INDEX.md`.
 > Recent plugins: globals + main flags shown. Confirm the exact detail with `sf <command> --help` (changes every release).
 
 ## 14. Communities / Experience Cloud

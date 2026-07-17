@@ -1,6 +1,6 @@
 # sf CLI v2 — Data (SOQL/SOSL, CRUD, Bulk, Tree)
 
-> `sf` v2 catalog (2.142.0, Summer '26). Section §8 extracted from the reference. Conventions and global flags: see `INDEX.md`.
+> `sf` v2 command catalog, section §8. Catalog version, conventions, and global flags: see `INDEX.md`.
 
 ## 8. Data
 

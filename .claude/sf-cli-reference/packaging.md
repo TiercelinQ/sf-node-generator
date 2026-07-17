@@ -1,6 +1,6 @@
 # sf CLI v2 — Packaging (2GP & 1GP)
 
-> `sf` v2 catalog (2.142.0, Summer '26). Section §9 extracted from the reference. Conventions and global flags: see `INDEX.md`.
+> `sf` v2 command catalog, section §9. Catalog version, conventions, and global flags: see `INDEX.md`.
 
 ## 9. Packaging (2GP & 1GP)
 

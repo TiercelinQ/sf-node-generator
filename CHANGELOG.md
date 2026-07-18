@@ -4,6 +4,10 @@ All notable changes to this generator are documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 (This is the changelog of the **generator** itself, distinct from the `docs/release/CHANGELOG.md` of each generated tool.)
 
+## [1.2.0] - 2026-07-18
+### Added
+- Post-delivery reminder: the Phase 5 delivery summary and the generated tool `CLAUDE.md` now list the maintenance commands and `/sf-node-release`.
+
 ## [1.1.0] - 2026-07-17
 ### Added
 - App changelog + SemVer versioning system for generated tools: new `rules/versioning.md`, new `/sf-node-release` skill, and a seeded `docs/release/CHANGELOG.md` (Keep a Changelog, English). The release skill bumps `package.json` `"version"` only — `APP_VERSION` is derived from it.

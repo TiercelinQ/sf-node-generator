@@ -76,6 +76,12 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
 
   ## Deviations from the framework
   - None
+
+  ## Maintenance
+  - Load the project first: `/sf-node-load-project`
+  - Change it: `/sf-node-add-feature` · `/sf-node-fix-issue` · `/sf-node-refactor-code` (each records the change under `[Unreleased]` in `docs/release/CHANGELOG.md`; the version does not move)
+  - Verify: `/sf-node-run-tests`
+  - Publish a version: `/sf-node-release` (turns the accumulated `[Unreleased]` changelog into a dated version and raises the version number)
   ```
   `[nom-outil]` = the tool name (`APP_NAME`). The version here is the **framework** version declared at the top of the framework `CLAUDE.md` (currently 1.1.0) — not the tool's own version (which starts at 1.0.0 in `package.json` / `docs/release/CHANGELOG.md`). Replace the `Deviations` list with every deviation validated via the Phase 4/5 deviation protocol (`- [deviation] — reason: [justification]`); if none, keep `- None`.
 - **`.claude/settings.json`** at the generated project root so the tool stays self-enforced in later maintenance sessions:
@@ -132,6 +138,8 @@ Once the last batch (plus the test batch if any) is delivered, close Phase 5 wit
   node dist/cli.js --help
   ```
   (+ `npm test` if tests enabled.) Plus the **`sf` v2 prerequisite** (reachable via `PATH` or `SF_CLI_PATH`), the coupling mode, and the scheduling note.
+
+- **Maintenance & release** — after delivery: `/sf-node-load-project` first, then `/sf-node-add-feature` · `/sf-node-fix-issue` · `/sf-node-refactor-code` to change it, `/sf-node-run-tests` to verify, and `/sf-node-release` to publish a version (it turns the accumulated `[Unreleased]` changelog into a dated version and raises the number). The same reminder is recorded in the generated `CLAUDE.md`.
 
 The summary points to the documents; it does not restate them.
 

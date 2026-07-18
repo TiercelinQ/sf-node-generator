@@ -257,4 +257,4 @@ Both modes use the same `SfRunner` and the same `Result<T>` contract.
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: the **Anti-patterns** listed above are the concrete checks for this domain — read each as a check; §A executable checks and §B per-domain: sf-cli cover the rest. Run silently; report only on a discrepancy.
+Detailed in `@rules/verification.md`. Key points: every `sf` call goes through `SfRunner.run` (`cross-spawn`, args array, `--json` appended) — the only spawner in the tool; the binary is resolved from `SF_CLI_PATH` / `config.sfPath` / PATH with no platform branch, and `ENOENT` maps to a clear "sf not found" `Result` error; every helper's command and flags are traceable to a `sf-cli-reference/` section (never invented; sObject fields verified via `describe` before writing SOQL); no token read, stored, or logged; a potentially-large SOQL/SOSL is routed through `runWithLargeArg` (inline when it fits, temp-file spill otherwise, file always removed) and `run()` guards the Windows command-line length with a clear, actionable error; `sf` v2 only, never `sfdx`. Run silently; report only on a discrepancy.

@@ -64,6 +64,7 @@ Example for Phase 3 (renders as a heading + two lines, not a fenced block):
 - Progress map: completed phases marked `✓`, the current phase marked `▶`, upcoming phases plain. These are **intentional progress markers** (not decorative - the no-emoji rule does not strip them). Use the label `Surfaces` for Phase 3 in the progress map.
 - Render every phase label and intent in the user's language.
 - **Start-of-flow overview (once)**: at the very start of Phase 1 (new tool), first list the 5 phases with their intent, then show the Phase 1/5 banner.
+- **Skill slug ↔ phase label**: the skill names carry the pipeline verb, the banner shows the user-facing label — `sf-node-p2-featuring` → **Features**, `sf-node-p4-architect` → **Architecture**. The other three match by name (`p1-scoping` → Scoping, `p3-surfaces` → Surfaces, `p5-development` → Development).
 
 This target is **headless**: no UI, no palette, no design system, no i18n. Phase 3 (**Surfaces**) is the CLI command surface (the CLI contract), not a visual layout.
 
@@ -199,7 +200,7 @@ Which command(s) to run for a given intent. The **generation pipeline** (p1→p5
 
 ## CALIBRATION (FROZEN AFTER PHASE 2)
 
-Canonical source of the calibration. Skills refer to it - do not duplicate this table elsewhere. This is an **internal planning input** that drives the Phase 5 batch split - **not** a user-facing milestone: do not announce it in Phase 1, determine it internally at the end of Phase 2 from the v1.0 command count, and record it in the spec.
+Canonical source of the calibration. Skills refer to it - do not duplicate this table elsewhere. A provisional calibration is announced at the end of Phase 1; it is confirmed and locked at the end of Phase 2, on the v1.0 command count, and recorded in the spec.
 
 | Size           | Files | Commands/Features | Batches (no tests) | Batches (with tests) |
 | -------------- | ----- | ----------------- | ------------------ | -------------------- |

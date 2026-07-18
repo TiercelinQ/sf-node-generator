@@ -120,4 +120,4 @@ A thrown named error that reaches the top-level `catch` is logged, its `message`
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: the **Anti-patterns** listed above are the concrete checks for this domain — read each as a check; §A executable checks and §B per-domain: errors cover the rest. Run silently; report only on a discrepancy.
+Detailed in `@rules/verification.md`. Key points: library layers (`services`, `sf`, `output`) return `Result<T>` or raise a named error from `src/errors.ts` — never a raw exception at the user; commands log the detail, write `error.message` to stderr, and set `process.exitCode` (`warning` → 0, `error` → 1); the global `uncaughtException` / `unhandledRejection` handlers are present in `cli.ts`; no non-re-throwing `catch` without a `log.error(...)`; no stack trace or secret in the stderr summary (detail goes to the log file). Run silently; report only on a discrepancy.

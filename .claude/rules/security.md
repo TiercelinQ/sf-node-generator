@@ -82,4 +82,4 @@ export function resolveWithin(baseDir: string, candidate: string): string {
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: the **Anti-patterns** listed above are the concrete checks for this domain — read each as a check; §A executable checks and §B per-domain: security cover the rest. Run silently; report only on a discrepancy.
+Detailed in `@rules/verification.md`. Key points: every process spawn goes through `src/sf/runner.ts` via `cross-spawn` with an args array (no shell, no concatenated command, no spawn in `commands`/`services`/`output`); all external data (`sf --json`, files, args, env) is typed `unknown` then validated by type guards; every path built from user input is resolved and confined under the base directory (`resolveWithin` — no traversal, no absolute escape); no secret in `.env`, config, logs, or commits — `sf` keychain only, at most a non-secret alias stored; `.env` and export directories gitignored (only `.env.example` committed); no `eval` / `new Function` / `vm` / dynamic `import()` on untrusted input. Run silently; report only on a discrepancy.

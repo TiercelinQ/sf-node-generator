@@ -1,6 +1,6 @@
 ---
 name: sf-node-p1-scoping
-description: Phase 1 of the sf-node CLI generation cycle — scoping in 4 user-facing questions (coupling mode, output formats, tests, interactivity) plus stated framework defaults (execution shape, distribution, config strategy — overridable on request), and writing of the scoping spec. Sizing is determined internally in Phase 2, not announced in Phase 1.
+description: Phase 1 of the sf-node CLI generation cycle — scoping in 4 user-facing questions (coupling mode, output formats, tests, interactivity) plus stated framework defaults (execution shape, distribution, config strategy — overridable on request), calibration announcement (number of batches), and writing of the scoping spec.
 model: sonnet
 ---
 
@@ -64,11 +64,15 @@ These three were previously questions. Each has one sensible default for an inte
 
 State them in **one line** (user's language), e.g.: "Défauts appliqués — CLI à sous-commandes, dépôt local, config en cascade `config.ts < .env < flags`. Pour en changer (scripts autonomes, paquet npm/exe, config réduite), dis-le maintenant ; sinon on continue." Only if the user asks to change one do you turn it into an `AskUserQuestion`.
 
-## 3. Calibration — internal, not announced here
+## 3. Provisional calibration — announced at the end of Phase 1
 
-Do **not** announce a calibration to the user in Phase 1. The command count is unknown (commands are elicited in Phase 2), so any batch number stated now is speculative and would only change — announcing it is ceremony, not information.
+Apply the CALIBRATION table in `CLAUDE.md` (canonical source) — it holds the size thresholds, the batch counts, and the +1 batch when tests are enabled; do not restate them here. The `sf` runner + starter command group ship in Batch 1; the `output/` formatters and the coupling mode add files and push the size up (no dedicated batch).
 
-Sizing is an **internal planning input** (it drives the batch split in Phase 5), determined at the **end of Phase 2** from the real v1.0 command count and recorded in the spec — see `## CALIBRATION` in `CLAUDE.md` (canonical table) and `/sf-node-p2-featuring`. Nothing about it needs the user's decision.
+Announce (in the user's language):
+
+Provisional calibration: [Small | Medium/Large] — [N] batches (incl. 1 test batch if enabled)
+
+The real command count is not known yet (commands are elicited in Phase 2). The calibration is **confirmed and locked at the end of Phase 2**, on the v1.0 command count.
 
 ## 4. Libraries
 
@@ -80,6 +84,6 @@ State the resolved library list (it may be "none beyond the fixed stack").
 
 ## 5. Write the spec
 
-Write `docs/specs/01-scoping.md` (in the user's language) capturing: objective, **coupling mode** (+ the SFDX project path if `sfdx-project`), output formats (+ the default `--format`), tests (Yes/No), runtime interactivity, execution shape, distribution, config strategy, the framework-fixed defaults, and the validated libraries. Do not write a provisional calibration in Phase 1 — the sizing (size + number of batches) is recorded internally in Phase 2 once the commands are known. If `docs/specs/` does not exist yet, create it (it lives in the generated project root).
+Write `docs/specs/01-scoping.md` (in the user's language) capturing: objective, **coupling mode** (+ the SFDX project path if `sfdx-project`), output formats (+ the default `--format`), tests (Yes/No), runtime interactivity, execution shape, distribution, config strategy, the framework-fixed defaults, the validated libraries, and the provisional calibration (size + number of batches — confirmed in Phase 2). If `docs/specs/` does not exist yet, create it (it lives in the generated project root).
 
 → Chain to `/sf-node-p2-featuring` after validation.

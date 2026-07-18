@@ -20,7 +20,7 @@ A structured prompt system that generates complete, production-ready Salesforce 
 
 Each phase writes a spec in the user's language to `docs/specs/` (`01-scoping` ... `04-architect`); the contract is the source of truth.
 
-**Maintenance commands**: `/sf-node-add-feature` (add a command, contract-compliant), `/sf-node-trace-feature` (trace behavior across the layers), `/sf-node-fix-issue` (root-cause debugging), `/sf-node-refactor-code` (validated, behavior-preserving), `/sf-node-release` (cut a SemVer release from the accumulated changelog), `/sf-node-run-tests` (executable verification). Plus `/sf-node-load-project` and `/sf-node-generate-readme` for existing tools.
+**Maintenance commands**: `/sf-node-add-feature` (add a command, contract-compliant — explicit contract-diff validation before writing), `/sf-node-trace-feature` (trace behavior across the layers), `/sf-node-fix-issue` (root-cause debugging), `/sf-node-refactor-code` (validated, behavior-preserving), `/sf-node-release` (cut a SemVer release from the accumulated changelog), `/sf-node-run-tests` (executable verification). Plus `/sf-node-load-project` and `/sf-node-generate-readme` for existing tools.
 
 Every generated tool enforces the same layered architecture, the `Result<T>` + stdout/stderr + exit-code contract, the `cross-spawn` `sf` runner, and secret-safe handling (tokens stay in the `sf` OS keychain, never in a file).
 
@@ -85,7 +85,7 @@ Then in Claude Code:
 | `/sf-node-p3-surfaces`     | Surfaces - the CLI contract                     |
 | `/sf-node-p4-architect`     | Architect - locked architecture contract                 |
 | `/sf-node-p5-development`   | Auto-chained batch delivery                              |
-| `/sf-node-add-feature`      | Add a command to a shipped tool                          |
+| `/sf-node-add-feature`      | Add a command to a shipped tool (contract diff first)    |
 | `/sf-node-trace-feature`    | Trace a command across the layers                        |
 | `/sf-node-fix-issue`        | Fix a bug - decision tree, root cause                    |
 | `/sf-node-refactor-code`    | Refactor under explicit validation only                  |
@@ -161,7 +161,7 @@ Coupling is **mandatory** - every generated tool integrates the `sf` v2 CLI (nev
 
 - [GUIDE.md](GUIDE.md) - full usage guide (FR)
 - `.claude/rules/` - domain rules:
-  - `architecture.md` · `cli.md` · `errors.md` · `config.md` · `security.md` · `sf-cli.md` · `sfdx-project.md` · `output.md` · `logging.md` · `progress.md` · `tests.md`
+  - `architecture.md` · `cli.md` · `errors.md` · `config.md` · `security.md` · `sf-cli.md` · `sfdx-project.md` · `output.md` · `logging.md` · `progress.md` · `tests.md` · `versioning.md`
   - `verification.md` - single source of truth for executable + static checks
   - `readme.md` - README synchronization rule
 - `.claude/sf-cli-reference/` - `sf` v2 command/flag catalog (loaded by section)

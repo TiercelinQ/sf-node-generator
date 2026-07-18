@@ -213,4 +213,4 @@ export function toTable(rows: Row[], _dest: OutputDestination): Result<void> {
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: the **Anti-patterns** listed above are the concrete checks for this domain — read each as a check; §A executable checks and §B per-domain: output cover the rest. Run silently; report only on a discrepancy.
+Detailed in `@rules/verification.md`. Key points: every user-facing dataset goes through `formatOutput(rows, { format, destination })` (`json` / `csv` / `xlsx` / `table`) — no ad-hoc `console.log(JSON.stringify(...))` in a command; `xlsx` requires a file destination (a `Result` error otherwise); the parent directory is ensured once, centrally, in `formatOutput` (`mkdir recursive`); formatters never write to stderr and never resolve paths themselves (the command confines via `resolveWithin` first); `process.stdout` is never closed (`{ end: false }`); CSV goes through `csv-stringify`, never hand-rolled. Run silently; report only on a discrepancy.

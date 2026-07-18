@@ -294,4 +294,4 @@ Versioning notes:
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: the **Anti-patterns** listed above are the concrete checks for this domain — read each as a check; §A executable checks and §B per-domain: config cover the rest. Run silently; report only on a discrepancy.
+Detailed in `@rules/verification.md`. Key points: a single `resolveConfig()` cascade `DEFAULTS < .env/env < flags`, resolved once in `cli.ts` and threaded down (no scattered `process.env` reads); env values parsed and validated (`toLevel`, `toPositiveInt`), `prune` applied so a later layer's `undefined` never clobbers an earlier value; `.env` non-secret only, loaded natively (no `dotenv`), gitignored with `.env.example` committed; `APP_VERSION` imported from `package.json` (never hand-written); relative imports extensionless (`moduleResolution: "bundler"`); dependency pins re-confirmed at generation within the documented peer ranges. Run silently; report only on a discrepancy.

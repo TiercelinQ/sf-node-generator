@@ -207,4 +207,4 @@ else w.fail(written.error.message);
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: the **Anti-patterns** listed above are the concrete checks for this domain — read each as a check; §A executable checks and §B per-domain: progress cover the rest. Run silently; report only on a discrepancy.
+Detailed in `@rules/verification.md`. Key points: `src/progress.ts` is a shared singleton importing only `logger`, writing to **stderr only** (stdout stays data-only, no ANSI leak when piped); animation gated on `stderr.isTTY && !CI && !debug` with `--no-progress` unset, degrading to `log.info` / `log.warn` lines otherwise; no fake bar for an unmeasurable total (a single blocking `sf` call uses `step()`); the spinner interval is `unref`-ed and the reporter never calls `process.exit`; `output/` never imports `progress` (the command brackets the write); zero new dependency and no `console.*`. Run silently; report only on a discrepancy.

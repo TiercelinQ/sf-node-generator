@@ -188,4 +188,4 @@ async function confirmDestructive(message: string, opts: { yes: boolean }): Prom
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: the **Anti-patterns** listed above are the concrete checks for this domain — read each as a check; §A executable checks and §B per-domain: cli cover the rest. Run silently; report only on a discrepancy.
+Detailed in `@rules/verification.md`. Key points: `cli.ts` is the only composition root and the only place `process.exit` is called (commands set `process.exitCode`); exit codes mapped at the boundary only — `toExitCode` for thrown errors, the fixed `warning → 0 / error → 1` rule for `Result` failures, never a scattered magic number; `stdout` carries data only and `stderr` carries logs + human messages, zero `console.log`; commands stay thin adapters (validate flags → one service → `output/` formatter), no business logic and no direct `sf` call; `--help`/`--version` auto-provided by commander, never re-implemented; prompts (if opted in) guarded against non-TTY / `--yes` runs. Run silently; report only on a discrepancy.

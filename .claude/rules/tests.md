@@ -225,4 +225,4 @@ describe("services/org.service", () => {
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: the **Anti-patterns** listed above are the concrete checks for this domain — read each as a check; §A executable checks and §B per-domain: tests cover the rest. Run silently; report only on a discrepancy.
+Detailed in `@rules/verification.md`. Key points (if enabled): `test/` mirrors `src/`, vitest only (`node` environment — no jsdom, no second framework); no real network, `sf` process, org, or filesystem — `cross-spawn` and fs reads mocked, a test never spawns `sf`; test names in explicit French; runner tests cover the `--json` args array, non-zero status, `ENOENT`, unparseable output, and the length-guard / temp-file spill paths; services and helpers tested with injected fakes (`Result` flow asserted, not `stdout`/`process.exit`); `npm test` exits 0 as part of the blocking chain; no suite scaffolded when Phase 1 tests = No. Run silently; report only on a discrepancy.

@@ -11,6 +11,7 @@ sf-node/
 ├── CLAUDE.md                 # Instructions core (EN) : persona, communication, pipeline, stack, règles, index commandes, calibrage
 ├── GUIDE.md                  # Ce fichier
 ├── README.md                 # Présentation du repo (EN)
+├── CHANGELOG.md              # Changelog du générateur (distinct de celui des outils générés)
 ├── LICENSE
 ├── .gitignore / .gitattributes
 └── .claude/
@@ -139,6 +140,8 @@ Fichiers écrits directement sur le disque. Annonce `Lot N/[total] - [contenu]`.
 /sf-node-app → 2                # reprendre : fournir le chemin du fichier SESSION
 ```
 
+La reprise est gérée par `/sf-node-app` (option 2, ou bloc SESSION collé directement dans le message — reprise sans menu) : lecture complète du fichier SESSION, réponse `Resuming [tool] — [phase suivante] | Batch [X/total] | Open points: …`, puis enchaînement immédiat sans re-poser les questions résolues.
+
 ---
 
 ## Travailler sur un outil livré
@@ -147,7 +150,7 @@ Fichiers écrits directement sur le disque. Annonce `Lot N/[total] - [contenu]`.
 /sf-node-app → 3     # ou directement /sf-node-load-project depuis la racine du projet
 ```
 
-Claude lit `docs/specs/04-architect.md` (priorité), sinon le README, sinon le code, puis applique toutes les règles. Outil sans README : `/sf-node-generate-readme`.
+Claude lit `docs/specs/04-architect.md` (priorité), sinon le README, sinon le code, puis confirme la prise en charge en un bloc au format unifié (`Project loaded: [nom] v[version]`, stack, commandes, mode de couplage, tests, specs, `Generator rules applied. Ready for: development · fixes · improvements · adjustments.`) et applique toutes les règles. Outil sans README : `/sf-node-generate-readme`.
 
 ### Maintenance (`/sf-node-app → 4`)
 
@@ -191,6 +194,8 @@ node dist/cli.js --version   # smoke : version, exit 0
 ## Gestion des anomalies et mémoire
 
 Après correction (`/sf-node-fix-issue` ou Phase 5), Claude produit un bilan de nettoyage puis propose `Veux-tu mémoriser ce point ? /sf-node-save-memory`. `/sf-node-save-memory` catégorise et écrit dans la **mémoire native Claude Code** (+ `MEMORY.md`).
+
+Prérequis : la mémoire auto doit être activée (`/config → Memory → Enable auto memory → On`). Sans cette activation, `/sf-node-save-memory` formule les notes mais ne les persiste pas entre sessions.
 
 ---
 
@@ -240,7 +245,7 @@ mon-outil/
 
 ---
 
-## Versioning & changelog
+### Versioning & changelog
 
 Chaque outil généré porte une version SemVer et un changelog `docs/release/CHANGELOG.md` (format Keep a Changelog, rédigé en anglais). Les skills de maintenance (`add-feature`, `fix-issue`, `refactor-code`) accumulent leurs entrées sous `## [Unreleased]` ; `/sf-node-release` les fige en un bloc de version daté et incrémente la source de version (`package.json` ; `APP_VERSION` en est dérivé, rien à synchroniser). La version n'est jamais incrémentée en silence. Voir `rules/versioning.md`.
 

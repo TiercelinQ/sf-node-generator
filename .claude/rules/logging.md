@@ -149,4 +149,4 @@ log.info({ tool: APP_NAME }, "Starting");
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: the **Anti-patterns** listed above are the concrete checks for this domain — read each as a check; §A executable checks and §B per-domain: logging cover the rest. Run silently; report only on a discrepancy.
+Detailed in `@rules/verification.md`. Key points: `src/logger.ts` is the single setup point (pino → file + stderr, `configureLogger()` called once in `cli.ts`); zero `console.log` / `console.error` in delivered code and stdout never a log destination; pino call order `(object, message)`; `pino` and `pino-pretty` both runtime `dependencies` (pretty dev-only, inline on stderr); no token, secret, or PII logged; the level is raised to `warn` while the progress reporter is active and `[TOOL]_DEBUG=1` forces `debug`. Run silently; report only on a discrepancy.

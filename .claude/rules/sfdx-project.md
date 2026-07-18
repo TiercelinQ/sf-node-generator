@@ -142,4 +142,4 @@ if (COUPLING_MODE !== "sfdx-project") {
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: the **Anti-patterns** listed above are the concrete checks for this domain — read each as a check; §A executable checks and §B per-domain: sfdx-project cover the rest. Run silently; report only on a discrepancy.
+Detailed in `@rules/verification.md`. Key points (if the coupling mode is `sfdx-project`): the project is resolved **once at startup** via `detectSfdxProject` (JSON parsed as `unknown` then validated), absence mapped to a fatal `ProjectNotFoundError`; package directories read from `packageDirectories` honoring the `default` entry (never a hardcoded `force-app`); `.forceignore` honored by delegating to `sf` (inspect with `sf project list ignored`, no hand-rolled matcher); project-scoped commands spawn through the same `SfRunner` only; the mode guard blocks project-scoped paths under `standalone`. Run silently; report only on a discrepancy.

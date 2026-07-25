@@ -27,7 +27,7 @@ Use the native Claude Code tools (no shell — Windows-compatible):
    - Detect the coupling mode: `sfdx-project` if `src/sf/project.ts` + a root `sfdx-project.json`, else `standalone`.
    - Detect `test/` via `Glob` `test/**/*.test.*`.
    - When specs and code disagree, the code is what shipped — describe the code and note the divergence.
-2. Generate `README.md` at the root via `Write`. Write the README in English (public-facing document) — see `rules/readme.md`:
+2. Generate `README.md` at the root via `Write`. Write the README in English (public-facing document) — see `@rules/readme.md`:
 
 ```markdown
 # [TOOL_NAME] — v[VERSION]

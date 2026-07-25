@@ -2,6 +2,10 @@
 
 > The generated tool's `README.md` is a **derived** document — its source of truth is the code plus `docs/specs/04-architect.md`. After any post-delivery change, the README must keep reflecting what shipped. This is the single, shared definition of when and how to refresh it. Referenced by `/sf-node-add-feature`, `/sf-node-fix-issue`, `/sf-node-refactor-code`.
 
+## Language — English
+
+**Language — English.** The generated `README.md` is always written in English, regardless of the user's interface language. It is the public-facing entry document (rendered on the repository page). Specs under `docs/specs/` stay in the user's language; the README does not.
+
 ## What the README documents
 
 objective · commands & subcommands (the CLI surface: args / flags, exit codes) · stack & dependencies · file tree · config keys (`.env` variables + CLI flags) · **Salesforce prerequisite** (`sf` v2 install + `SF_CLI_PATH` + the coupling mode: `standalone` vs `sfdx-project`) · output formats (`json` / `csv` / `xlsx` / `table`) · **runtime progress display** (steps/spinner on `stderr`, auto-on a TTY, `--no-progress` to disable — `@rules/progress.md`) · install & run (`npm install`, `npm run build`, `node dist/cli.js …`, scheduling note — Windows Task Scheduler / cron, where the progress display is auto-off). Exact sections: `/sf-node-generate-readme`.

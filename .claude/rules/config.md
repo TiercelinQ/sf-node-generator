@@ -138,14 +138,44 @@ LOG_LEVEL=info
 # SF_CLI_PATH=/absolute/path/to/sf   # only if `sf` is not on PATH
 ```
 
+## .gitignore
+
+Delivered at the project root in the last batch (`@rules/architecture.md` batch table · `/sf-node-p5-development`). Single source of truth for what stays out of the repo. Comments in English (the authoring language). The socle common to every stack + the sf-node runtime/build additions on top:
+
 ```gitignore
-# .gitignore (essentials)
+# --- Dependencies, build & runtime -----------------------------------------
+# node_modules + the /dist bundle; logs/ = the pino log file (@rules/logging.md);
+# .env = non-secret machine-local config; exports/ = generated exports, may hold org/PII data (@rules/security.md).
 node_modules/
-dist/
-logs/            # pino log file — @rules/logging.md
-.env             # non-secret config, but machine-local — @rules/security.md
-exports/         # generated exports may hold org/PII data — @rules/security.md
+/dist/
+logs/
+.env
+exports/
+
+# --- Claude Code -----------------------------------------------------------
+# Personal, never committed.
+.claude/settings.local.json
+.claude/agent-memory/
+# NOTE: .claude/settings.json IS a delivered asset — do NOT ignore it.
+
+# Local work plan — never committed.
+tasks/
+
+# Private specs. Only the published changelog is committed.
+docs/*
+!docs/release/
+docs/release/*
+!docs/release/CHANGELOG.md
+
+# OS noise.
+.DS_Store
+Thumbs.db
+desktop.ini
 ```
+
+- **Build output is anchored** (`/dist/`) — the leading slash confines the pattern to the repo root, so it never masks a nested path (an unanchored build pattern such as `release/` would hide `docs/release/`). `logs/` and `exports/` are runtime directories, not build outputs.
+- **Never ignored** (delivered assets): `docs/release/CHANGELOG.md` (the negated pattern above), `.claude/settings.json`, the generated root `CLAUDE.md`, `test/`, and `scripts/`.
+- Verify the template with `git add -A` + `git status`, **not** only `git check-ignore` — the negation rules make `check-ignore` misleading.
 
 ## `package.json` — scripts, `type`, `bin`
 

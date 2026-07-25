@@ -5,7 +5,7 @@
 ## Canonical file — `docs/release/CHANGELOG.md`
 
 - The changelog lives at **`docs/release/CHANGELOG.md`** (create the `docs/release/` folder if absent). This is the single source of truth for the tool's release history.
-- **Written in English**, regardless of the user's language — it is a deploy artifact meant to be pasted into a GitHub release. (Specs and README stay in the user's language; the changelog does not.)
+- **Written in English**, regardless of the user's language — it is a deploy artifact meant to be pasted into a GitHub release. (Specs stay in the user's language; the README and the changelog are English.)
 - Format: **[Keep a Changelog](https://keepachangelog.com/en/1.1.0/)** + **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)**.
 
 Seed written at generation (Phase 5):

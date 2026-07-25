@@ -4,6 +4,13 @@ All notable changes to this generator are documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 (This is the changelog of the **generator** itself, distinct from the `docs/release/CHANGELOG.md` of each generated tool.)
 
+## [1.3.0] - 2026-07-25
+### Added
+- The generated tool `.gitignore` template (`rules/config.md §.gitignore`) is completed with the common Claude Code socle: on top of the existing sf-node additions (`node_modules/`, `/dist/`, `logs/`, `.env`, `exports/`) it now ignores `tasks/`, the local `.claude/` settings (`settings.local.json` + `agent-memory/`), and the private `docs/specs/`, while keeping `docs/release/CHANGELOG.md`, `.claude/settings.json`, the generated `CLAUDE.md`, `test/`, and `scripts/` tracked. Wired into the Phase 5 last-batch deliverables and the verification checklist.
+
+### Changed
+- The generated tool `README.md` is now always written in English (public-facing document), regardless of the user's interface language. Updated `rules/readme.md`, `sf-node-generate-readme`, and the language note in `rules/versioning.md`.
+
 ## [1.2.0] - 2026-07-18
 ### Added
 - Post-delivery reminder: the Phase 5 delivery summary and the generated tool `CLAUDE.md` now list the maintenance commands and `/sf-node-release`.

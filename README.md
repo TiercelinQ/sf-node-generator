@@ -110,6 +110,7 @@ mytool/
 ├── .claude/settings.json          # Guardrails + Stop verification hook (self-enforced tool)
 ├── docs/specs/                    # Generation specs (user's language): 01-scoping ... 04-architect
 ├── docs/release/CHANGELOG.md       # SemVer changelog (Keep a Changelog, English) - cut by /sf-node-release
+├── docs/sessions/SESSION_<Tool>_S0.md  # Delivery baseline session (auto, end of Phase 5)
 └── src/
     ├── cli.ts                     # bin entry: commander program, exit-code mapping
     ├── config.ts · logger.ts · progress.ts · types.ts · errors.ts   # shared - importable by all layers

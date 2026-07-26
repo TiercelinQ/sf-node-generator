@@ -69,7 +69,7 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
   # [nom-outil]
 
   ## Origin
-  Framework: sf-node v1.3.0
+  Framework: sf-node v1.4.0
 
   ## Business context
   [What the tool does — synthesized from docs/specs/02-featuring.md: objective + key commands. Coupling mode: standalone | sfdx-project.]
@@ -83,7 +83,7 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
   - Verify: `/sf-node-run-tests`
   - Publish a version: `/sf-node-release` (turns the accumulated `[Unreleased]` changelog into a dated version and raises the version number)
   ```
-  `[nom-outil]` = the tool name (`APP_NAME`). The version here is the **framework** version declared at the top of the framework `CLAUDE.md` (currently 1.3.0) — not the tool's own version (which starts at 1.0.0 in `package.json` / `docs/release/CHANGELOG.md`). Replace the `Deviations` list with every deviation validated via the Phase 4/5 deviation protocol (`- [deviation] — reason: [justification]`); if none, keep `- None`.
+  `[nom-outil]` = the tool name (`APP_NAME`). The version here is the **framework** version declared at the top of the framework `CLAUDE.md` (currently 1.4.0) — not the tool's own version (which starts at 1.0.0 in `package.json` / `docs/release/CHANGELOG.md`). Replace the `Deviations` list with every deviation validated via the Phase 4/5 deviation protocol (`- [deviation] — reason: [justification]`); if none, keep `- None`.
 - **`.claude/settings.json`** at the generated project root so the tool stays self-enforced in later maintenance sessions:
 
   ```json
@@ -98,6 +98,7 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
   }
   ```
   The `Stop` hook runs the fast static check (`npm run lint`) at the end of each turn; `Bash(sf:*)` lets a maintenance session verify flags with `sf <command> --help`. Note in the README that the user can tune or remove the hook.
+- **`docs/sessions/SESSION_[tool]_S0.md`** written at the project root (create `docs/sessions/`) — the **delivery baseline** session, produced automatically here, no user action. Apply the `/sf-node-save-session` template as-is (that skill stays the single source of the format) with `[N]` **forced to `0`**: `Completed phase: 5 — Development`, `Next phase: — (delivered — maintenance via /sf-node-load-project)`, every delivered batch checked, locked decisions and open points filled. **Overwrite** it if it already exists (Phase 5 replayed). `S0` is reserved for this baseline; manual `/sf-node-save-session` saves keep numbering from `1`.
 - Confirm `docs/specs/` is present and consistent with the delivered code.
 
 ## Test batch — only if Phase 1 tests = Yes
@@ -129,7 +130,7 @@ Once the last batch (plus the test batch if any) is delivered, close Phase 5 wit
 - **Project folder** — the project root (clickable).
 - **README.md** — how to run, stack, tree, config keys, the Salesforce prerequisite (clickable).
 - **Generated `CLAUDE.md`** — the tool identity for future sessions (clickable).
-- **Documentation — phase specs** — one clickable link each: `docs/specs/01-scoping.md`, `docs/specs/02-featuring.md`, `docs/specs/03-surfaces.md`, `docs/specs/04-architect.md` (and the latest `docs/sessions/SESSION_*.md` if one exists).
+- **Documentation — phase specs** — one clickable link each: `docs/specs/01-scoping.md`, `docs/specs/02-featuring.md`, `docs/specs/03-surfaces.md`, `docs/specs/04-architect.md`, plus the delivery baseline `docs/sessions/SESSION_[tool]_S0.md`.
 - **How to run** — the key commands (also in the README):
 
   ```

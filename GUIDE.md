@@ -142,6 +142,8 @@ Fichiers écrits directement sur le disque. Annonce `Lot N/[total] - [contenu]`.
 
 La reprise est gérée par `/sf-node-app` (option 2, ou bloc SESSION collé directement dans le message — reprise sans menu) : lecture complète du fichier SESSION, réponse `Resuming [tool] — [phase suivante] | Batch [X/total] | Open points: …`, puis enchaînement immédiat sans re-poser les questions résolues.
 
+En fin de Phase 5, le générateur écrit automatiquement `docs/sessions/SESSION_[NomOutil]_S0.md` : la session de référence de la livraison (écrasée si la Phase 5 est rejouée). Les `/sf-node-save-session` manuels sont numérotés à partir de S1.
+
 ---
 
 ## Travailler sur un outil livré

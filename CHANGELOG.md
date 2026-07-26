@@ -4,6 +4,10 @@ All notable changes to this generator are documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 (This is the changelog of the **generator** itself, distinct from the `docs/release/CHANGELOG.md` of each generated tool.)
 
+## [1.4.0] - 2026-07-26
+### Added
+- Phase 5 now writes the delivery baseline session file `docs/sessions/SESSION_<Tool>_S0.md` automatically at the end of the last batch (`/sf-node-save-session` template, `N = 0`, overwritten if Phase 5 is replayed). Manual `/sf-node-save-session` saves keep numbering from `S1`. The delivery summary links it.
+
 ## [1.3.0] - 2026-07-25
 ### Added
 - The generated tool `.gitignore` template (`rules/config.md §.gitignore`) is completed with the common Claude Code socle: on top of the existing sf-node additions (`node_modules/`, `/dist/`, `logs/`, `.env`, `exports/`) it now ignores `tasks/`, the local `.claude/` settings (`settings.local.json` + `agent-memory/`), and the private `docs/specs/`, while keeping `docs/release/CHANGELOG.md`, `.claude/settings.json`, the generated `CLAUDE.md`, `test/`, and `scripts/` tracked. Wired into the Phase 5 last-batch deliverables and the verification checklist.

@@ -92,28 +92,19 @@ config.ts · logger.ts · progress.ts · types.ts · errors.ts    ◀── impo
 
 ## `cli.ts` composition sequence (non-negotiable)
 
+Structural skeleton only — the **complete bootstrap** (`.env` load, `resolveConfig()`, `configureLogger()`, progress activation via `configureProgress()`, `exitOverride` / `configureOutput`, exit-code mapping via `toExitCode`, `exportDir` threading) is owned by `@rules/cli.md`; write `cli.ts` from it, not from this sketch.
+
 ```ts
-// src/cli.ts — order matters: logger and handlers first, then runner → helpers → services → command groups.
-import { Command } from "commander";
-import { log } from "./logger";
-import { SfRunner } from "./sf/runner";
-import { SfHelpers } from "./sf/helpers";
-import { OrgService } from "./services/org.service";
-import { DataService } from "./services/data.service";
-import { registerOrgCommands } from "./commands/org";
-import { registerDataCommands } from "./commands/data";
-
-process.on("uncaughtException", (err) => { log.error({ err }, "uncaughtException"); process.exit(1); });
-process.on("unhandledRejection", (reason) => { log.error({ err: reason }, "unhandledRejection"); process.exit(1); });
-
-const program = new Command();
-program.name("mytool").description("Headless Salesforce automation CLI");
-
-const sf = new SfHelpers(new SfRunner());                            // runner → helpers, the only owner of the runner
-registerOrgCommands(program, { orgService: new OrgService(sf) });   // each group registers its subcommands + delegates to a service
-registerDataCommands(program, { dataService: new DataService(sf) });
-
-await program.parseAsync(process.argv);   // parse → run → the boundary maps the outcome to an exit code
+// src/cli.ts — STRUCTURAL ORDER only; full bootstrap: @rules/cli.md.
+// 1. Global handlers first — a throw during a command never crashes silently (@rules/errors.md).
+process.on("uncaughtException", …); process.on("unhandledRejection", …);
+// 2. Bootstrap (@rules/cli.md): .env load → resolveConfig() → configureLogger() → configureProgress() → commander program.
+// 3. Composition, unidirectional: runner → helpers → services → command groups.
+const sf = new SfHelpers(new SfRunner());                            // the only owner of the runner
+registerOrgCommands(program, { orgService: new OrgService(sf), exportDir: config.exportDir });
+registerDataCommands(program, { dataService: new DataService(sf), exportDir: config.exportDir });
+// 4. Parse; the boundary maps the outcome to an exit code (toExitCode) — @rules/cli.md.
+await program.parseAsync(process.argv);
 ```
 
 - The global handlers are installed **first** (before parsing) so a throw during a command never crashes silently or leaks a stack to stdout. Composition is unidirectional: `SfRunner` → `SfHelpers` → services → command groups. Full bootstrap (exit-code mapping, `exitOverride`, stdout/stderr discipline): `@rules/cli.md`.

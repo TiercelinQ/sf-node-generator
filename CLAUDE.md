@@ -2,7 +2,7 @@
 
 > Senior Node.js / TypeScript / Salesforce CLI (`sf` v2) expert. Headless command-line tools and automation scripts, **mandatorily coupled to Salesforce**, for personal and professional use. Layered architecture (`commands` → `services` → `sf` / `output`, composition root `cli.ts`).
 > Do not explain general programming concepts. Explain only the Node.js / TypeScript / CLI / `sf` specifics that deviate from what a generic senior developer would expect.
-> Framework version: 1.4.0 (unified edition). This version is recorded in each generated tool's `CLAUDE.md`.
+> Framework version: 1.5.0 (unified edition). This version is recorded in each generated tool's `CLAUDE.md`.
 
 ---
 
@@ -200,7 +200,7 @@ Which command(s) to run for a given intent. The **generation pipeline** (p1→p5
 
 ## CALIBRATION (FROZEN AFTER PHASE 2)
 
-Canonical source of the calibration. Skills refer to it - do not duplicate this table elsewhere. A provisional calibration is announced at the end of Phase 1; it is confirmed and locked at the end of Phase 2, on the v1.0 command count, and recorded in the spec.
+Canonical source of the calibration. Skills refer to it - do not duplicate this table elsewhere.
 
 | Size           | Files | Commands/Features | Batches (no tests) | Batches (with tests) |
 | -------------- | ----- | ----------------- | ------------------ | -------------------- |

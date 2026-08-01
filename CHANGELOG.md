@@ -4,6 +4,17 @@ All notable changes to this generator are documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 (This is the changelog of the **generator** itself, distinct from the `docs/release/CHANGELOG.md` of each generated tool.)
 
+## [1.5.0] - 2026-08-01
+### Added
+- Phase 5 offers `/sf-node-save-session` between batches when the session is running long or the context is heavily loaded (safety net before saturation; automatic chaining stays the default).
+- Phase 2 Step 1 states the identifier constraint explicitly (kebab-case `bin`, already space-free; a free-typed name is normalized; a display name with spaces, when it matters for the README, is recorded separately).
+- `/sf-node-release` now updates the README title line (`# [TOOL_NAME] — v[NEW]`) as a targeted edit of that single line; the version-bump trigger is documented in `rules/readme.md`.
+- The tool-template `.claude/settings.json` deny anchoring is documented as deliberate in Phase 5 ("Deny anchoring" note — no deny may match `docs/release/CHANGELOG.md`).
+
+### Changed
+- `rules/architecture.md` §"cli.ts composition sequence" is reduced to a structural skeleton with an explicit pointer to the complete bootstrap owned by `rules/cli.md` (one reference sequence instead of two diverging ones).
+- The provisional-calibration announcement sentence is removed from the CLAUDE.md CALIBRATION section (the announcement lives in p1/p2); closing paragraph harmonized across the 5 generators.
+
 ## [1.4.0] - 2026-07-26
 ### Added
 - Phase 5 now writes the delivery baseline session file `docs/sessions/SESSION_<Tool>_S0.md` automatically at the end of the last batch (`/sf-node-save-session` template, `N = 0`, overwritten if Phase 5 is replayed). Manual `/sf-node-save-session` saves keep numbering from `S1`. The delivery summary links it.

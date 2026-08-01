@@ -27,6 +27,8 @@ Read `docs/specs/01-scoping.md` first (objective + locked parameters: coupling m
 
 The tool name was already chosen in Phase 1 (it named the project folder). **By default the `bin` = that same name** — do not re-ask it. State it in one line: `Tool name / bin: [name] (from Phase 1). Keep it, or set a different bin name?` Only if the user wants the `bin` to differ from the folder do you offer candidates with `AskUserQuestion` (kebab-case; **Other** carries a custom name as free-form text — no recommended mark, the name is the user's call). The resolved name feeds the sheet, the spec, and `APP_NAME` / the `bin` downstream (`src/config.ts`, `package.json`).
 
+**Identifier vs display name — no spaces in the identifier.** The candidates are already **space-free** (kebab-case, the `bin` convention). A free-typed name with spaces is **normalized** into the space-free technical identifier (spaces removed or replaced with a hyphen) before it feeds `APP_NAME` / the `bin` downstream — the `SESSION_[tool]_S[N].md` filename, the `[TOOL]_DEBUG` env var (`@rules/logging.md`), and log/export file names all assume it. When a display name with spaces matters (README title), record both in the sheet and the spec.
+
 ### Step 2 — Command elicitation (iterative)
 
 A **command** is a unit of work exposed on the CLI surface (`org list`, `data export`, `deploy`, `apex run`…). From the objective, propose a base set of candidate commands. Then loop, asking as free-form text: "Other commands to add? (free description, or 'done')". Maintain the running candidate list; stop when the user signals no more ideas.

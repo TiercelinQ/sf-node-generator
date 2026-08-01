@@ -51,6 +51,7 @@ Critical reminders:
 - Create the folders and write the files **directly to disk** — no manual action required.
 - Announcement (in the user's language): `Batch N/[total] — [content]`.
 - Automatic chaining between batches without confirmation.
+- After each delivered batch, if the session is running long or the context is heavily loaded, offer `/sf-node-save-session` before starting the next batch — the automatic chaining above stays the default.
 - Batch split: the tables in `@rules/architecture.md` (Small 3 / Medium-Large 4, frozen in Phase 2; +1 test batch if tests). The **`sf` runner + helpers ship in Batch 1** (the core the services build on); the starter `org` / `data` command groups + their thin services ship with the services/commands batch. In `sfdx-project` mode, `src/sf/project.ts` ships in Batch 1 and the `deploy` / `retrieve` groups with the commands batch.
 
 ## Verification
@@ -69,7 +70,7 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
   # [nom-outil]
 
   ## Origin
-  Framework: sf-node v1.4.0
+  Framework: sf-node v1.5.0
 
   ## Business context
   [What the tool does — synthesized from docs/specs/02-featuring.md: objective + key commands. Coupling mode: standalone | sfdx-project.]
@@ -83,7 +84,7 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
   - Verify: `/sf-node-run-tests`
   - Publish a version: `/sf-node-release` (turns the accumulated `[Unreleased]` changelog into a dated version and raises the version number)
   ```
-  `[nom-outil]` = the tool name (`APP_NAME`). The version here is the **framework** version declared at the top of the framework `CLAUDE.md` (currently 1.4.0) — not the tool's own version (which starts at 1.0.0 in `package.json` / `docs/release/CHANGELOG.md`). Replace the `Deviations` list with every deviation validated via the Phase 4/5 deviation protocol (`- [deviation] — reason: [justification]`); if none, keep `- None`.
+  `[nom-outil]` = the tool name (`APP_NAME`). The version here is the **framework** version declared at the top of the framework `CLAUDE.md` (currently 1.5.0) — not the tool's own version (which starts at 1.0.0 in `package.json` / `docs/release/CHANGELOG.md`). Replace the `Deviations` list with every deviation validated via the Phase 4/5 deviation protocol (`- [deviation] — reason: [justification]`); if none, keep `- None`.
 - **`.claude/settings.json`** at the generated project root so the tool stays self-enforced in later maintenance sessions:
 
   ```json
@@ -98,6 +99,8 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
   }
   ```
   The `Stop` hook runs the fast static check (`npm run lint`) at the end of each turn; `Bash(sf:*)` lets a maintenance session verify flags with `sf <command> --help`. Note in the README that the user can tune or remove the hook.
+
+  **Deny anchoring (deliberate):** no deny pattern may ever match `docs/release/CHANGELOG.md` (written at delivery and by the maintenance/release skills). A build-output deny whose folder name could collide with it (e.g. `release/`) is **anchored to the project root** — `Write(release/**)`, never the unanchored `Write(**/release/**)`. Keep this anchoring when adding deny patterns.
 - **`docs/sessions/SESSION_[tool]_S0.md`** written at the project root (create `docs/sessions/`) — the **delivery baseline** session, produced automatically here, no user action. Apply the `/sf-node-save-session` template as-is (that skill stays the single source of the format) with `[N]` **forced to `0`**: `Completed phase: 5 — Development`, `Next phase: — (delivered — maintenance via /sf-node-load-project)`, every delivered batch checked, locked decisions and open points filled. **Overwrite** it if it already exists (Phase 5 replayed). `S0` is reserved for this baseline; manual `/sf-node-save-session` saves keep numbering from `1`.
 - Confirm `docs/specs/` is present and consistent with the delivered code.
 

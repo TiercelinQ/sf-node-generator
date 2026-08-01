@@ -55,11 +55,12 @@ On confirmation, using the chosen version `NEW` and the session date `<YYYY-MM-D
 
 1. In `docs/release/CHANGELOG.md`: rename `## [Unreleased]` content into a new block `## [NEW] - <YYYY-MM-DD>` (keep the category order Added/Changed/Fixed/Removed/Security), and insert a fresh empty `## [Unreleased]` above it.
 2. Bump the **canonical** version: `package.json` `"version"` → `NEW`. **That is the only version to write** — `src/config.ts` `APP_VERSION` is imported from `package.json` (`import { version } …`), so it follows automatically; there is nothing else to sync (`@rules/config.md`, `@rules/versioning.md`).
-3. Do **not** touch `docs/specs/`, the README, or the tool `CLAUDE.md` origin (that records the framework version, not the tool version).
+3. Update the README **title line** to the new version: `# [TOOL_NAME] — v[NEW]` — a **targeted edit** of that single line, never a full README regeneration (`@rules/readme.md §When to refresh`).
+4. Do **not** touch `docs/specs/`, the rest of the README (only the title line above moves), or the tool `CLAUDE.md` origin (that records the framework version, not the tool version).
 
 ## Step 5 — Verify + hand off
 
-1. Apply `@rules/verification.md` version consistency: the top released version == `package.json` `"version"` (== the derived `APP_VERSION`, no separate mirror to edit); `[Unreleased]` reset empty.
+1. Apply `@rules/verification.md` version consistency: the top released version == `package.json` `"version"` (== the derived `APP_VERSION`, no separate mirror to edit); the README title line shows `v[NEW]`; `[Unreleased]` reset empty.
 2. Output the cut version block verbatim in a fenced markdown snippet — ready to paste into a GitHub release.
 3. Remind the user that committing and tagging are theirs to do (this skill never commits): e.g. `git commit -am "release: vNEW"` then `git tag vNEW`.
 

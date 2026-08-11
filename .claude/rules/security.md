@@ -11,7 +11,15 @@
 
 ```ts
 // GOOD — args array, no shell, each user value a discrete element (src/sf/runner.ts)
-spawn(bin, ["data", "query", "--query", soql, "--target-org", orgAlias, "--json"]);
+spawn(bin, [
+  "data",
+  "query",
+  "--query",
+  soql,
+  "--target-org",
+  orgAlias,
+  "--json",
+]);
 
 // BAD — never: an injectable shell string. `soql` = 'x"; rm -rf ~ #' would run.
 spawn(`sf data query --query "${soql}"`, { shell: true });
@@ -44,14 +52,16 @@ export function resolveWithin(baseDir: string, candidate: string): string {
   const target = resolve(base, candidate);
   const rel = relative(base, target);
   if (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
-    throw new ValidationError(`Path escapes the allowed directory: ${candidate}`);
+    throw new ValidationError(
+      `Path escapes the allowed directory: ${candidate}`,
+    );
   }
   return target;
 }
 ```
 
 - The `output/` layer writes only **under the resolved `exportDir`**; an import reads only the explicitly provided file. Create parent dirs with `recursive: true` **under the base**, never outside it.
-- On Windows, `relative` returns an **absolute** path for a cross-drive target, so `isAbsolute(rel)` catches a `D:\…` escape; `path.resolve` collapses `..` segments so a `../../etc/passwd` candidate is caught by the `..` prefix.
+- On Windows, `relative` returns an **absolute** path for a cross-drive target, so `isAbsolute(rel)` catches a `E:\…` escape; `path.resolve` collapses `..` segments so a `../../etc/passwd` candidate is caught by the `..` prefix.
 
 ## 4. Secrets — never in a file, a log, or a commit
 

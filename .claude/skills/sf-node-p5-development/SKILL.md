@@ -7,12 +7,15 @@ model: sonnet
 # /sf-node-p5-development — Batch development
 
 ## Role
+
 Senior Node.js/TypeScript developer — build the contracted CLI tool to a clean, buildable state.
 
 ## Goal
+
 Deliver the tool in batches, each typecheck/lint/build-clean and contract-compliant, ending with install/run instructions and a verified build.
 
 ## Deliverable
+
 The full project source on disk + `README.md` + `CLAUDE.md` + `.claude/settings.json` + a verified build.
 
 ---
@@ -24,6 +27,7 @@ The full project source on disk + `README.md` + `CLAUDE.md` + `.claude/settings.
 At start, read and fully apply: `@rules/architecture.md` · `@rules/cli.md` · `@rules/sf-cli.md` · `@rules/errors.md` · `@rules/config.md` · `@rules/security.md` · `@rules/logging.md` · `@rules/output.md` · `@rules/progress.md` · `@rules/sfdx-project.md` (if coupling mode = `sfdx-project`) · `@rules/tests.md` (if tests) · `@rules/versioning.md` · `@rules/verification.md` (not auto-imported). Read `docs/specs/04-architect.md` — the **locked contract** this build follows. Verify every `sf` command/flag against `sf-cli-reference/` **by section** (`INDEX.md` first, then the matching capability file) — never invent one.
 
 Critical reminders:
+
 - ESLint clean · Prettier · TypeScript strict · TSDoc on classes and public API. Zero `// TODO`, zero unjustified empty implementation, zero unjustified `any` (external data — `sf --json`, files, args, env — is `unknown` then validated).
 - **Layering** (`@rules/architecture.md`): `commands` (thin adapters: parse/validate flags → call one service → format) → `services` (business logic, returns `Result<T>`) → `sf` (process execution) + `output` (formatting); `cli.ts` the only composition root. No layer skips another; a command never spawns `sf`, a service never formats.
 - **`sf` runner** (`@rules/sf-cli.md`): every `sf` call via `src/sf/runner.ts` using **`cross-spawn`** with an args array (`--json` appended) — never `node:child_process`, never a concatenated shell string, never a spawn from `commands`/`services`. Binary resolved from `SF_CLI_PATH` / `sfPath` else `PATH` (cross-OS, no platform branch); `ENOENT` → a clear "sf not found" error. `sf` v2 only, never `sfdx`. Large text args (SOQL/SOSL) go through `runWithLargeArg` (temp `--file` / `--query-file` when they would overflow the Windows ~8191-char command line); `run()` guards the length and fails clearly, never the opaque "Réponse sf illisible".
@@ -70,37 +74,65 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
   # [nom-outil]
 
   ## Origin
+
   Framework: sf-node v1.5.0
 
   ## Business context
+
   [What the tool does — synthesized from docs/specs/02-featuring.md: objective + key commands. Coupling mode: standalone | sfdx-project.]
 
   ## Deviations from the framework
+
   - None
 
   ## Maintenance
+
   - Load the project first: `/sf-node-load-project`
   - Change it: `/sf-node-add-feature` · `/sf-node-fix-issue` · `/sf-node-refactor-code` (each records the change under `[Unreleased]` in `docs/release/CHANGELOG.md`; the version does not move)
   - Verify: `/sf-node-run-tests`
   - Publish a version: `/sf-node-release` (turns the accumulated `[Unreleased]` changelog into a dated version and raises the version number)
   ```
+
   `[nom-outil]` = the tool name (`APP_NAME`). The version here is the **framework** version declared at the top of the framework `CLAUDE.md` (currently 1.5.0) — not the tool's own version (which starts at 1.0.0 in `package.json` / `docs/release/CHANGELOG.md`). Replace the `Deviations` list with every deviation validated via the Phase 4/5 deviation protocol (`- [deviation] — reason: [justification]`); if none, keep `- None`.
+
 - **`.claude/settings.json`** at the generated project root so the tool stays self-enforced in later maintenance sessions:
 
   ```json
   {
     "permissions": {
-      "allow": ["Bash(npm:*)", "Bash(npx:*)", "Bash(node:*)", "Bash(sf:*)", "Read", "Write", "Edit"],
-      "deny": ["Read(**/.env)", "Read(**/.env.*)", "Read(**/secrets/**)", "Write(**/.env)", "Write(**/.env.*)", "Write(**/secrets/**)", "Edit(**/.env)", "Edit(**/.env.*)", "Edit(**/secrets/**)", "Write(**/node_modules/**)", "Write(**/dist/**)"]
+      "allow": [
+        "Bash(npm:*)",
+        "Bash(npx:*)",
+        "Bash(node:*)",
+        "Bash(sf:*)",
+        "Read",
+        "Write",
+        "Edit"
+      ],
+      "deny": [
+        "Read(**/.env)",
+        "Read(**/.env.*)",
+        "Read(**/secrets/**)",
+        "Write(**/.env)",
+        "Write(**/.env.*)",
+        "Write(**/secrets/**)",
+        "Edit(**/.env)",
+        "Edit(**/.env.*)",
+        "Edit(**/secrets/**)",
+        "Write(**/node_modules/**)",
+        "Write(**/dist/**)"
+      ]
     },
     "hooks": {
       "Stop": [{ "hooks": [{ "type": "command", "command": "npm run lint" }] }]
     }
   }
   ```
+
   The `Stop` hook runs the fast static check (`npm run lint`) at the end of each turn; `Bash(sf:*)` lets a maintenance session verify flags with `sf <command> --help`. Note in the README that the user can tune or remove the hook.
 
   **Deny anchoring (deliberate):** no deny pattern may ever match `docs/release/CHANGELOG.md` (written at delivery and by the maintenance/release skills). A build-output deny whose folder name could collide with it (e.g. `release/`) is **anchored to the project root** — `Write(release/**)`, never the unanchored `Write(**/release/**)`. Keep this anchoring when adding deny patterns.
+
 - **`docs/sessions/SESSION_[tool]_S0.md`** written at the project root (create `docs/sessions/`) — the **delivery baseline** session, produced automatically here, no user action. Apply the `/sf-node-save-session` template as-is (that skill stays the single source of the format) with `[N]` **forced to `0`**: `Completed phase: 5 — Development`, `Next phase: — (delivered — maintenance via /sf-node-load-project)`, every delivered batch checked, locked decisions and open points filled. **Overwrite** it if it already exists (Phase 5 replayed). `S0` is reserved for this baseline; manual `/sf-node-save-session` saves keep numbering from `1`.
 - Confirm `docs/specs/` is present and consistent with the delivered code.
 
@@ -128,7 +160,7 @@ node dist/cli.js --version   # smoke — prints the version, exit 0
 
 ## Final delivery summary
 
-Once the last batch (plus the test batch if any) is delivered, close Phase 5 with a **delivery summary** in the user's language. **Make every file and the project folder a clickable Markdown link** `[label](path)`, each path pointing to the real on-disk location under the project root (relative to the project root, or absolute if the project root lies outside the current workspace). **Valid link syntax (mandatory)**: a Markdown link destination cannot contain spaces unless wrapped in angle brackets — when the path contains spaces (typical of absolute Windows paths), wrap the destination in `<…>` and use forward slashes, e.g. `[README.md](<D:/Documents/00 Mes Documents/.../my-tool/README.md>)`. Without spaces, a plain relative path is fine. List:
+Once the last batch (plus the test batch if any) is delivered, close Phase 5 with a **delivery summary** in the user's language. **Make every file and the project folder a clickable Markdown link** `[label](path)`, each path pointing to the real on-disk location under the project root (relative to the project root, or absolute if the project root lies outside the current workspace). **Valid link syntax (mandatory)**: a Markdown link destination cannot contain spaces unless wrapped in angle brackets — when the path contains spaces (typical of absolute Windows paths), wrap the destination in `<…>` and use forward slashes, e.g. `[README.md](<E:/Informatique/1-projects/.../my-tool/README.md>)`. Without spaces, a plain relative path is fine. List:
 
 - **Project folder** — the project root (clickable).
 - **README.md** — how to run, stack, tree, config keys, the Salesforce prerequisite (clickable).
@@ -141,6 +173,7 @@ Once the last batch (plus the test batch if any) is delivered, close Phase 5 wit
   npm run build
   node dist/cli.js --help
   ```
+
   (+ `npm test` if tests enabled.) Plus the **`sf` v2 prerequisite** (reachable via `PATH` or `SF_CLI_PATH`), the coupling mode, and the scheduling note.
 
 - **Maintenance & release** — after delivery: `/sf-node-load-project` first, then `/sf-node-add-feature` · `/sf-node-fix-issue` · `/sf-node-refactor-code` to change it, `/sf-node-run-tests` to verify, and `/sf-node-release` to publish a version (it turns the accumulated `[Unreleased]` changelog into a dated version and raises the number). The same reminder is recorded in the generated `CLAUDE.md`.

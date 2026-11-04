@@ -102,7 +102,7 @@ sf --version          # Salesforce CLI v2 (prérequis runtime des outils génér
 
 Objectif (texte libre), puis nom + racine du projet (un seul nom kebab-case, servant au dossier ET au `bin` ; emplacement ; création), puis les paramètres fermés en **un seul bloc `AskUserQuestion` (4 questions)**, chaque option assortie d'une conséquence en une ligne :
 
-- mode de couplage (`standalone` / `sfdx-project` ; si `sfdx-project`, chemin du dossier demandé) · formats de sortie (JSON / CSV / xlsx / table) · tests (`vitest`) · interactivité (non-interactif / prompts).
+- mode de couplage (`standalone` / `sfdx-project` ; si `sfdx-project`, chemin du dossier demandé) · formats de sortie (JSON / CSV / xlsx / table) · tests (`vitest`) · modes d'exécution (flags seuls / flags + assistant guidé). La recommandation vient de l'objectif : un travail à plusieurs saisies successives (choisir un fichier ou une cible, confirmer, simuler avant d'exécuter, répéter sur plusieurs éléments) recommande l'assistant ; un travail planifié ou à saisie unique recommande les flags seuls.
 
 Défauts framework non demandés : parseur `commander`, logger `pino`, reporter de progression (étapes/spinner sur stderr, auto-TTY, `--no-progress`), TypeScript strict + ESM, build `tsup`. **Défauts de forme du projet, surchargés sur demande seulement** (plus posés en question) : forme d'exécution = CLI à sous-commandes, distribution = dépôt local, stratégie de config = cascade `config.ts < .env < flags`. Détection Salesforce/SFDX sur l'objectif : `deploy`/`retrieve`/`source`/`sfdx-project` recommande `sfdx-project`, sinon `standalone`.
 
@@ -117,11 +117,11 @@ Calibrage **interne** (non annoncé en Phase 1, déterminé en Phase 2 ; pilote 
 
 ### Phase 2 - Featuring
 
-Confirmation du nom (issu de Phase 1, ajustable seulement si le `bin` doit différer du dossier). Élicitation des **commandes**, MoSCoW, périmètre v1.0. Calibrage déterminé en interne à partir du compte de commandes v1.0 (pilote les lots, pas une étape validée distincte). Validation bloquante sur les commandes / le périmètre. Écrit `docs/specs/02-featuring.md`.
+Confirmation du nom (issu de Phase 1, ajustable seulement si le `bin` doit différer du dossier). Élicitation des **commandes**, MoSCoW, périmètre v1.0. Calibrage déterminé en interne à partir du compte de commandes v1.0 (pilote les lots, pas une étape validée distincte). Avec l'assistant guidé : étape « flux d'exécution » (quelles commandes enchaînent plusieurs étapes, étapes ordonnées, sélection des étapes, répétition, dry run). Validation bloquante sur les commandes / le périmètre. Écrit `docs/specs/02-featuring.md`.
 
 ### Phase 3 - Surfaces
 
-Pour chaque commande : nom complet (`groupe verbe`), args positionnels, flags/options (type, défaut, requis), source d'entrée, format + destination de sortie, conditions de sortie (0/1/2), prompt interactif (si activé). Flags globaux (`--target-org`, `--format`, `--output`, `--log-level`, ...). Validation bloquante. Écrit `docs/specs/03-surfaces.md`.
+Pour chaque commande : nom complet (`groupe verbe`), args positionnels, flags/options (type, défaut, requis), source d'entrée, format + destination de sortie, conditions de sortie (0/1/2), modes d'exécution (avec l'assistant : tableau des questions, une ligne par question avec son flag équivalent ; pour un flux : étapes, `--only` / `--skip` / `--dry-run`). Flags globaux (`--target-org`, `--format`, `--output`, `--log-level`, `--yes` avec l'assistant, ...). Validation bloquante. Écrit `docs/specs/03-surfaces.md`.
 
 ### Phase 4 - Architect
 
@@ -242,6 +242,7 @@ mon-outil/
     ├── sf/                        # runner.ts (cross-spawn) · helpers.ts · project.ts (mode sfdx)
     ├── services/                  # logique métier - retourne Result<T>
     ├── commands/                  # adaptateurs fins (starter : org.ts, data.ts)
+    ├── prompts/                   # assistant guidé seulement : guard.ts · <groupe>.prompts.ts
     └── output/                    # index.ts (dispatch) · csv.ts · xlsx.ts · table.ts
 ```
 
@@ -258,6 +259,7 @@ Chaque outil généré porte une version SemVer et un changelog `docs/release/CH
 - Salesforce est **obligatoire** : `sf` v2 uniquement, jamais `sfdx` legacy. Tout appel passe par `src/sf/runner.ts` (cross-spawn, tableau d'arguments).
 - `stdout` = données uniquement (pipeable), `stderr` = logs + messages. `pino` n'écrit jamais sur stdout.
 - Feedback runtime : le reporter de progression (`src/progress.ts`) affiche les étapes sur `stderr`, auto-actif en terminal (TTY), silencieux en pipe/cron/CI ; `--no-progress` le coupe. `stdout` reste des données.
+- Modes d'exécution : les flags restent le contrat des scripts. Avec l'assistant guidé, lancé sans argument dans un terminal l'outil pose les questions puis exécute une ou plusieurs commandes ; avec quelques flags, il ne demande que les valeurs manquantes ; hors terminal il ne demande jamais (aucun argument = erreur d'usage, code 2). Les questions vont sur `stderr`, chacune a son flag équivalent, la ligne de commande équivalente est affichée à la fin. Un flux accepte `--only` / `--skip` / `--dry-run` selon sa spec.
 - Codes de sortie mappés une seule fois à la frontière `cli.ts` (0/1/2), jamais en dur ailleurs.
 - Le contrat (`docs/specs/04-architect.md`) est verrouillé. Tout changement structurel passe par `/sf-node-add-feature` ou le protocole de déclaration d'écart.
 - Aucun secret dans un fichier : `sf` détient les tokens dans le keychain de l'OS ; l'outil ne stocke qu'un alias non-secret.

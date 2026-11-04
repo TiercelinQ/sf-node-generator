@@ -23,7 +23,7 @@ Use the native Claude Code tools (no shell — Windows-compatible):
 
 1. **Sources, in priority**: `docs/specs/*` (especially `04-architect.md` — the contract) for the intended structure, then the real code:
    - List source files via `Glob` `src/**/*` (exclude `node_modules/`, `dist/`).
-   - Read `package.json`, `src/cli.ts` (registered commands + exit-code mapping), `src/commands/` (subcommands, args/flags), `src/services/`, `src/sf/` (coupling mode + helpers), `src/output/` (wired formats), `src/config.ts` + `.env.example` (config keys).
+   - Read `package.json`, `src/cli.ts` (registered commands + exit-code mapping), `src/commands/` (subcommands, args/flags), `src/services/`, `src/sf/` (coupling mode + helpers), `src/output/` (wired formats), `src/prompts/` (if present: the guided assistant, one question table per command group, and the flow services in `src/services/`), `src/config.ts` + `.env.example` (config keys).
    - Detect the coupling mode: `sfdx-project` if `src/sf/project.ts` + a root `sfdx-project.json`, else `standalone`.
    - Detect `test/` via `Glob` `test/**/*.test.*`.
    - When specs and code disagree, the code is what shipped — describe the code and note the divergence.
@@ -46,7 +46,7 @@ Use the native Claude Code tools (no shell — Windows-compatible):
 - Runtime dependencies: [inferred from package.json]
 
 ## File tree
-[Actual src/ tree with the role of each file — cli.ts · services/ · sf/ · commands/ · output/ · shared config/logger/types/errors]
+[Actual src/ tree with the role of each file — cli.ts · services/ · sf/ · commands/ · prompts/ (if present) · output/ · shared config/logger/types/errors]
 
 ## Configuration
 [Config keys resolved through the cascade defaults < .env < CLI flags: the .env variables (.env.example) and the CLI flags that override them. Non-secret only — secrets stay in the sf OS keychain.]
@@ -57,13 +57,16 @@ The `sf` v2 CLI is **required** — coupling is mandatory. Install it and make i
 ## Output formats
 Emitted formats: [json · csv · xlsx · table]. xlsx is written to a file only. stdout carries data (pipeable); stderr carries logs and human messages.
 
+## Execution modes
+[Flags mode: one command with its arguments, or several command lines one after the other (scripts, cron, CI). Only if `src/prompts/` exists, add the guided assistant: run the tool with no argument in a terminal, or a command with some values missing, and answer the questions; `--yes` skips the confirmations; each flow also takes `--only` / `--skip` (and `--dry-run` when it has a dry-run step); the assistant prints the equivalent command line at the end. Outside a terminal no question is ever asked and a missing required value exits with code 2. Inferred from src/prompts/ + src/commands/.]
+
 ## Install & run
 npm install
 npm run build            # tsup — produces dist/cli.js
 node dist/cli.js --help  # usage
 node dist/cli.js <command> [flags]
 
-Scheduling (unattended runs): Windows Task Scheduler or cron — invoke `node dist/cli.js <command>` with the required flags; data on stdout, logs on stderr.
+Scheduling (unattended runs): Windows Task Scheduler or cron — invoke `node dist/cli.js <command>` with the required flags (the guided assistant never runs outside a terminal); data on stdout, logs on stderr.
 
 ## Tests
 [Section included only if test/ detected]

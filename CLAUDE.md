@@ -2,7 +2,7 @@
 
 > Senior Node.js / TypeScript / Salesforce CLI (`sf` v2) expert. Headless command-line tools and automation scripts, **mandatorily coupled to Salesforce**, for personal and professional use. Layered architecture (`commands` → `services` → `sf` / `output`, composition root `cli.ts`).
 > Do not explain general programming concepts. Explain only the Node.js / TypeScript / CLI / `sf` specifics that deviate from what a generic senior developer would expect.
-> Framework version: 1.5.0 (unified edition). This version is recorded in each generated tool's `CLAUDE.md`.
+> Framework version: 1.6.0. This version is recorded in each generated tool's `CLAUDE.md`.
 
 ---
 
@@ -108,6 +108,7 @@ This framework has **no** `design-system.md` / `layout.md` (headless target — 
 | Secrets          | Never in a file — held by the `sf` OS keychain                                                                              |
 | Logging          | `pino` (file + `stderr`, `pino-pretty` in dev) — see `rules/logging.md`                                                     |
 | Runtime feedback | Progress reporter — steps/spinner + bar on `stderr`, auto-TTY, `--no-progress` — see `rules/progress.md`                    |
+| Execution modes  | Flags (always) · guided assistant with `@clack/prompts` (opt-in, Phase 1): see `rules/cli.md`                              |
 | Output           | Formatters - JSON · CSV (`csv-stringify`) · xlsx (`exceljs`) · console table — see `rules/output.md`                        |
 | Error contract   | `Result<T>` + named errors + exit-code mapping at the CLI boundary — see `rules/errors.md`                                  |
 | Build            | `tsup` (bundle `dist/cli.js`, shebang) · `tsx` (dev) · `tsc --noEmit` (typecheck)                                           |
@@ -128,6 +129,7 @@ This framework has **no** `design-system.md` / `layout.md` (headless target — 
 - **Output** — every user-facing dataset goes through the `output/` formatters (`json` | `csv` | `xlsx` | `table`) with an explicit destination (`stdout` | file). No ad-hoc `console.log(JSON.stringify(...))` in a command. See `rules/output.md`
 - **Logging** — `src/logger.ts` (pino) mandatory; zero `console.log` in delivered code (only `log.*`); never log a token or secret. See `rules/logging.md`
 - **Runtime feedback** — a hand-rolled progress reporter (`src/progress.ts`) shows the operations a command performs: steps/spinner + bar on **`stderr`**, **auto-on a TTY** (silent when piped / cron / CI or under debug logging), `--no-progress` to disable. `stdout` stays data-only; the reporter and `pino` are the only `stderr` writers (no `console.*`). See `rules/progress.md`
+- **Execution modes** - fixed in Phase 1: `Flags only` (one command with its arguments, or several lines in succession; nothing is ever asked) or `Flags + guided assistant` (the same flags, plus: no argument in a terminal starts a series of questions that runs one or several commands for the user). The assistant lives in `src/prompts/` behind a single `canPrompt()` guard (`stdin` and `stderr` TTY, no `CI`), writes to **`stderr`**, gives every question an equivalent flag, asks only the values still missing, and never runs outside a terminal (no argument there is a usage error, exit `2`). A flow is one command calling one flow service. Phase 2 marks the flows, Phase 3 fixes the questions. See `rules/cli.md`
 - If the coupling mode is `sfdx-project` (Phase 1): detect and read `sfdx-project.json`, respect `.forceignore`, and scope `sf project ...` commands to the project. See `rules/sfdx-project.md`
 - If tests enabled in Phase 1: test suite mandatory (`vitest`) - see `rules/tests.md`
 - Zero `// TODO`, zero unjustified empty implementation. ESLint clean · Prettier · TS strict with no unjustified `any` (incoming external data is `unknown` then validated).
@@ -207,4 +209,4 @@ Canonical source of the calibration. Skills refer to it - do not duplicate this 
 | Small          | < 10  | ≤ 5               | 3                  | 4                    |
 | Medium / Large | ≥ 10  | > 5               | 4                  | 5                    |
 
-The extra batch corresponds to the test suite + dev dependencies (see `rules/tests.md`). Divergent criteria (e.g. < 10 files but > 5 commands): the highest criterion wins → Medium/Large. The `sf` runner + starter command ship in **Batch 1** (no dedicated batch); the `output/` formatters and each coupling mode add files and push the size up.
+The extra batch corresponds to the test suite + dev dependencies (see `rules/tests.md`). Divergent criteria (e.g. < 10 files but > 5 commands): the highest criterion wins → Medium/Large. The `sf` runner + starter command ship in **Batch 1** (no dedicated batch); the `output/` formatters, each coupling mode, and (guided assistant) the `src/prompts/` files and flow services add files and push the size up.

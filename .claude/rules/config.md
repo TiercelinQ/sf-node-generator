@@ -295,7 +295,7 @@ export default tseslint.config(
 ```
 
 Conditional (added only when the matching Phase 1 option is on):
-- **Interactive prompts** (opt-in): `@clack/prompts ^1.7.0` in `dependencies`. Not added by default — a headless CLI takes its input from flags/env, and prompts must be guarded against a non-TTY / `--yes` run (`@rules/cli.md`).
+- **Guided assistant** (Execution modes = `Flags + guided assistant`): `@clack/prompts ^1.7.0` in `dependencies`. Not added with `Flags only` — a headless CLI takes its input from flags/env, and every prompt goes through the `canPrompt()` guard, on `stderr`, never under `CI` or `--yes` (`@rules/cli.md`).
 - **Tests** (Phase 1): `vitest ^4.1.10` in `devDependencies` + the `"test": "vitest run"` script (`@rules/tests.md`).
 
 Versioning notes:

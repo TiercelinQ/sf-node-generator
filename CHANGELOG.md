@@ -4,6 +4,17 @@ All notable changes to this generator are documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 (This is the changelog of the **generator** itself, distinct from the `docs/release/CHANGELOG.md` of each generated tool.)
 
+## [1.6.0] - 2026-11-04
+### Added
+- Phase 1 asks **Execution modes** (`Flags only` | `Flags + guided assistant`) in place of the former "Runtime interactivity" question (still 4 questions). The recommendation comes from the objective, not from a fixed default. With the assistant, the generated tool started with no argument in a terminal asks a series of questions and runs one or several commands; with flags given, it asks only the missing values (hybrid).
+- Phase 2 Step 4b "Execution flows": which v1.0 commands are multi-step flows, their ordered steps, step selection, repeat, dry run. The synthesis sheet gains an "Execution flows" table.
+- Phase 3 specifies, per command, the assistant's question table (type, default, validation, equivalent flag, required outside a terminal) and, per flow, `--only` / `--skip` / `--dry-run`, the failure rule, and the global `--yes` flag. Phase 3 questions 4 and 5 choose the commands with an assistant and the destructive ones that confirm first.
+- `rules/cli.md` section "Execution modes": entry rules (terminal or not), single `canPrompt()` guard, prompts on `stderr`, equivalent command line printed at the end, cancel handling, flows. `rules/architecture.md`: `src/prompts/` layer and the documented flow-service exception. Matching updates in `config`, `tests`, `verification`, `security`, `readme` and the Phase 4/5, add-feature, generate-readme, show-state and save-session skills.
+
+### Changed
+- The prompt guard now tests `stdin` and `stderr` (never `stdout`, which may be piped for data) and writes prompts to `stderr`. The former sample tested `process.stdout.isTTY`.
+- Outside a terminal, a destructive command without `--yes` is refused with a `ValidationError` (exit `2`) instead of silently aborting.
+
 ## [1.5.0] - 2026-08-01
 ### Added
 - Phase 5 offers `/sf-node-save-session` between batches when the session is running long or the context is heavily loaded (safety net before saturation; automatic chaining stays the default).

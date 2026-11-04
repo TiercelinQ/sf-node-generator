@@ -36,6 +36,7 @@ spawn(`sf data query --query "${soql}"`, { shell: true });
 - The **`sf --json` envelope is parsed defensively**: field names drift across `sf` versions; read `status` / `result`, guard missing fields, never assume an exact shape (`@rules/sf-cli.md`).
 - Numeric/enum **env values** (`SF_PAGE_SIZE`, `LOG_LEVEL`) are parsed and validated in `resolveConfig()` (`@rules/config.md`), never trusted raw.
 - **No `any` on external data** — `unknown` then narrow. An `any` that lets an unvalidated `sf` field flow into logic is a defect.
+- **Answers typed in the guided assistant are external data too**: an answer is `unknown`, then validated with the same validators as the matching flag (a path answer goes through `resolveWithin`, §3). The assistant never asks for a token or a password: the tool handles none (§4).
 
 ## 3. File paths — resolve and confine
 

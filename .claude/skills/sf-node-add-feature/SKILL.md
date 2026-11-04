@@ -48,6 +48,7 @@ Mark a `(recommended)` option for each closed question, inferred from the existi
 
 Decide before writing anything:
 - **In-contract** — a subcommand within an existing group, a new typed helper whose command/flags are verified against `sf-cli-reference/`, output routed through the `output/` formatters, a new non-secret config key. Proceed to the diff as a straightforward addition.
+- **Guided assistant** - when the project's Execution modes = `Flags + guided assistant` (read it in `docs/specs/01-scoping.md`), a new command also declares in the diff whether it gets an assistant (`src/prompts/<group>.prompts.ts`: the question table and the equivalent flag of each question, `@rules/cli.md`) and whether it is a flow (a flow service composing step services). With `Flags only`, adding an assistant is a **deviation** (new dependency `@clack/prompts`, new `src/prompts/`): declare it and wait for validation.
 - **Deviation** — a new domain beyond `service + command group`, a new dependency, a new coupling-mode behavior, a spawn outside the runner, a second file for one domain, or anything the locked contract does not cover. **STOP → declare the deviation in the diff, explain why → wait for validation before writing.** Never exceed the contract silently. **The diff + validation IS the protocol.**
 
 ## Step 3 — Architectural contract diff
@@ -66,7 +67,7 @@ Produce (in the user's language):
 [helper signature + the exact `sf` command/flags + the `sf-cli-reference/` section that verifies them — never invented]
 
 ### New CLI surface
-[subcommand name, args/flags, `--format` / `--output`, exit codes 0/1/2]
+[subcommand name, args/flags, `--format` / `--output`, exit codes 0/1/2; with the guided assistant: its question table and, for a flow, its steps and `--only` / `--skip` / `--dry-run`]
 
 ### Created test files (if Q4 = Yes)
 [mirror list under `test/`]

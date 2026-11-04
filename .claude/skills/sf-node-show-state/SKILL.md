@@ -23,7 +23,7 @@ The status block (in the user's language).
 Show only (in the user's language):
 
 Phase: [name] | Batch: [X/total] | Next: [expected action]
-Locked decisions: [coupling mode · output formats · execution shape · tests · calibration]
+Locked decisions: [coupling mode · output formats · execution modes · execution shape · tests · calibration]
 Open points: [list or "none"]
 
 For a delivered project (Phase 5 complete), add a version line when `docs/release/CHANGELOG.md` exists:

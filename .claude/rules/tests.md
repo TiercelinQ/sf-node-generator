@@ -36,6 +36,8 @@ If disabled:
 | `src/sf/project.ts` | sfdx-project | **mock the fs read** of `sfdx-project.json`: valid → parsed; missing / invalid → `Result` error |
 | `src/services/*` | Business logic | inject a **fake `SfHelpers`**; assert the business rule + `Result` flow (empty → `warning`, a helper failure propagated unmasked) |
 | `src/commands/*` | Wiring | invalid flags rejected (the exit-2 usage path); success maps to the right formatter; the service is mocked |
+| `src/prompts/*` (guided assistant only) | Assistant + guard | **mock `@clack/prompts`** (`vi.mock`): an assistant asks only the values not already known, returns a typed `Result`, a cancel (`isCancel`) returns the `Annulé.` error; `canPrompt()` is false when `stdin` or `stderr` is not a TTY and when `CI` is set (stub `process.stdin.isTTY` / `process.stderr.isTTY` / `process.env.CI`); no question is ever asked when the guard is false |
+| `src/services/<flow>.service.ts` (guided assistant only) | Flow | inject **fake step services**: steps run in order, `--only` / `--skip` select the steps, an unknown step name is a `ValidationError`, the first failing step stops the flow and the `Result` lists the steps already done |
 
 `Result<T>` and the named errors are owned by `@rules/architecture.md` / `@rules/errors.md` (`src/types.ts` + `src/errors.ts`) — the patterns below assume that shape.
 

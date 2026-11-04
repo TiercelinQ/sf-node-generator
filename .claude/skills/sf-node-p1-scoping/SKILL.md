@@ -1,6 +1,6 @@
 ---
 name: sf-node-p1-scoping
-description: Phase 1 of the sf-node CLI generation cycle — scoping in 4 user-facing questions (coupling mode, output formats, tests, interactivity) plus stated framework defaults (execution shape, distribution, config strategy — overridable on request), calibration announcement (number of batches), and writing of the scoping spec.
+description: Phase 1 of the sf-node CLI generation cycle — scoping in 4 user-facing questions (coupling mode, output formats, tests, execution modes) plus stated framework defaults (execution shape, distribution, config strategy — overridable on request), calibration announcement (number of batches), and writing of the scoping spec.
 model: sonnet
 ---
 
@@ -10,7 +10,7 @@ model: sonnet
 Project scoper — turn a vague CLI idea into a bounded, validated scope.
 
 ## Goal
-Lock the project parameters (coupling mode, output formats, tests, interactivity, execution shape, distribution, config strategy) before any analysis.
+Lock the project parameters (coupling mode, output formats, tests, execution modes, execution shape, distribution, config strategy) before any analysis.
 
 ## Deliverable
 `docs/specs/01-scoping.md` (written in the user's language) + on-screen summary.
@@ -37,11 +37,13 @@ Start with the objective, then establish the project name and root (name → loc
 
 > **Salesforce / SFDX detection (before the call)** — Salesforce coupling is **mandatory** (never a yes/no question); the detection only presets the **coupling mode** recommendation. Scan the objective for the SFDX cluster: `Salesforce`, `sf`, `org`, `sandbox`, `Apex`, `SOQL`, `sObject`, `metadata`, `deploy`/`retrieve`, `source`, `sfdx-project`, `package.xml`, `.forceignore`, `2GP`, `permission set`, `Dev Hub`. If the objective mentions a **local source tree** (project / source / deploy / retrieve / `sfdx-project.json` / `package.xml` / `.forceignore`), flip the coupling-mode recommendation to **`sfdx-project`**; otherwise recommend **`standalone`** (org reached via `sf`, no project). State the one-line rationale before the call.
 
+> **Execution modes detection (before the call)** - the recommendation for the execution-modes question comes from the objective, never from a fixed default. Read the objective: if it describes work that needs several inputs from a person in sequence (picking a file or a target, a confirmation, a dry run before the real run, the same action repeated on several items), recommend **`Flags + guided assistant`**; if it describes unattended or scheduled work, or a job with a single input, recommend **`Flags only`**. State the one-line rationale before the call, built from the objective's own wording.
+
 2. **`AskUserQuestion` — one call, 4 questions** (each with a recommended option and a one-line consequence so an Apex developer sees what the choice changes):
    - **Coupling mode** (@rules/sfdx-project.md · @rules/sf-cli.md): `standalone` — reach the org via `sf`, no project folder (recommended unless the objective needs a source tree) · `sfdx-project` — the tool runs inside an `sfdx-project.json` folder and gains `deploy` / `retrieve` / source commands. The detection above sets which is recommended. If `sfdx-project` is chosen, **afterwards** ask the SFDX project folder path as free-form text (`SFDX project folder? (the one holding sfdx-project.json)`), or detect an `sfdx-project.json` under the chosen root.
    - **Output formats** (@rules/output.md): `JSON + table` (recommended — JSON to pipe into `jq`/CI, table to read on screen) · `JSON only` · `CSV` · the **Other** option covers `xlsx`, a custom combination, or a multi-select. `AskUserQuestion`'s `multiSelect` may be used to pick several. All four formatters ship in `output/` regardless; the selection only sets the **default `--format`** and the formats surfaced in `--help` / the README.
    - **Automated tests** (`vitest`, @rules/tests.md): `Yes` (recommended — a `test/` suite and one extra delivery batch) · `No` (no test files, one fewer batch).
-   - **Runtime interactivity** (@rules/cli.md): `Non-interactive` (recommended — args in → run → exit, safe for cron/CI) · `Interactive prompts` (`@clack/prompts`, always guarded against a non-TTY / `--yes` run).
+   - **Execution modes** (@rules/cli.md): `Flags only` - one command with its arguments, or several command lines run one after the other (script, cron, CI); the tool never asks anything in the terminal · `Flags + guided assistant` - the same flags, plus: run with no argument in a terminal, the tool asks a series of questions (inputs, choices, confirmations) and then runs one or several commands for you, so nobody has to write the command line (`@clack/prompts`, always guarded: never asked outside a terminal, never under `--yes`). The detection above sets which one is recommended. Phase 2 then asks which commands form a multi-step flow, and Phase 3 fixes each assistant's questions.
 
 ## 2. Framework-fixed defaults (stated, not asked)
 
@@ -78,12 +80,12 @@ The real command count is not known yet (commands are elicited in Phase 2). The 
 
 Any library outside the validated stack is proposed and validated **here** — none can be added later without the deviation protocol (Phase 4). Candidates tied to the answers above:
 - a schema/validation lib (`zod`) — otherwise data crossing a trust boundary is validated with hand-written TS type guards (@rules/security.md).
-- `@clack/prompts` — only if **Runtime interactivity = Interactive** (the interactivity question).
+- `@clack/prompts` — only if **Execution modes = Flags + guided assistant** (the execution-modes question).
 
 State the resolved library list (it may be "none beyond the fixed stack").
 
 ## 5. Write the spec
 
-Write `docs/specs/01-scoping.md` (in the user's language) capturing: objective, **coupling mode** (+ the SFDX project path if `sfdx-project`), output formats (+ the default `--format`), tests (Yes/No), runtime interactivity, execution shape, distribution, config strategy, the framework-fixed defaults, the validated libraries, and the provisional calibration (size + number of batches — confirmed in Phase 2). If `docs/specs/` does not exist yet, create it (it lives in the generated project root).
+Write `docs/specs/01-scoping.md` (in the user's language) capturing: objective, **coupling mode** (+ the SFDX project path if `sfdx-project`), output formats (+ the default `--format`), tests (Yes/No), execution modes (`Flags only` | `Flags + guided assistant`), execution shape, distribution, config strategy, the framework-fixed defaults, the validated libraries, and the provisional calibration (size + number of batches — confirmed in Phase 2). If `docs/specs/` does not exist yet, create it (it lives in the generated project root).
 
 → Chain to `/sf-node-p2-featuring` after validation.

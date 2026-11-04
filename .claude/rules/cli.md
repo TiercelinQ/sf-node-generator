@@ -129,6 +129,7 @@ export function registerOrgCommands(program: Command, deps: { orgService: OrgSer
 - **Prefer `--format json` over a raw `--json` passthrough.** Exposing `sf`'s own `--json` envelope leaks the CLI-version-specific shape to the user; the tool's own `--format json` emits the tool's stable DTO. Keep `--json` out of the public surface unless a command explicitly documents an escape hatch.
 - **`--help` / `--version` are auto** (commander) — never re-implement them. `--version` reads `APP_VERSION` from `config.ts`.
 - **`--no-progress`** (global, boolean) disables the live progress display; the display is otherwise auto-on when `stderr` is a TTY (and off under `CI` or debug logging). It is a runtime UI toggle, not part of the config cascade — see `@rules/progress.md`.
+- **`--yes`** (global, boolean, only with `Flags + guided assistant`) skips every confirmation question; a runtime toggle like `--no-progress`, not part of the config cascade. A flow also takes `--only <steps>` / `--skip <steps>` and, when it has a dry-run step, `--dry-run`: see "Execution modes" below.
 - Validate a flag's value in the command before calling the service; an out-of-range/unknown value is a `ValidationError` → exit `2`.
 
 ## Exit-code contract
@@ -155,24 +156,92 @@ The discipline that makes the tool pipeable and scriptable:
 - The **progress reporter** (`src/progress.ts`) is the sanctioned live-UI surface on **`stderr`** (steps/spinner + bar), TTY-gated and silent when piped/cron/CI — it never touches stdout, so a piped run stays clean. The reporter and `pino` are the only `stderr` writers (`@rules/progress.md`).
 - Zero `console.log` in delivered code — data goes through `output/`, diagnostics through `log.*` (`@rules/logging.md`).
 
-This separation is what makes the tool **cron- and Windows Task Scheduler-friendly**: a scheduled run redirects `stdout` to a data file and `stderr` to a log, and the exit code drives success/failure alerting — no interactive prompt, no banner on stdout.
+This separation is what makes the tool **cron- and Windows Task Scheduler-friendly**: a scheduled run redirects `stdout` to a data file and `stderr` to a log, and the exit code drives success/failure alerting — the prompt guard never lets a question run there, and no banner goes to stdout.
 
-## Non-interactive by default · `@clack/prompts` opt-in
+## Execution modes · flags first, guided assistant opt-in
 
-- The tool is **non-interactive by default**: args in → run → exit. This is the contract for cron/CI. A command must be fully drivable by flags.
-- Interactive prompts (`@clack/prompts`) are **opt-in per project** (Phase 1) and only for a genuinely interactive invocation. **Guard every prompt**: never prompt when `stdout`/`stdin` is not a TTY, or when a `--yes` / non-interactive flag is set. A non-TTY run without `--yes` takes the **safe default** (abort a destructive action) rather than blocking.
+Two modes, fixed in Phase 1 ("Execution modes") and written in `docs/specs/01-scoping.md`:
+
+- **`Flags only`** (the contract of cron/CI): args in → run → exit. A command is fully drivable by flags, one command line or several lines one after the other. Nothing is ever asked in the terminal.
+- **`Flags + guided assistant`** (`@clack/prompts`): the same flags, plus an assistant that collects the inputs with a series of questions and then runs one or several commands, so nobody has to write the command line. The assistant is an addition, never a replacement: every question has an equivalent flag, and the flag path stays the contract for scripts.
+
+The rest of this section applies only to `Flags + guided assistant`.
+
+### Entry rules
+
+| Invocation | In a terminal (`stdin` and `stderr` are TTY, no `CI`) | Outside a terminal |
+| ---------- | ----------------------------------------------------- | ------------------ |
+| No argument | the assistant starts | usage error, help on `stderr`, exit `2` |
+| A command, every required value given | runs, asks nothing (a destructive command asks to confirm unless `--yes`) | runs (a destructive command without `--yes`: `ValidationError`, exit `2`) |
+| A command, some required values missing | hybrid: only the missing values are asked | usage error naming the missing flags, exit `2` |
+
+- **One guard** decides whether a question may be asked: `src/prompts/guard.ts`, `canPrompt()`. It tests `stdin` **and** `stderr` (never `stdout`, which may be piped for data) and `CI`. No other module reads `isTTY` for this purpose.
+- **Prompts are written to `stderr`** (`output: process.stderr`); `stdout` stays data-only.
+- **`--yes`** skips every confirmation question. It never replaces a required value: a missing one stays an error (exit `2`) outside a terminal.
+- **Cancel** (Esc, Ctrl+C): the assistant returns a `Result` error `Annulé.` (`kind: "error"`), the command writes it to `stderr` and sets exit `1`; nothing was executed.
+- **Equivalent command line**: when the assistant finishes, it writes the equivalent command line to `stderr` (values with spaces quoted), so the user learns the flags.
+- **Typed answers are external data**: an answer is `unknown`, then validated with the **same validators as the flags** (a bad value is a `ValidationError`, exit `2`). A prompt never carries a secret: the tool handles none (`@rules/security.md`).
+
+### Where the assistant lives
+
+- `src/prompts/<group>.prompts.ts`: one adapter function per assistant. It asks only the values still missing, returns `Promise<Result<Input>>` with a typed DTO, and holds **no business logic, no service call, no `sf` call, no `process.exit`**. It imports `@clack/prompts`, `types` and `guard.ts` only.
+- The command `.action` stays a thin adapter: resolve flags → if required values are missing and `canPrompt()` → call the prompts function → validate → call **one** service → format. A command that has no assistant is unchanged.
+- The question list of each assistant is the table of `docs/specs/03-surfaces.md` (question, type, default, validation, equivalent flag, required outside a terminal).
 
 ```ts
-// A prompt must never block a scheduled / piped run.
-import { confirm, isCancel } from "@clack/prompts";
+// src/prompts/guard.ts - the single place that decides whether a question may be asked.
+export function canPrompt(): boolean {
+  return Boolean(process.stdin.isTTY && process.stderr.isTTY) && !process.env.CI; // never stdout: it may be piped for data
+}
+```
 
-async function confirmDestructive(message: string, opts: { yes: boolean }): Promise<boolean> {
-  if (opts.yes) return true;                       // explicit consent → proceed
-  if (!process.stdout.isTTY) return false;         // non-interactive (cron/pipe) → safe default: abort
-  const answer = await confirm({ message });
+```ts
+// src/prompts/data.prompts.ts - adapter: asks the missing values, returns a typed Result. Illustrative fields: the real ones come from the Phase 3 table.
+import { text, confirm, isCancel } from "@clack/prompts";
+import type { Result } from "../types";
+
+export interface QueryInput { soql: string; dryRun: boolean }
+
+export async function askQueryInput(known: Partial<QueryInput>): Promise<Result<QueryInput>> {
+  const cancelled: Result<never> = { ok: false, error: { kind: "error", message: "Annulé." } };
+  let soql = known.soql;                                   // equivalent flag/argument: <soql>
+  if (soql === undefined) {
+    const a = await text({ message: "Requête SOQL ?", output: process.stderr, validate: (v) => (v ? undefined : "Valeur requise.") });
+    if (isCancel(a)) return cancelled;
+    soql = a;
+  }
+  let dryRun = known.dryRun;                               // equivalent flag: --dry-run
+  if (dryRun === undefined) {
+    const a = await confirm({ message: "Simuler d'abord ?", output: process.stderr });
+    if (isCancel(a)) return cancelled;
+    dryRun = a;
+  }
+  return { ok: true, data: { soql, dryRun } };
+}
+```
+
+```ts
+// A destructive command confirms first, through the same guard. Outside a terminal it refuses instead of blocking.
+import { confirm, isCancel } from "@clack/prompts";
+import { canPrompt } from "../prompts/guard";
+import { ValidationError } from "../errors";
+
+async function confirmDestructive(message: string, yes: boolean): Promise<boolean> {
+  if (yes) return true;                                    // explicit consent → proceed
+  if (!canPrompt()) throw new ValidationError("Confirmation impossible hors terminal interactif : relancer avec --yes.");
+  const answer = await confirm({ message, output: process.stderr }); // prompt on stderr, never stdout
   return !isCancel(answer) && answer === true;
 }
 ```
+
+### Flows (several steps in one command)
+
+A flow is **one command** that calls **one flow service** (`src/services/<flow>.service.ts`), which composes the step services injected by `cli.ts` (`@rules/architecture.md`). The command is still a thin adapter.
+
+- **Steps** run in the order of the Phase 2 sheet, each wrapped in a `progress.step`. The first step that fails stops the flow; the flow service returns a `Result` that lists the steps already done, the command writes that list to `stderr`, exit `1`.
+- **Step selection** (when Phase 2 allowed it): `--only <steps>` and `--skip <steps>` take step names (comma separated); an unknown name is a `ValidationError` (exit `2`); `--only` and `--skip` together are a usage error. The assistant opens with "everything, or choose the steps" (a `multiselect`).
+- **Dry run** (when the flow has that step): `--dry-run` runs the flow up to the effect and stops at a preview of it; the assistant asks "dry run first?" before the real run.
+- **Repeat** (when Phase 2 allowed it): the loop lives in the command `.action` (adapter); each pass is one call of the flow service with its own inputs, and a failed pass ends the loop. The closing question "another one?" is asked only in a terminal.
 
 ## Anti-patterns — what NOT to do
 
@@ -182,10 +251,12 @@ async function confirmDestructive(message: string, opts: { yes: boolean }): Prom
 - **Do not** write data to stderr or a log/human message to stdout — stdout is data only, stderr is logs + messages.
 - **Do not** `console.log` a dataset — route it through an `output/` formatter (`@rules/output.md`).
 - **Do not** expose `sf`'s raw `--json` envelope as the public output — emit the tool's stable DTO via `--format json`.
-- **Do not** prompt (`@clack/prompts`) when stdout is not a TTY or `--yes` is set — it would hang a cron/CI run.
+- **Do not** prompt (`@clack/prompts`) outside `src/prompts/`, without going through `canPrompt()`, or when `stdin` or `stderr` is not a TTY, under `CI`, or with `--yes` — it would hang a cron/CI run. **Do not** test `process.stdout.isTTY` for this guard (stdout may be piped for data) and **do not** let a prompt write to stdout.
+- **Do not** put business logic or a service call in a prompts file, or make a question that has no equivalent flag: the flag path is the contract for scripts.
+- **Do not** let `--yes` fill a required value, or run an assistant when no argument is given outside a terminal: that is a usage error (exit `2`).
 - **Do not** re-implement `--help` / `--version` — commander provides them.
 - **Do not** let a raw exception or a stack trace reach stdout — the global handlers log it and exit `1` (`@rules/errors.md`).
 
 ## Integrity verification
 
-Detailed in `@rules/verification.md`. Key points: `cli.ts` is the only composition root and the only place `process.exit` is called (commands set `process.exitCode`); exit codes mapped at the boundary only — `toExitCode` for thrown errors, the fixed `warning → 0 / error → 1` rule for `Result` failures, never a scattered magic number; `stdout` carries data only and `stderr` carries logs + human messages, zero `console.log`; commands stay thin adapters (validate flags → one service → `output/` formatter), no business logic and no direct `sf` call; `--help`/`--version` auto-provided by commander, never re-implemented; prompts (if opted in) guarded against non-TTY / `--yes` runs. Run silently; report only on a discrepancy.
+Detailed in `@rules/verification.md`. Key points: `cli.ts` is the only composition root and the only place `process.exit` is called (commands set `process.exitCode`); exit codes mapped at the boundary only — `toExitCode` for thrown errors, the fixed `warning → 0 / error → 1` rule for `Result` failures, never a scattered magic number; `stdout` carries data only and `stderr` carries logs + human messages, zero `console.log`; commands stay thin adapters (validate flags → one service → `output/` formatter), no business logic and no direct `sf` call; `--help`/`--version` auto-provided by commander, never re-implemented; with `Flags + guided assistant`: prompts only in `src/prompts/`, behind the single `canPrompt()` guard (`stdin` and `stderr` TTY, no `CI`), written to `stderr`, every question has an equivalent flag, typed answers validated like flags, no argument outside a terminal is a usage error (exit `2`), a flow is one command calling one flow service. Run silently; report only on a discrepancy.

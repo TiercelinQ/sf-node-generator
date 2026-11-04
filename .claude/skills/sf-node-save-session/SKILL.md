@@ -42,6 +42,7 @@ Next batch: [X+1/total] (if Phase 5)
 - Target: headless CLI · Node.js 24 LTS+ · ESM · TypeScript strict · commander
 - Coupling mode: [standalone | sfdx-project]
 - Output formats: [json · csv · xlsx · table]
+- Execution modes: [Flags only | Flags + guided assistant (flows: [list or none])]
 - Execution shape: [commands only | + standalone scripts]
 - Tests: [Yes (Vitest) / No]
 - Calibration: [Small 3 batches / Medium-Large 4 batches] (+1 test batch if tests enabled)

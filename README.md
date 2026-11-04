@@ -12,9 +12,9 @@ Unified edition: the full generation pipeline **plus** post-delivery maintenance
 
 A structured prompt system that generates complete, production-ready Salesforce CLI tools through a 5-phase cycle, then maintains them:
 
-1. **Scoping** - 4 user-facing questions (coupling mode `standalone` org via `sf` / `sfdx-project` inside an SFDX folder, output formats, tests, runtime interactivity), each option with a plain-language consequence. Execution shape, distribution, and config strategy are stated framework defaults (overridable on request), not questions. No palette, no UI (headless).
-2. **Featuring** - command elicitation, MoSCoW prioritization, locked sizing.
-3. **Surfaces** - map each validated command onto its CLI surface (positional args, flags, input source, output format + destination, exit codes).
+1. **Scoping** - 4 user-facing questions (coupling mode `standalone` org via `sf` / `sfdx-project` inside an SFDX folder, output formats, tests, execution modes: flags only or flags + guided assistant), each option with a plain-language consequence. Execution shape, distribution, and config strategy are stated framework defaults (overridable on request), not questions. No palette, no UI (headless).
+2. **Featuring** - command elicitation, MoSCoW prioritization, execution flows (multi-step commands, when the guided assistant is enabled), locked sizing.
+3. **Surfaces** - map each validated command onto its CLI surface (positional args, flags, input source, output format + destination, exit codes, and with the guided assistant the question table of each command and the `--only` / `--skip` / `--dry-run` flags of each flow).
 4. **Architecture** - full file tree, command registry (command to service to `sf` helper to formatter), `Result<T>` + named errors, config keys - locked before any code is written.
 5. **Development** - auto-chained batch delivery, executable verification (typecheck, lint, build, smoke `--help`).
 
@@ -41,6 +41,7 @@ Every generated tool enforces the same layered architecture, the `Result<T>` + s
 | Secrets         | Held by the `sf` OS keychain - never in a file                    |
 | Logging         | `pino` (file + stderr, `pino-pretty` in dev)                       |
 | Runtime feedback | Hand-rolled progress reporter - steps/spinner + bar on stderr, auto-TTY, `--no-progress` |
+| Execution modes | Flags (always) · guided assistant with `@clack/prompts` (opt-in): no argument in a terminal starts the questions |
 | Output          | Formatters - JSON · CSV (`csv-stringify`) · xlsx (`exceljs`) · console table |
 | Error contract  | `Result<T>` + named errors + exit-code mapping (0/1/2)             |
 | Build           | `tsup` (bundle `dist/cli.js`, shebang) · `tsx` (dev)              |
@@ -136,7 +137,7 @@ Every generated tool carries a SemVer version and a changelog at `docs/release/C
 - **`stderr` carries logs and human messages** - `pino` writes there and to a log file; `stdout` is never a log destination.
 - **Exit codes**: `0` success · `1` runtime error · `2` usage/validation error - mapped once at the `cli.ts` boundary, never scattered.
 - **`Result<T>`** flows up from `services`/`sf`/`output`; the command reads `result.ok`; the boundary maps a failure to an exit code.
-- **Non-interactive by default** (cron / Windows Task Scheduler friendly); interactive prompts (`@clack/prompts`) are opt-in and guarded against a non-TTY run.
+- **Flags are the contract** (cron / Windows Task Scheduler friendly). A **guided assistant** (`@clack/prompts`) is opt-in in Phase 1: with no argument in a terminal the tool asks the questions and runs one or several commands; with some flags given it asks only the missing values; outside a terminal it never asks (no argument is a usage error, exit `2`). Prompts go to `stderr`, every question has an equivalent flag, and the equivalent command line is printed at the end.
 - **Runtime progress** on `stderr` (steps/spinner + bar) shows the operations a command performs - auto-on a TTY, silent when piped / cron / CI, `--no-progress` to disable; `stdout` stays clean.
 
 ---

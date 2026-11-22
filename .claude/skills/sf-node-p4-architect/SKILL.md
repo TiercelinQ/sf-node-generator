@@ -25,7 +25,7 @@ Present (in the user's language, as plain Markdown — never inside a code block
 
 1. **Complete project tree** (model: `@rules/architecture.md`), tailored to the chosen commands, coupling mode, and execution shape — with the **role of each file**. Conditionals:
    - `src/sf/project.ts` ships **only** in `sfdx-project` mode; in `standalone` mode `src/sf/` is `runner.ts` + `helpers.ts`.
-   - `scripts/` exists **only** when the execution shape (Phase 3) includes standalone one-off scripts.
+   - `scripts/` exists **only** when the execution shape (Phase 1) includes standalone one-off scripts.
    - `test/` exists **only** when tests were enabled in Phase 1.
    - `src/progress.ts` (the runtime progress reporter) ships in **every** tool — steps/spinner + bar on `stderr`, auto-TTY, `--no-progress` (`@rules/progress.md`).
    - `src/prompts/` (`guard.ts` + one `<group>.prompts.ts` per command group that has an assistant) ships **only** when Execution modes = `Flags + guided assistant`; each flow from Phase 2 adds one `src/services/<flow>.service.ts` that composes the step services, called by one command (`@rules/cli.md`, `@rules/architecture.md`). With `Flags only`, none of these exist.

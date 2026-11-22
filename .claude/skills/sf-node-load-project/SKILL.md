@@ -17,7 +17,7 @@ A one-block confirmation (in the user's language) of the loaded project.
 
 ---
 
-Prerequisite: invoked from the target project root — `.claude/` and `docs/specs/04-architect.md` present.
+Prerequisite: invoked from the target project root, `.claude/` present.
 
 > If the project root has not been provided in this flow, first ask (plain text, non-enumerable): `Project root to load? (folder path)`. Read everything below relative to that root.
 

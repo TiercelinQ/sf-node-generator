@@ -44,6 +44,7 @@ Project root to maintain? (folder path, e.g. C:\projects\sf-export)
 - add a command / feature → `/sf-node-add-feature`
 - fix a bug → `/sf-node-fix-issue`
 - restructure existing code → `/sf-node-refactor-code`
+- refresh the README → `/sf-node-generate-readme`
 - cut a release / bump the version → `/sf-node-release`
 - verify the build / run checks → `/sf-node-run-tests`
 

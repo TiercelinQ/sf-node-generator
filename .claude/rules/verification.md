@@ -1,6 +1,6 @@
 # Verification rules — single source of truth
 
-> Centralized, reusable verification for the whole framework. Referenced by `/sf-node-p5-development`, `/sf-node-add-feature`, `/sf-node-fix-issue`, and `/sf-node-run-tests` — never duplicated in those skills.
+> Centralized, reusable verification for the whole framework. Referenced by `/sf-node-p5-development`, `/sf-node-add-feature`, `/sf-node-fix-issue`, `/sf-node-refactor-code`, `/sf-node-release`, `/sf-node-load-project`, and `/sf-node-run-tests` — never duplicated in those skills.
 > Two parts: **executable verification** (run real commands) and **static integrity** (read the code). Run silently; report only on a discrepancy.
 
 ---

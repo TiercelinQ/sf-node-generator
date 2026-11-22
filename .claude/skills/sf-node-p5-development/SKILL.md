@@ -77,7 +77,7 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
 
   ## Origin
 
-  Framework: sf-node v1.6.0
+  Framework: sf-node v2.0.0
 
   ## Business context
 

@@ -2,6 +2,7 @@
 name: sf-node-show-state
 description: Show the current state of the generation project — phase, batch, next action, locked decisions, open points.
 model: haiku
+effort: low
 ---
 
 # /sf-node-show-state — Current state

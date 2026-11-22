@@ -2,6 +2,7 @@
 name: sf-node-generate-readme
 description: Analyze the specs and source of an existing sf-node CLI project and generate its README.md (objective, commands, stack, tree, config keys, Salesforce prerequisite, output formats, install & run). Invoke from the target project root.
 model: sonnet
+effort: low
 ---
 
 # /sf-node-generate-readme — Generate the README.md

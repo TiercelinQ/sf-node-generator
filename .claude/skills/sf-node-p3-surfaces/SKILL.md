@@ -1,7 +1,8 @@
 ---
 name: sf-node-p3-surfaces
 description: Phase 3 of the sf-node generation cycle — map each validated v1.0 command onto its concrete CLI surface (subcommands, positional args, flags, I/O sources, output format, exit codes), grouped confirmation, validated synthesis written to the interface spec before Phase 4.
-model: sonnet
+model: opus
+effort: medium
 ---
 
 # /sf-node-p3-surfaces — Surfaces (CLI contract)

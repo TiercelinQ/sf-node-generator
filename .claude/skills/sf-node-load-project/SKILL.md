@@ -2,6 +2,7 @@
 name: sf-node-load-project
 description: Load an existing sf-node CLI project (Phase 5 complete) from its specs, README, and source — bring the generator rules to bear on already-delivered code. Invoke from the target project root.
 model: sonnet
+effort: low
 ---
 
 # /sf-node-load-project — Load an existing project

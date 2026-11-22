@@ -1,7 +1,8 @@
 ---
 name: sf-node-p4-architect
 description: Phase 4 of the sf-node generation cycle — complete architectural contract (file tree + role of each file, command registry command→service→sf→output, Result<T> + named errors, config keys, coupling mode, output formatters, source→test mapping), written to the contract spec and locked after validation.
-model: sonnet
+model: opus
+effort: high
 ---
 
 # /sf-node-p4-architect — Architectural contract

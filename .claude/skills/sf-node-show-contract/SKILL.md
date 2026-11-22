@@ -2,6 +2,7 @@
 name: sf-node-show-contract
 description: Show the complete validated architectural contract (Phase 4) — the file tree with each file's role and the command registry (command → service → sf helper → output). Reads docs/specs/04-architect.md.
 model: haiku
+effort: low
 ---
 
 # /sf-node-show-contract — Validated architectural contract

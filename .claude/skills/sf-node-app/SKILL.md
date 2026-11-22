@@ -2,6 +2,7 @@
 name: sf-node-app
 description: Start menu of the sf-node CLI generator — new tool, resume an existing session, load a delivered project, or maintain one. Invoke at the beginning of a conversation or at any time via /sf-node-app.
 model: haiku
+effort: low
 ---
 
 # /sf-node-app — Start / resume / maintenance menu

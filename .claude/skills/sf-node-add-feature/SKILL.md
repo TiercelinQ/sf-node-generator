@@ -2,6 +2,7 @@
 name: sf-node-add-feature
 description: Add a command, subcommand, service, or sf helper to a headless Salesforce CLI tool already delivered by this framework. Use when the user asks to add or modify functionality on an existing project, respecting the locked architectural contract and the security rules.
 model: sonnet
+effort: high
 ---
 
 # /sf-node-add-feature — Add a command to a delivered tool

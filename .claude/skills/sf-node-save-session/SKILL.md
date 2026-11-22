@@ -2,6 +2,7 @@
 name: sf-node-save-session
 description: Save the full state of the generation session into docs/sessions/SESSION_[tool]_S[N].md — phase, batches, locked decisions, open points, referencing the specs. Invoke at the end of a session.
 model: haiku
+effort: low
 ---
 
 # /sf-node-save-session — Session save

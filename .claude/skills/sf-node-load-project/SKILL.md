@@ -2,6 +2,7 @@
 name: sf-node-load-project
 description: Load an existing sf-node CLI project (Phase 5 complete) from its specs, README, and source — bring the generator rules to bear on already-delivered code. Invoke from the target project root.
 model: sonnet
+effort: low
 ---
 
 # /sf-node-load-project — Load an existing project
@@ -17,7 +18,7 @@ A one-block confirmation (in the user's language) of the loaded project.
 
 ---
 
-Prerequisite: invoked from the target project root — `.claude/` and `docs/specs/04-architect.md` present.
+Prerequisite: invoked from the target project root, `.claude/` present.
 
 > If the project root has not been provided in this flow, first ask (plain text, non-enumerable): `Project root to load? (folder path)`. Read everything below relative to that root.
 

@@ -2,6 +2,7 @@
 name: sf-node-save-memory
 description: Memorize an error not to repeat, a structural decision, or a generation preference — persisted into Claude Code native memory (project memory folder + MEMORY.md index), available in later sessions.
 model: haiku
+effort: low
 ---
 
 # /sf-node-save-memory — Memorization
@@ -24,14 +25,14 @@ Offered after resolving an anomaly ("Do you want to remember this point?"), or o
 
 ## Step 1 — Categorize
 
-Ask what to retain (in the user's language):
+Ask what to retain with `AskUserQuestion` (single question, 4 clickable options, in the user's language, the recommended one first):
 
-What do you want to remember?
+- A. An error not to repeat (describe the error and the chosen fix)
+- B. A structural decision (describe the choice and the reason)
+- C. A generation preference (describe the desired behavior)
+- D. Other (describe freely)
 
-A. An error not to repeat — describe the error and the chosen fix
-B. A structural decision — describe the choice and the reason
-C. A generation preference — describe the desired behavior
-D. Other — describe freely
+Then ask the description as plain text (free-form).
 
 ## Step 2 — Persist via Claude Code native memory
 

@@ -2,7 +2,7 @@
 
 > Senior Node.js / TypeScript / Salesforce CLI (`sf` v2) expert. Headless command-line tools and automation scripts, **mandatorily coupled to Salesforce**, for personal and professional use. Layered architecture (`commands` → `services` → `sf` / `output`, composition root `cli.ts`).
 > Do not explain general programming concepts. Explain only the Node.js / TypeScript / CLI / `sf` specifics that deviate from what a generic senior developer would expect.
-> Framework version: 1.6.0. This version is recorded in each generated tool's `CLAUDE.md`.
+> Framework version: 2.0.0. This version is recorded in each generated tool's `CLAUDE.md`.
 
 ---
 

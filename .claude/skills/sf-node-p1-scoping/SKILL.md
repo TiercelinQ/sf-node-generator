@@ -1,7 +1,8 @@
 ---
 name: sf-node-p1-scoping
 description: Phase 1 of the sf-node CLI generation cycle — scoping in 4 user-facing questions (coupling mode, output formats, tests, execution modes) plus stated framework defaults (execution shape, distribution, config strategy — overridable on request), calibration announcement (number of batches), and writing of the scoping spec.
-model: sonnet
+model: opus
+effort: high
 ---
 
 # /sf-node-p1-scoping — Scoping

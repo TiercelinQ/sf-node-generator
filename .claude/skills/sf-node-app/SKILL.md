@@ -2,6 +2,7 @@
 name: sf-node-app
 description: Start menu of the sf-node CLI generator — new tool, resume an existing session, load a delivered project, or maintain one. Invoke at the beginning of a conversation or at any time via /sf-node-app.
 model: haiku
+effort: low
 ---
 
 # /sf-node-app — Start / resume / maintenance menu
@@ -44,6 +45,7 @@ Project root to maintain? (folder path, e.g. C:\projects\sf-export)
 - add a command / feature → `/sf-node-add-feature`
 - fix a bug → `/sf-node-fix-issue`
 - restructure existing code → `/sf-node-refactor-code`
+- refresh the README → `/sf-node-generate-readme`
 - cut a release / bump the version → `/sf-node-release`
 - verify the build / run checks → `/sf-node-run-tests`
 

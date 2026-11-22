@@ -1,7 +1,8 @@
 ---
 name: sf-node-p2-featuring
 description: Phase 2 of the sf-node CLI generation cycle — command elicitation, MoSCoW prioritization, v1.0 scope, calibration confirmed here, blocking validation before Phase 3, written to the featuring spec.
-model: sonnet
+model: opus
+effort: high
 ---
 
 # /sf-node-p2-featuring — Requirements analysis

@@ -2,6 +2,7 @@
 name: sf-node-p5-development
 description: Phase 5 of the sf-node generation cycle — development and batch delivery, files written directly to disk, executable verification (install/typecheck/lint/build/smoke), final README + CLAUDE.md + .claude/settings.json.
 model: sonnet
+effort: medium
 ---
 
 # /sf-node-p5-development — Batch development
@@ -76,7 +77,7 @@ Apply `@rules/verification.md` — both the executable commands (§A, blocking w
 
   ## Origin
 
-  Framework: sf-node v1.6.0
+  Framework: sf-node v2.0.0
 
   ## Business context
 
